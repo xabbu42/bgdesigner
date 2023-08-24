@@ -1,3 +1,15 @@
-<h1>Welcome to your library project</h1>
-<p>Create your package using @sveltejs/package and preview/showcase your work with SvelteKit</p>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
+<script>
+	import "iconify-icon";
+	import { render,allpathes } from "../lib/render.ts";
+	export let data;
+	let name = 'jass.json';
+	let things = [];
+	const templates = [...allpathes(data)].filter((v) => v.startsWith('.'));
+	things = render(templates[0].substring(1), data, data);
+</script>
+<h1>{name}</h1>
+{#each things as thing}
+<div>
+	{@html thing}
+</div>
+{/each}

@@ -1,5 +1,5 @@
 
-function* allpathes(obj, path = []) {
+export function* allpathes(obj, path = []) {
     for (let key in obj) {
         const newpath = path.concat(key);
         yield newpath.join('.');

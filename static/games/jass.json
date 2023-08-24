@@ -1,0 +1,19 @@
+{
+	"symbols": {
+		"suits" : {
+			"heart": "{{mdi:cards-heart color: red}}",
+			"diamond": "{{mdi:cards-diamond color: red}}",
+			"spade": "{{mdi:cards-spade}}",
+			"club": "{{mdi:cards-club}}"
+		},
+		"values" : ["A", "K", "Q", "J", "10", "9", "8", "7", "6"]
+	},
+
+	"variables": {
+		"SUIT": ["{{heart}}", "{{diamond}}", "{{spade}}", "{{club}}"],
+		"VAL": "{{values}}"
+	},
+
+	".cards": "<div><h1>{{name}}</h1></div>",
+	"cards": [{"name": "{{SUIT}}{{VAL}}"}]
+}
