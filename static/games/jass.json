@@ -14,6 +14,6 @@
 		"VAL": "{{values}}"
 	},
 
-	".cards": "<div><h1>{{name}}</h1></div>",
+	".cards": "<div class=card><h1><nobr>{{name}}</nobr></h1></div>",
 	"cards": [{"name": "{{SUIT}}{{VAL}}"}]
 }
