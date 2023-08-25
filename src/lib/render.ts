@@ -62,7 +62,7 @@ export function render(path, data, game) {
 
 	let icon = path.match(/^([\w-]+:[\w-]+)\s*(.*)$/);
 	if (icon)
-		return `<iconify-icon icon="${icon[1]}" style="${icon[2]}"></iconify-icon>`;
+		return `<iconify-icon inline icon="${icon[1]}" style="${icon[2]}"></iconify-icon>`;
 
 	let value = getpath(data, path);
 	if (value === undefined) {
