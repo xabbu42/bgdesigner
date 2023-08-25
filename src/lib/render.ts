@@ -1,5 +1,5 @@
 
-export function* allpathes(obj, path = []) {
+export function* allpathes(obj: object, path: string[] = []) {
     for (let key in obj) {
         const newpath = path.concat(key);
         yield newpath.join('.');
@@ -8,7 +8,7 @@ export function* allpathes(obj, path = []) {
     }
 }
 
-function* allstrings(obj) {
+function* allstrings(obj: object) {
     for (let key in obj) {
 		switch (typeof(obj[key])) {
 			case "object":
@@ -21,7 +21,7 @@ function* allstrings(obj) {
     }
 }
 
-function getpath(obj, path) {
+function getpath(obj: object, path: string) {
 	let value = obj;
 	let prefix = '';
 	for (let part of path.split('.')) {
@@ -34,7 +34,7 @@ function getpath(obj, path) {
 	return prefix ? value[prefix] : value;
 }
 
-function repls(value, data, game) {
+function repls(value: any, data: object, game: object) {
 	const collections = {};
 	if (typeof value !== 'object')
 		value = {value};
@@ -58,7 +58,7 @@ function repls(value, data, game) {
 	return all;
 }
 
-export function render(path, data, game) {
+export function render(path: string, data: object, game: object) {
 
 	let icon = path.match(/^([\w-]+:[\w-]+)\s*(.*)$/);
 	if (icon)
