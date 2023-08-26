@@ -3,5 +3,5 @@
 @tailwind utilities;
 
 .card {
-	@apply  w-[64mm] h-[89mm] p-4 bg-slate-100 shadow-xl
+	@apply  w-[64mm] h-[89mm] p-4 bg-slate-200 shadow-xl grid place-content-center
 }
