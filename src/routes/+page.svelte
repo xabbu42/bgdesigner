@@ -8,15 +8,10 @@
 	things = render(templates[0].substring(1), data, data).flat(Infinity);
 </script>
 <h1>{name}</h1>
-<div class="game">
+<div class="flex flex-wrap">
 	{#each things as thing}
-		<div class="thing">
+		<div class="p-1">
 			{@html thing}
 		</div>
 	{/each}
 </div>
-
-<style>
-	.game {display: flex; flex-wrap: wrap}
-	.thing {padding: 0.5em}
-</style>
