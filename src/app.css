@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-.card {
-	@apply  w-[64mm] h-[89mm] p-4 bg-slate-200 shadow-xl grid place-content-center
+@layer components {
+	.card {
+		@apply  w-[64mm] h-[89mm] text-4xl p-4 bg-slate-200 shadow-xl grid place-content-center
+	}
 }
