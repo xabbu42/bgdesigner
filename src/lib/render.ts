@@ -64,14 +64,15 @@ export function render(path: string, data: object, game: object) {
 	if (icon)
 		return `<iconify-icon inline icon="${icon[1]}" style="${icon[2]}"></iconify-icon>`;
 
-	let value = getpath(data, path);
-	if (value === undefined) {
-		let fullpath = [...allpathes(game)].filter((v) => v.endsWith('.' + path));
-		if (fullpath.length == 1) {
-			path = fullpath[0];
-			value = getpath(game, path);
-		}
-	}
+	let regexp = new RegExp('(^|\\.)' + path.replaceAll('.', '\.').replaceAll('*', '.*') + '$');
+	let pathes = [...allpathes(data)].filter((v) => regexp.test(v));
+	if (pathes.length == 0)
+		pathes = [...allpathes(game)].filter((v) => regexp.test(v));
+	if (pathes.length == 0)
+		throw `Unknown path ${path}`;
+	if (pathes.length > 1)
+		throw `Ambigious path ${path}: ${pathes.join(',')}`;
+	let value = getpath(data, pathes[0]) || getpath(game, pathes[0]);
 
 	switch (typeof value) {
 		case "string":
@@ -86,7 +87,7 @@ export function render(path: string, data: object, game: object) {
 				let templkeys = [...allpathes(game)].filter((v) => v.startsWith('@') && path.startsWith(v.substring(1))).sort((a, b) => a.length - b.length);
 				if (templkeys.length > 0) {
 					const result = [];
-					const subdata = Object.create(data);
+					const subdata = {};
 					for (let repl of repls(value, data, game)) {
 						Object.assign(subdata, repl);
 						for (let k in value)
