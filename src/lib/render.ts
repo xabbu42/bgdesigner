@@ -66,7 +66,7 @@ export function render(path: string, data: object, game: object) {
 
 	let value = getpath(data, path);
 	if (value === undefined) {
-		let fullpath = [...allpathes(game)].filter((v) => v.endsWith(path));
+		let fullpath = [...allpathes(game)].filter((v) => v.endsWith('.' + path));
 		if (fullpath.length == 1) {
 			path = fullpath[0];
 			value = getpath(game, path);
