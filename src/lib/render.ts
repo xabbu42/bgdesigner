@@ -83,7 +83,7 @@ export function render(path: string, data: object, game: object) {
 			if (Array.isArray(value)) {
 				return Array.from(value.keys()).map((v) => render(path + '.' + v, data, game));
 			} else {
-				let templkeys = [...allpathes(game)].filter((v) => v.startsWith('.') && path.startsWith(v.substring(1))).sort((a, b) => a.length - b.length);
+				let templkeys = [...allpathes(game)].filter((v) => v.startsWith('@') && path.startsWith(v.substring(1))).sort((a, b) => a.length - b.length);
 				if (templkeys.length > 0) {
 					const result = [];
 					const subdata = Object.create(data);
