@@ -1,10 +1,10 @@
 <script>
 	import "iconify-icon";
-	import { render,allpathes } from "../../../lib/render.ts";
+	import { render,alltemplates,getpath } from "../../../lib/render.ts";
 	export let data;
 	let things = [];
-	const templates = [...allpathes(data)].filter((v) => v.startsWith('@'));
-	$: things = render(templates[0].substring(1), data).flat(Infinity);
+	const templates = [...alltemplates(data)];
+	$: things = templates.map((v) => getpath(data, v.substring(1)) ? render(v.substring(1), data) : []).flat(Infinity);
 </script>
 <div class="flex flex-wrap">
 	{#each things as thing}

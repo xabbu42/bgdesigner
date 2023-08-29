@@ -1,3 +1,7 @@
+const presets = {
+	"@cards": "<div class=\"{{color}} card\"><h1>{{text}}</h1></div>",
+	"@tokens": "<div class=\"token\">{{symbol}}</div>"
+}
 
 export function* allpathes(obj: object, path: string[] = []) {
     for (let key in obj) {
@@ -8,11 +12,19 @@ export function* allpathes(obj: object, path: string[] = []) {
     }
 }
 
+export function* alltemplates(game: object) {
+	for (let obj of [game, presets]) {
+		for (let v of allpathes(obj))
+			if (v.startsWith('@'))
+				yield v;
+	}
+}
+
 function* allstrings(obj: object) {
     for (let key in obj) {
 		switch (typeof(obj[key])) {
 			case "object":
-				//yield* allstrings(obj[key]);
+				yield* allstrings(obj[key]);
 				break;
 			case "string":
 				yield obj[key];
@@ -21,7 +33,12 @@ function* allstrings(obj: object) {
     }
 }
 
-function getpath(obj: object, path: string) {
+function gettempl(obj: object, path: string) {
+	let templkeys = [...allpathes(obj)].filter((v) => v.startsWith('@') && path.startsWith(v.substring(1))).sort((a, b) => a.length - b.length);
+	return templkeys.length > 0 ? getpath(obj, templkeys[0]) : undefined;
+}
+
+export function getpath(obj: object, path: string) {
 	let value = obj;
 	let prefix = '';
 	for (let part of path.split('.')) {
@@ -93,15 +110,15 @@ export function render(path: string, game: object, data: object = {}) {
 			if (Array.isArray(value)) {
 				return Array.from(value.keys()).map((v) => render(path + '.' + v, game, data));
 			} else {
-				let templkeys = [...allpathes(game)].filter((v) => v.startsWith('@') && path.startsWith(v.substring(1))).sort((a, b) => a.length - b.length);
-				if (templkeys.length > 0) {
+				let templ = gettempl(game, path) || gettempl(presets, path);
+				if (templ) {
 					const result = [];
 					const subdata = {};
 					for (let repl of repls(value, data, game)) {
 						Object.assign(subdata, repl);
 						for (let k in value)
 							subdata[k] = render(path + '.' + k, game, subdata);
-						result.push(render(templkeys[0], game, subdata));
+						result.push(templ.replaceAll(/{{(.+?)}}/g, (_,expr) => subdata[expr]));
 					}
 					return result;
 				} else {
