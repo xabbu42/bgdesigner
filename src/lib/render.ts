@@ -25,7 +25,7 @@ function getpath(obj: object, path: string) {
 	let value = obj;
 	let prefix = '';
 	for (let part of path.split('.')) {
-		if (value[prefix + part]) {
+		if (prefix + part in value) {
 			value = value[prefix + part];
 			prefix = '';
 		} else
@@ -41,7 +41,7 @@ function repls(value: any, data: object, game: object) {
 	for (let str of allstrings(value)) {
 		for (let expr of str.matchAll(/{{([^:]+?)}}/g)) {
 			if (!collections[expr[1]]) {
-				let v = render(expr[1], data, game);
+				let v = render(expr[1], game, data);
 				collections[expr[1]] = Array.isArray(v) ? v : [v];
 			}
 		}
@@ -58,31 +58,40 @@ function repls(value: any, data: object, game: object) {
 	return all;
 }
 
-export function render(path: string, data: object, game: object) {
+export function render(path: string, game: object, data: object = {}) {
+
+	if (path in data)
+		return data[path];
 
 	let icon = path.match(/^([\w-]+:[\w-]+)\s*(.*)$/);
 	if (icon)
 		return `<iconify-icon inline icon="${icon[1]}" style="${icon[2]}"></iconify-icon>`;
 
 	let regexp = new RegExp('(^|\\.)' + path.replaceAll('.', '\.').replaceAll('*', '.*') + '$');
-	let pathes = [...allpathes(data)].filter((v) => regexp.test(v));
-	if (pathes.length == 0)
-		pathes = [...allpathes(game)].filter((v) => regexp.test(v));
-	if (pathes.length == 0)
-		throw `Unknown path ${path}`;
-	if (pathes.length > 1)
+	let pathes = [...allpathes(game)].filter((v) => regexp.test(v));
+	if (path.includes('*')) {
+		let result = [];
+		for (let p of pathes)
+			result.push(render(p, game, data));
+		return result;
+	} else if (pathes.length == 0) {
+		throw `Unknown path ${path}`
+	} else if (pathes.length > 1) {
 		throw `Ambigious path ${path}: ${pathes.join(',')}`;
-	let value = getpath(data, pathes[0]) || getpath(game, pathes[0]);
+	}
+
+	path = pathes[0];
+	let value = getpath(game, path);
 
 	switch (typeof value) {
 		case "string":
-			const result = repls(value, data, game).map((repl) => value.replaceAll(/{{(.+?)}}/g, (_,expr) => repl[expr] || render(expr, data, game)));
+			const result = repls(value, data, game).map((repl) => value.replaceAll(/{{(.+?)}}/g, (_,expr) => repl[expr] || render(expr, game, data)));
 			return result.length == 1 ? result[0] : result;
 			break;
 
 		case "object":
 			if (Array.isArray(value)) {
-				return Array.from(value.keys()).map((v) => render(path + '.' + v, data, game));
+				return Array.from(value.keys()).map((v) => render(path + '.' + v, game, data));
 			} else {
 				let templkeys = [...allpathes(game)].filter((v) => v.startsWith('@') && path.startsWith(v.substring(1))).sort((a, b) => a.length - b.length);
 				if (templkeys.length > 0) {
@@ -91,12 +100,12 @@ export function render(path: string, data: object, game: object) {
 					for (let repl of repls(value, data, game)) {
 						Object.assign(subdata, repl);
 						for (let k in value)
-							subdata[k] = render(path + '.' + k, subdata, game);
-						result.push(render(templkeys[0], subdata, game));
+							subdata[k] = render(path + '.' + k, game, subdata);
+						result.push(render(templkeys[0], game, subdata));
 					}
 					return result;
 				} else {
-					return  Object.fromEntries(Object.keys(value).map((v) => [v, render(path + '.' + v, data, game)]));
+					return  Object.fromEntries(Object.keys(value).map((v) => [v, render(path + '.' + v, game, data)]));
 				}
 			}
 			break;

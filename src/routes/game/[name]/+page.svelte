@@ -4,7 +4,7 @@
 	export let data;
 	let things = [];
 	const templates = [...allpathes(data)].filter((v) => v.startsWith('@'));
-	$: things = render(templates[0].substring(1), data, data).flat(Infinity);
+	$: things = render(templates[0].substring(1), data).flat(Infinity);
 </script>
 <div class="flex flex-wrap">
 	{#each things as thing}
