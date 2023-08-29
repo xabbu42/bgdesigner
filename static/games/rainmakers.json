@@ -1,0 +1,11 @@
+{
+	"symbols": {
+		"suits" : {
+			"blue": "bg-blue-300",
+			"yellow": "bg-yellow-300"
+		},
+		"values": [1, 2, 2, 3, 3, 4, 5, 6]
+	},
+	"@cards": "<div class=\"{{color}} card\"><h1>{{text}}</h1></div>",
+	"cards": [{"color": "{{suits.*}}", "text": "{{values.*}}"}]
+}
