@@ -6,6 +6,5 @@
 		},
 		"values": [1, 2, 2, 3, 3, 4, 5, 6]
 	},
-	"@cards": "<div class=\"{{color}} card\"><h1>{{text}}</h1></div>",
 	"cards": [{"color": "{{suits.*}}", "text": "{{values.*}}"}]
 }

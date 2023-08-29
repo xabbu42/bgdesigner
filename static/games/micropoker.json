@@ -9,7 +9,6 @@
 		"valuesrg": [4, 4, 1, 1],
 		"valuesby": [3, 3, 2, 2]
 	},
-	"@cards": "<div class=\"{{color}} card\"><h1>{{text}}</h1></div>",
 	"cards": [
 		{"color": "{{suits.red}}", "text": "{{valuesrg}}"},
 		{"color": "{{suits.green}}", "text": "{{valuesrg}}"},
