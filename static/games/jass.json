@@ -9,11 +9,6 @@
 		"values" : ["A", "K", "Q", "J", "10", "9", "8", "7", "6"]
 	},
 
-	"variables": {
-		"SUIT": ["{{heart}}", "{{diamond}}", "{{spade}}", "{{club}}"],
-		"VAL": "{{values}}"
-	},
-
 	"@cards": "<div class=card><h1><nobr>{{name}}</nobr></h1></div>",
-	"cards": [{"name": "{{SUIT}}{{VAL}}"}]
+	"cards": [{"name": "{{suits.*}}{{values.*}}"}]
 }
