@@ -6,7 +6,11 @@
 			"yellow": "bg-yellow-300",
 			"green": "bg-green-300"
 		},
-		"values" : [1, 2, 3, 4, 5, 6, 7, 8, 9]
+		"values" : [1, 2, 3, 4, 5, 6, 7, 8, 9],
+		"rockets" : [1, 2, 3, 4]
 	},
-	"cards": [{"color": "{{suits.*}}", "text": "{{values.*}}"}]
+	"cards": [
+		{"color": "{{suits.*}}", "background": "{{game-icons:astronaut-helmet w-full h-full opacity-40}}", "text": "{{values.*}}"},
+		{"background": "{{game-icons:rocket w-full h-full opacity-40 -scale-y-100}}", "text": "{{rockets.*}}"}
+	]
 }
