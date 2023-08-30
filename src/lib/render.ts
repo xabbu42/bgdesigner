@@ -1,5 +1,5 @@
 const presets = {
-	"@cards": "<div class=\"{{color}} card relative\"><div class=\"absolute top-4 left-4 bottom-4 right-4 background\">{{background}}</div><div class=\"absolute top-4 left-4\">{{text}}</div><h1 class=\"text-6xl\">{{text}}</h1><div class=\"absolute bottom-4 right-4 rotate-180\">{{text}}</div></div>",
+	"@cards": "<div class=\"{{color}} card relative\"><div class=\"absolute top-4 left-4 bottom-4 right-4\">{{background}}</div><div class=\"absolute top-4 left-4\">{{text}}</div><div class=\"text-6xl z-10\">{{text}}</div><div class=\"absolute bottom-4 right-4 rotate-180\">{{text}}</div></div>",
 	"@tokens": "<div class=\"token\">{{symbol}}</div>"
 }
 
