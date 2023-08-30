@@ -10,9 +10,9 @@
 		"valuesby": [3, 3, 2, 2]
 	},
 	"cards": [
-		{"color": "{{suits.red}}", "text": "{{valuesrg}}"},
-		{"color": "{{suits.green}}", "text": "{{valuesrg}}"},
-		{"color": "{{suits.blue}}", "text": "{{valuesby}}"},
-		{"color": "{{suits.yellow}}", "text": "{{valuesby}}"}
+		{"class": "{{suits.red}}", "text": "{{valuesrg}}"},
+		{"class": "{{suits.green}}", "text": "{{valuesrg}}"},
+		{"class": "{{suits.blue}}", "text": "{{valuesby}}"},
+		{"class": "{{suits.yellow}}", "text": "{{valuesby}}"}
 	]
 }

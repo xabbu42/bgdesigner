@@ -10,7 +10,7 @@
 		"rockets" : [1, 2, 3, 4]
 	},
 	"cards": [
-		{"color": "{{suits.*}}", "background": "{{game-icons:astronaut-helmet w-full h-full opacity-40}}", "text": "{{values.*}}"},
+		{"class": "{{suits.*}}", "background": "{{game-icons:astronaut-helmet w-full h-full opacity-40}}", "text": "{{values.*}}"},
 		{"background": "{{game-icons:rocket w-full h-full opacity-40 -scale-y-100}}", "text": "{{rockets.*}}"}
 	]
 }
