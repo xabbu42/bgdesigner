@@ -119,7 +119,7 @@ export function render(path: string, game: object, data: object = {}) {
 						Object.assign(subdata, repl);
 						for (let k in value)
 							subdata[k] = render(path + '.' + k, game, subdata);
-						result.push(templ.replaceAll(/{{(.+?)}}/g, (_,expr) => subdata[expr]));
+						result.push(templ.replaceAll(/{{(.+?)}}/g, (_,expr) => subdata[expr] || ''));
 					}
 					return result;
 				} else {
