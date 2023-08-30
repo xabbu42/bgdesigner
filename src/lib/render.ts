@@ -81,8 +81,9 @@ export function render(path: string, game: object, data: object = {}) {
 		return data[path];
 
 	let icon = path.match(/^([\w-]+:[\w-]+)\s*(.*)$/);
-	if (icon)
-		return `<iconify-icon inline icon="${icon[1]}" style="${icon[2]}"></iconify-icon>`;
+	if (icon) {
+		return `<iconify-icon inline icon="${icon[1]}" class="${icon[2]}"></iconify-icon>`;
+	}
 
 	let regexp = new RegExp('(^|\\.)' + path.replaceAll('.', '\.').replaceAll('*', '.*') + '$');
 	let pathes = [...allpathes(game)].filter((v) => regexp.test(v));

@@ -1,8 +1,8 @@
 {
 	"symbols": {
 		"suits" : {
-			"heart": "{{mdi:cards-heart color: red}}",
-			"diamond": "{{mdi:cards-diamond color: red}}",
+			"heart": "{{mdi:cards-heart text-red-600}}",
+			"diamond": "{{mdi:cards-diamond text-red-600}}",
 			"spade": "{{mdi:cards-spade}}",
 			"club": "{{mdi:cards-club}}"
 		},
