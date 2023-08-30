@@ -1,5 +1,5 @@
 const presets = {
-	"@cards": "<div class=\"{{color}} card relative\"><div class=\"absolute top-4 left-4\">{{text}}</div><h1 class=\"text-6xl\">{{text}}</h1><div class=\"absolute bottom-4 right-4 rotate-180\">{{text}}</div></div>",
+	"@cards": "<div class=\"{{color}} card relative\"><div class=\"absolute top-4 left-4 bottom-4 right-4 background\">{{background}}</div><div class=\"absolute top-4 left-4\">{{text}}</div><h1 class=\"text-6xl\">{{text}}</h1><div class=\"absolute bottom-4 right-4 rotate-180\">{{text}}</div></div>",
 	"@tokens": "<div class=\"token\">{{symbol}}</div>"
 }
 
@@ -82,7 +82,8 @@ export function render(path: string, game: object, data: object = {}) {
 
 	let icon = path.match(/^([\w-]+:[\w-]+)\s*(.*)$/);
 	if (icon) {
-		return `<iconify-icon inline icon="${icon[1]}" class="${icon[2]}"></iconify-icon>`;
+		let params = icon[2].match(/\b[wh]-/) ? "width=none" : "inline";
+		return `<iconify-icon ${params} icon="${icon[1]}" class="${icon[2]}"></iconify-icon>`;
 	}
 
 	let regexp = new RegExp('(^|\\.)' + path.replaceAll('.', '\.').replaceAll('*', '.*') + '$');
