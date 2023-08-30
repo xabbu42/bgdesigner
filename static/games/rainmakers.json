@@ -1,10 +1,7 @@
 {
-	"symbols": {
-		"suits" : {
-			"blue": "bg-blue-300",
-			"yellow": "bg-yellow-300"
-		},
-		"values": [1, 2, 2, 3, 3, 4, 5, 6]
-	},
-	"cards": [{"color": "{{suits.*}}", "text": "{{values.*}}"}]
+	"values": [1, 2, 2, 3, 3, 4, 5, 6],
+	"cards": [
+		{"color": "bg-yellow-200", "background": "{{noto:sun w-full h-full}}", "text": "{{values.*}}"},
+		{"color": "bg-blue-200", "background": "{{noto:cloud-with-lightning-and-rain w-full h-full}}", "text": "{{values.*}}"}
+	]
 }
