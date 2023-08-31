@@ -14,6 +14,7 @@
 	],
 	"cards": [
 		{"class": "{{suits.*}}", "background": "{{game-icons:astronaut-helmet w-full h-full opacity-40}}", "text": "{{range 9}}"},
-		{"background": "{{game-icons:rocket w-full h-full opacity-40 -scale-y-100}}", "text": "{{range 4}}"}
+		{"background": "{{game-icons:rocket w-full h-full opacity-40 -scale-y-100}}", "text": "{{range 4}}"},
+		{"class": "{{cards.0.class}} card-sm", "background": "{{cards.0.background}}", "text": "{{range 9}}"}
 	]
 }
