@@ -9,4 +9,16 @@
 	.token {
 		@apply  w-[20mm] h-[20mm] text-4xl p-4 bg-slate-200 shadow-xl grid place-content-center rounded-lg
 	}
+	.token-sm {
+		@apply w-[10mm] h-[10mm] text-2xl token
+	}
+	.token-md {
+		@apply token
+	}
+	.token-lg {
+		@apply w-[30mm] h-[30mm] text-6xl token
+	}
+	.token-xl {
+		@apply w-[40mm] h-[40mm] text-8xl token
+	}
 }

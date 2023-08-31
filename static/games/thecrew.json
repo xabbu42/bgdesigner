@@ -12,7 +12,7 @@
 	},
 	"tokens": [
 		{"class": "bg-indigo-800 text-purple-500", "symbol": "{{mission.*}}"},
-		{"class": "bg-green-800 rounded-full", "symbol": "{{game-icons:astronaut-helmet}}"}
+		{"class": "bg-green-800 rounded-full token-lg", "symbol": "{{game-icons:astronaut-helmet}}"}
 	],
 	"cards": [
 		{"class": "{{suits.*}}", "background": "{{game-icons:astronaut-helmet w-full h-full opacity-40}}", "text": "{{values.*}}"},
