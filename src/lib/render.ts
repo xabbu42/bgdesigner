@@ -3,6 +3,12 @@ const presets = {
 	"@tokens": "<div class=\"{{class}} token\">{{symbol}}</div>"
 }
 
+const registry = {
+	range: (g, d, a, b) => [...Array(b ? b - a + 1 : +a).keys()].map(i => i + (b ? +a : 1)),
+	max: (g, d, p) => Math.max(...render(p, g, d)),
+	min: (g, d, p) => Math.min(...render(p, g, d))
+}
+
 export function* allpathes(obj: object, path: string[] = []) {
     for (let key in obj) {
         const newpath = path.concat(key);
@@ -84,6 +90,11 @@ export function render(path: string, game: object, data: object = {}) {
 	if (icon) {
 		let params = icon[2].match(/\b[wh]-/) ? "width=none" : "inline";
 		return `<iconify-icon ${params} icon="${icon[1]}" class="${icon[2]}"></iconify-icon>`;
+	}
+
+	let func = path.match(/^(\w+)\s+(.+)/);
+	if (func && func[1] in registry) {
+		return registry[func[1]](game, data, ...func[2].split(/\s+/));
 	}
 
 	let regexp = new RegExp('(^|\\.)' + path.replaceAll('.', '\.').replaceAll('*', '.*') + '$');
