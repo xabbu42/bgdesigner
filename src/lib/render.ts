@@ -121,7 +121,7 @@ export function render(path: string, game: object, data: object = {}) {
 
 		case "object":
 			if (Array.isArray(value)) {
-				return Array.from(value.keys()).map((v) => render(path + '.' + v, game, data));
+				return Array.from(value.keys()).map((v) => render(path + '.' + v, game, data)).flat(Infinity);
 			} else {
 				let templ = gettempl(game, path) || gettempl(presets, path);
 				if (templ) {
@@ -133,7 +133,7 @@ export function render(path: string, game: object, data: object = {}) {
 							subdata[k] = render(path + '.' + k, game, subdata);
 						result.push(templ.replaceAll(/{{(.+?)}}/g, (_,expr) => subdata[expr] || ''));
 					}
-					return result;
+					return result.flat(Infinity);
 				} else {
 					return  Object.fromEntries(Object.keys(value).map((v) => [v, render(path + '.' + v, game, data)]));
 				}
