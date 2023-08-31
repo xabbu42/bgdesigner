@@ -6,16 +6,14 @@
 			"yellow": "bg-yellow-300",
 			"green": "bg-green-300"
 		},
-		"values" : [1, 2, 3, 4, 5, 6, 7, 8, 9],
-		"rockets" : [1, 2, 3, 4],
-		"mission": [1, 2, 3, 4, 5, "Ω", "{{mdi:chevron-right}}", "{{mdi:chevron-double-right}}", "{{mdi:chevron-triple-right}}", "<nobr>{{mdi:chevron-double-right}}{{mdi:chevron-double-right}}</nobr>"]
+		"mission": ["{{range 5}}", "Ω", "{{mdi:chevron-right}}", "{{mdi:chevron-double-right}}", "{{mdi:chevron-triple-right}}", "<nobr>{{mdi:chevron-double-right}}{{mdi:chevron-double-right}}</nobr>"]
 	},
 	"tokens": [
 		{"class": "bg-indigo-800 text-purple-500", "symbol": "{{mission}}"},
 		{"class": "bg-green-800 rounded-full token-lg", "symbol": "{{game-icons:astronaut-helmet}}"}
 	],
 	"cards": [
-		{"class": "{{suits.*}}", "background": "{{game-icons:astronaut-helmet w-full h-full opacity-40}}", "text": "{{values}}"},
-		{"background": "{{game-icons:rocket w-full h-full opacity-40 -scale-y-100}}", "text": "{{rockets}}"}
+		{"class": "{{suits.*}}", "background": "{{game-icons:astronaut-helmet w-full h-full opacity-40}}", "text": "{{range 9}}"},
+		{"background": "{{game-icons:rocket w-full h-full opacity-40 -scale-y-100}}", "text": "{{range 4}}"}
 	]
 }
