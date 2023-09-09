@@ -5,7 +5,7 @@
 	const games = Object.keys(obj).map((v) => v.match(/([^\/]+)$/, v)[0]);
 </script>
 
-<div class="p-4">
+<div class="p-4 antialiased text-gray-900">
 	<nav class="font-sans border-b-2 p-1 w-full">
 		<div>
 			<a href="/" class="text-2xl">BGDesigner</a>
@@ -17,6 +17,6 @@
 	<slot />
 </div>
 <style lang="postcss">
-	nav a { @apply text-lg no-underline text-gray-900 hover:text-blue-800 p-2 ml-2 rounded-t-lg font-semibold }
+	nav a { @apply text-lg no-underline hover:text-blue-800 p-2 ml-2 rounded-t-lg font-semibold }
 	.active { @apply bg-gray-200 }
 </style>
