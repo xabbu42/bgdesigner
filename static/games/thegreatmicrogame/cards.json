@@ -1,4 +1,9 @@
 [
+	/*
+	 * TODO:
+	 *  - Pictures
+	 *  - K1M symbol
+	*/
 	{
 		"flag": "{{british.svg}}",
 		"target": 7,

@@ -42,6 +42,7 @@
 	"types": "./dist/index.d.ts",
 	"type": "module",
 	"dependencies": {
-		"iconify-icon": "^1.0.8"
+		"iconify-icon": "^1.0.8",
+		"jsonc-parser": "^3.2.0"
 	}
 }

@@ -3,6 +3,7 @@ import { defineConfig } from 'vite';
 
 import { Plugin } from 'vite';
 import fs from 'fs';
+import {parse} from "jsonc-parser"
 
 function* walk(dir: string, prefix: string = "") {
 	const files = fs.readdirSync(dir, {withFileTypes: true});
@@ -26,9 +27,13 @@ function MergeGamesPlugin(root: string): Plugin {
 					const game = {};
 					dirs.push(gamedir);
 
-					for (const p of walk(gamedir)) {
-						const data = fs.readFileSync(path.join(gamedir, p), { encoding: 'utf8' });
-						game[p.replace(/\.json$/, '').replaceAll('/', '.')] = p.endsWith('.json') ? JSON.parse(data) : data;
+					for (let p of walk(gamedir)) {
+						let data = fs.readFileSync(path.join(gamedir, p), { encoding: 'utf8' });
+						if (p.match(/\.jsonc?$/)) {
+							p = p.replace(/\.jsonc?$/, '');
+							data = parse(data);
+						}
+						game[p.replaceAll('/', '.')] = data;
 					}
 
 					fs.writeFileSync(gamedir.replace(/\/?$/, '.json'), JSON.stringify(game, null, 2));
