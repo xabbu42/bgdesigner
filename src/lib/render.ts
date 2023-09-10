@@ -99,6 +99,8 @@ export function render(path: string, game: object, data: object = {}) {
 
 	let regexp = new RegExp('(^|\\.)' + path.replaceAll('.', '\.').replaceAll('*', '.*') + '$');
 	let pathes = [...allpathes(game)].filter((v) => regexp.test(v));
+	if (pathes.filter((v) => v == path).length > 0)
+		pathes = [path];
 	if (path.includes('*')) {
 		let result = [];
 		for (let p of pathes)
