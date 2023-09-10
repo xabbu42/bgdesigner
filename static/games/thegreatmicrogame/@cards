@@ -1,0 +1,19 @@
+<div class="card text-base place-content-start flex flex-col">
+  <div class="flex items-center">
+	<div class="w-8 h-4 object-contain">{{flag}}</div>
+	<div class="ml-4 text-lg font-bold">{{place}}</div>
+  </div>
+  <div class="basis-4/12 border-dashed border-2 border-gray-300"></div>
+  <div class="basis-6/12 flex">
+	<div class="">
+	  <div class="font-bold">{{name}}</div>
+	  <div>{{text}}</div>
+	</div>
+	<div class="self-end">
+	  <div>{{att}}</div>
+	  <div>{{def}}</div>
+	  <div>{{inf}}</div>
+	  <div>{{dip}}</div>
+	</div>
+  </div>
+</div>

@@ -1,0 +1,146 @@
+[
+	{
+		"flag": "{{british.svg}}",
+		"target": 7,
+		"place": "Cyprus",
+		"name": "The Siege of Herat",
+		"text": "Use another card on the Battleground for its Attack value and attack immediately. Then draw a card.",
+		"att": 2, "def": 5, "inf": 2, "dip": 1
+	},
+	{
+		"flag": "{{british.svg}}",
+		"target": 10,
+		"place": "Afghanistan",
+		"name": "The Crimean War",
+		"text": "Play any card from your hand as if it was a British card.",
+		"att": 1, "def": 3, "inf": 5, "dip": 2
+	},
+	{
+		"flag": "{{british.svg}}",
+		"target": 12,
+		"place": "India",
+		"name": "Anglo-Sikh War",
+		"text": "If either Battleground is 3 the Sikh Empire you may take that Battleground.",
+		"att": 3, "def": 3, "inf": 2, "dip": 3
+	},
+	{
+		"flag": "{{british.svg}}",
+		"target": 9,
+		"place": "Sikh Empire",
+		"name": "Anglo-Persian War",
+		"text": "Search the deck for any 2 one card and take it into your hand.",
+		"att": 3, "def": 2, "inf": 4, "dip": 4
+	},
+	{
+		"flag": "{{british.svg}}",
+		"target": 8,
+		"place": "China",
+		"name": "The Lady with the Lamp",
+		"text": "While in play the Russian player may not use the Gain Influence Action.",
+		"att": 3, "def": 2, "inf": 3, "dip": 5
+	},
+	{
+		"flag": "{{british.svg}}",
+		"target": 10,
+		"place": "Tibet",
+		"name": "Invasion of Lhasa",
+		"text": "The Russian player must give you 1 influence each time she takes the Gain Influence or Attack Action for the remainder of the round.",
+		"att": 4, "def": 4, "inf": 1, "dip": 6
+	},
+	{
+		"flag": "{{british.svg}}",
+		"target": 12,
+		"place": "Punjab",
+		"name": "Anglo-Maratha Wars",
+		"text": "If you take India as a Battleground, take an additional 5 Influence.",
+		"att": 5, "def": 3, "inf": 1, "dip": 7
+	},
+	{
+		"flag": "{{russian.svg}}",
+		"target": 7,
+		"place": "Khanate of Khiva",
+		"name": "Indian Rebellion",
+		"text": "Any of the British player’s 5 cards currently in play with a Defense value of 2 less than 3 are discarded.",
+		"att": 2, "def": 5, "inf": 2, "dip": 1
+	},
+	{
+		"flag": "{{russian.svg}}",
+		"target": 10,
+		"place": "Georgia",
+		"name": "Formation of Russian Turkestan",
+		"text": "You may take any 2 cards from the discard or force your opponent to take them.",
+		"att": 1, "def": 3, "inf": 5, "dip": 2
+	},
+	{
+		"flag": "{{russian.svg}}",
+		"target": 12,
+		"place": "Bukhara",
+		"name": "Russo-Persian War",
+		"text": "Return the Persia card to your hand.",
+		"att": 2, "def": 3, "inf": 4, "dip": 3
+	},
+	{
+		"flag": "{{russian.svg}}",
+		"target": 9,
+		"place": "Khanate of Kokand",
+		"name": "Transcaspian Railway",
+		"text": "You may move any of your Active cards to any one Battleground.",
+		"att": 4, "def": 2, "inf": 3, "dip": 4
+	},
+	{
+		"flag": "{{russian.svg}}",
+		"target": 8,
+		"place": "Kazak Khanate",
+		"name": "Treaty of Aigun",
+		"text": "Double your next Gain Influence Action gain if China is in play. (It must still be in play when you take the action.)",
+		"att": 3, "def": 3, "inf": 3, "dip": 5
+	},
+	{
+		"flag": "{{russian.svg}}",
+		"target": 10,
+		"place": "Persia",
+		"name": "Massacre of Elphinstones Army",
+		"text": "If Afghanistan is in play as a Battleground, remove all of the British player’s cards there.",
+		"att": 4, "def": 3, "inf": 1, "dip": 6
+	},
+	{
+		"flag": "{{russian.svg}}",
+		"target": 12,
+		"place": "Serbia",
+		"name": "Khanates Fall",
+		"text": "If either Battleground is Khanate of Khiva, Kokand, or Bukhara you may discard a card to take that Battleground.",
+		"att": 5, "def": 3, "inf": 1, "dip": 7
+	},
+	{
+		"flag": "{{neutral.svg}}",
+		"target": 9,
+		"place": "Khanate of Kalat",
+		"name": "Anglo-Russian Entente",
+		"text": "Play this card along with any card to cancel the effect of that card’s event.",
+		"att": 3, "def": 3, "inf": 3, "dip": 2
+	},
+	{
+		"flag": "{{neutral.svg}}",
+		"target": 9,
+		"place": "Buluchistan",
+		"name": "Seige of the British Residency",
+		"text": "2: Your opponent must discard a card with Attack value of 3 or more or lose 2 Influence. 1: Kim loses 2 Influence.",
+		"att": 3, "def": 3, "inf": 3, "dip": 3
+	},
+	{
+		"flag": "{{neutral.svg}}",
+		"target": 10,
+		"place": "Dagestan",
+		"name": "Panjdeh Incident",
+		"text": "2: Look at a card from your opponent’s hand. Either play it or return it. If you return it play this card for Influence. 1: Look at the top card of the deck. Either play it or return it. If you return it play this card for Influence.",
+		"att": 3, "def": 3, "inf": 3, "dip": 4
+	},
+	{
+		"flag": "{{neutral.svg}}",
+		"target": 10,
+		"place": "Crimea",
+		"name": "Russo-Turkish War",
+		"text": "If the Serbia or Cyprus cards are in play you may take either of them into your hand.",
+		"att": 2, "def": 3, "inf": 3, "dip": 5
+	}
+]
