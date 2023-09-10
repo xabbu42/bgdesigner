@@ -20,7 +20,7 @@
 		"target": 12,
 		"place": "India",
 		"name": "Anglo-Sikh War",
-		"text": "If either Battleground is 3 the Sikh Empire you may take that Battleground.",
+		"text": "If either Battleground is the Sikh Empire you may take that Battleground.",
 		"att": 3, "def": 3, "inf": 2, "dip": 3
 	},
 	{
@@ -28,7 +28,7 @@
 		"target": 9,
 		"place": "Sikh Empire",
 		"name": "Anglo-Persian War",
-		"text": "Search the deck for any 2 one card and take it into your hand.",
+		"text": "Search the deck for any one card and take it into your hand.",
 		"att": 3, "def": 2, "inf": 4, "dip": 4
 	},
 	{
@@ -60,7 +60,7 @@
 		"target": 7,
 		"place": "Khanate of Khiva",
 		"name": "Indian Rebellion",
-		"text": "Any of the British player’s 5 cards currently in play with a Defense value of 2 less than 3 are discarded.",
+		"text": "Any of the British player’s cards currently in play with a Defense value of less than 3 are discarded.",
 		"att": 2, "def": 5, "inf": 2, "dip": 1
 	},
 	{
