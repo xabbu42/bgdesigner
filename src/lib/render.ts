@@ -81,7 +81,7 @@ function repls(value: any, data: object, game: object) {
 	return all;
 }
 
-export function render(path: string, game: object, data: object = {}) {
+export function render(path: string, game: object, data: object = {}, strict:boolean = true) {
 
 	if (path in data)
 		return data[path];
@@ -107,9 +107,17 @@ export function render(path: string, game: object, data: object = {}) {
 			result.push(render(p, game, data));
 		return result;
 	} else if (pathes.length == 0) {
-		throw `Unknown path ${path}`
+		if (strict)
+			throw `Unknown path ${path}`;
+		else {
+			return '';
+		}
 	} else if (pathes.length > 1) {
-		throw `Ambigious path ${path}: ${pathes.join(',')}`;
+		if (strict)
+			throw `Ambigious path ${path}: ${pathes.join(',')}`;
+		else {
+			return '';
+		}
 	}
 
 	path = pathes[0];
@@ -133,7 +141,7 @@ export function render(path: string, game: object, data: object = {}) {
 						Object.assign(subdata, repl);
 						for (let k in value)
 							subdata[k] = render(path + '.' + k, game, subdata);
-						result.push(templ.replaceAll(/{{(.+?)}}/g, (_,expr) => subdata[expr] || ''));
+						result.push(templ.replaceAll(/{{(.+?)}}/g, (_,expr) => subdata[expr] || render(expr, game, {}, false)));
 					}
 					return result.flat(Infinity);
 				} else {
