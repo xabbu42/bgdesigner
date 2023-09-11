@@ -10,10 +10,10 @@
 	  <div>{{text}}</div>
 	</div>
 	<div class="self-end">
-	  <div>{{att}}</div>
-	  <div>{{def}}</div>
-	  <div>{{inf}}</div>
-	  <div>{{dip}}</div>
+	  <div class="relative"><div class="absolute center-content text-lg font-medium">{{att}}</div><div class="text-gray-400 text-2xl">{{material-symbols:swords}}</div></div>
+	  <div class="relative"><div class="absolute center-content text-lg font-medium">{{def}}</div><div class="text-gray-400 text-2xl">{{material-symbols:shield}}</div></div>
+	  <div class="relative"><div class="absolute center-content text-lg font-medium">{{inf}}</div><div class="text-gray-400 text-2xl">{{mdi:crown}}</div></div>
+	  <div class="relative"><div class="absolute center-content text-lg font-medium">{{dip}}</div><div class="text-gray-400 text-2xl">{{mdi:dice-multiple}}</div></div>
 	</div>
   </div>
 </div>
