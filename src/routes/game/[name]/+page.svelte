@@ -3,7 +3,8 @@
 	import { render,alltemplates,getpath } from "../../../lib/render.ts";
 	export let data;
 	let things = [];
-	const templates = [...alltemplates(data)];
+	let templates;
+	$: templates = [...alltemplates(data)];
 	$: things = templates.map((v) => getpath(data, v.substring(1)) ? render(v.substring(1), data) : []).flat(Infinity);
 </script>
 <div class="flex flex-wrap">
