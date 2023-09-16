@@ -1,15 +1,15 @@
 <div class="card text-base place-content-start flex flex-col">
-  <div class="flex items-center">
+  <div class="h-1/6 flex items-center">
 	<div class="w-8 h-4 object-contain">{{flag}}</div>
 	<div class="ml-4 text-lg font-bold">{{place}}</div>
   </div>
-  <div class="basis-4/12 border-dashed border-2 border-gray-300"></div>
-  <div class="basis-6/12 flex">
-	<div class="">
+  <div class="h-2/6 border-dashed border-2 border-gray-300"></div>
+  <div class="h-3/6 relative">
+	<div class="h-full w-5/6 leading-tight text-fit-down">
 	  <div class="font-bold">{{name}}</div>
 	  <div>{{text}}</div>
 	</div>
-	<div class="self-end">
+	<div class="absolute right-0 bottom-0">
 	  <div class="relative"><div class="absolute center-content text-lg font-medium">{{att}}</div><div class="text-gray-400 text-2xl">{{material-symbols:swords}}</div></div>
 	  <div class="relative"><div class="absolute center-content text-lg font-medium">{{def}}</div><div class="text-gray-400 text-2xl">{{material-symbols:shield}}</div></div>
 	  <div class="relative"><div class="absolute center-content text-lg font-medium">{{inf}}</div><div class="text-gray-400 text-2xl">{{mdi:crown}}</div></div>
