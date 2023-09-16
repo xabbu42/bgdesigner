@@ -19,10 +19,14 @@ export function* allpathes(obj: object, path: string[] = []) {
 }
 
 export function* alltemplates(game: object) {
+	const seen = {};
 	for (let obj of [game, presets]) {
-		for (let v of allpathes(obj))
-			if (v.startsWith('@'))
+		for (let v of allpathes(obj)) {
+			if (v.startsWith('@') && !seen[v]) {
+				seen[v] = true;
 				yield v;
+			}
+		}
 	}
 }
 
