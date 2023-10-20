@@ -4,6 +4,9 @@
 
 @layer components {
 	.center-content { @apply w-full h-full grid place-content-center }
+
+	.symbol { @apply rounded-full m-1 p-2 w-fit aspect-square text-center inline-block }
+
 	.card { @apply  w-[64mm] h-[89mm] text-4xl p-4 bg-slate-200 shadow-xl grid place-content-center rounded-lg }
 	.card .center { @apply text-6xl }
 	.card-sm { @apply w-[41mm] h-[63mm] text-3xl card }
