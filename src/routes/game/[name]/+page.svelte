@@ -4,10 +4,12 @@
 	import { textfit } from "../../../lib/textfit.ts";
 	import { render,alltemplates,getpath } from "../../../lib/render.ts";
 	export let data;
-	let things = [];
-	let templates;
-	$: templates = [...alltemplates(data)];
-	$: things = templates.map((v) => getpath(data, v.substring(1)) ? render(v.substring(1), data) : []).flat(Infinity);
+	let things;
+	$:things = Object.fromEntries(
+		[...alltemplates(data)]
+			.filter( (p) => getpath(data, p.substring(1)))
+			.map(    (p) => [p, render(p.substring(1), data).flat(Infinity)])
+	);
 
 	function apply_textfit() {
 		for (const el of document.querySelectorAll(".text-fit-down")) {
@@ -27,10 +29,20 @@
 	tick(() => apply_textfit());
 
 </script>
+<div>
+	<table class="m-2">
+		{#each Object.entries(things) as [path, perpath]}
+			<tr><td class="p-1">{path}</td><td class="p-1 text-right">{perpath.length}</td></tr>
+		{/each}
+	</table>
+</div>
+
 <div class="flex flex-wrap">
-	{#each things as thing}
-		<div class="p-1" use:apply_textfit>
-			{@html thing}
-		</div>
+	{#each Object.entries(things) as [path, perpath]}
+		{#each perpath as thing}
+			<div class="p-1" use:apply_textfit>
+				{@html thing}
+			</div>
+		{/each}
 	{/each}
 </div>
