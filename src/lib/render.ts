@@ -61,6 +61,15 @@ export function getpath(obj: object, path: string) {
 	return prefix ? value[prefix] : value;
 }
 
+function to_collection(arg: any) {
+	if (Array.isArray(arg))
+		return {"type" : "dice", 'values': arg};
+	else if (typeof arg === 'object' && 'values' in arg && 'type' in arg)
+		return arg;
+	else
+		return {"type": "dice", 'values': [arg]};
+}
+
 function repls(value: any, data: object, game: object) {
 	const collections = {};
 	if (typeof value !== 'object')
@@ -68,21 +77,21 @@ function repls(value: any, data: object, game: object) {
 	for (let str of allstrings(value)) {
 		for (let expr of str.matchAll(/{{([^:]+?)}}/g)) {
 			if (!collections[expr[1]]) {
-				let v = render(expr[1], game, data);
-				collections[expr[1]] = Array.isArray(v) ? v : [v];
+				collections[expr[1]] = to_collection(render(expr[1], game, data));
+				collections[expr[1]].key = expr[1];
 			}
 		}
 	}
-	const variables = Object.keys(collections);
-	const allrepls = Object.values(collections).reduce((a, b) => a.flatMap(d => b.map(e => [d, e].flat())), ['']);
-	const all = [];
-	for (let repls of allrepls) {
-		const single = {};
-		for (let i = 0; i < variables.length; i++)
-			single[variables[i]] = repls[i+1];
-		all.push(single);
-	}
-	return all;
+
+	var result = Object.values(collections).reduce(
+		(repls, add) => repls.flatMap(
+			repl => add.values
+				.filter(value => add.type != "bag" || repl.filter(other => other[0] == add.path && other[2] == value).length == 0)
+				.map(value => [...repl, [add.path, add.key, value]])
+		),
+		[[]]
+	);
+	return result.map((repl) => Object.fromEntries(repl.map(v => v.slice(1))));
 }
 
 export function render(path: string, game: object, data: object = {}, strict:boolean = true) {
@@ -129,6 +138,9 @@ export function render(path: string, game: object, data: object = {}, strict:boo
 
 	switch (typeof value) {
 		case "string":
+			const single = value.match(/^{{([^}]*)}}$/);
+			if (single)
+				return render(single[1], game, data);
 			const result = repls(value, data, game).map((repl) => value.replaceAll(/{{(.+?)}}/g, (_,expr) => repl[expr] || render(expr, game, data)));
 			return result.length == 1 ? result[0] : result;
 			break;
@@ -149,7 +161,7 @@ export function render(path: string, game: object, data: object = {}, strict:boo
 					}
 					return result.flat(Infinity);
 				} else {
-					return  Object.fromEntries(Object.keys(value).map((v) => [v, render(path + '.' + v, game, data)]));
+					return Object.fromEntries(Object.keys(value).map((v) => [v, render(path + '.' + v, game, data)]).concat([['path', path]]));
 				}
 			}
 			break;
