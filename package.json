@@ -13,7 +13,7 @@
 	"exports": {
 		".": {
 			"types": "./dist/index.d.ts",
-			"svelte": "./dist/index.js"
+			"default": "./dist/index.js"
 		}
 	},
 	"files": [
@@ -38,7 +38,7 @@
 		"typescript": "^5.0.0",
 		"vite": "^4.4.2"
 	},
-	"svelte": "./dist/index.js",
+	"module": "./dist/index.js",
 	"types": "./dist/index.d.ts",
 	"type": "module",
 	"dependencies": {
