@@ -29,6 +29,8 @@
 		"@sveltejs/kit": "^1.20.4",
 		"@sveltejs/package": "^2.0.0",
 		"autoprefixer": "^10.4.15",
+		"iconify-icon": "^1.0.8",
+		"jsonc-parser": "^3.2.0",
 		"postcss": "^8.4.28",
 		"publint": "^0.1.9",
 		"svelte": "^4.0.5",
@@ -40,9 +42,5 @@
 	},
 	"module": "./dist/index.js",
 	"types": "./dist/index.d.ts",
-	"type": "module",
-	"dependencies": {
-		"iconify-icon": "^1.0.8",
-		"jsonc-parser": "^3.2.0"
-	}
+	"type": "module"
 }
