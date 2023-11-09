@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: ['./src/**/*.{html,js,svelte,ts}', './static/games/**/*.json'],
+  content: ['./src/**/*.{html,js,svelte,ts}', './static/games/**/*.{json,json5,jsonc}'],
   theme: {
     extend: {},
   },
