@@ -8,7 +8,12 @@
 		"package": "svelte-kit sync && svelte-package && publint",
 		"prepublishOnly": "npm run package",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+		"release": "release-it"
+	},
+	"release-it": {
+		"github": {"release": true},
+		"npm": {"publish": false}
 	},
 	"exports": {
 		".": {
@@ -33,6 +38,7 @@
 		"jsonc-parser": "^3.2.0",
 		"postcss": "^8.4.28",
 		"publint": "^0.1.9",
+		"release-it": "^16.2.1",
 		"svelte": "^4.0.5",
 		"svelte-check": "^3.4.3",
 		"tailwindcss": "^3.3.3",
