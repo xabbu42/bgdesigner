@@ -55,6 +55,9 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
+	build: {
+		rollupOptions: {external: /\/static\/games\//}
+	},
 	plugins: [
 		MergeGamesPlugin(__dirname + '/static/games/'),
 		sveltekit(),
