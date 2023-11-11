@@ -1,3 +1,3 @@
 // Reexport your entry components here
 
-export { render } from './render'
+export { render } from './render.js'
