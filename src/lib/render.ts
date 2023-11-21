@@ -122,15 +122,13 @@ export function render(path: string, game: object, data: object = {}, strict:boo
 	} else if (pathes.length == 0) {
 		if (strict)
 			throw `Unknown path ${path}`;
-		else {
+		else
 			return '';
-		}
 	} else if (pathes.length > 1) {
 		if (strict)
 			throw `Ambigious path ${path}: ${pathes.join(',')}`;
-		else {
+		else
 			return '';
-		}
 	}
 
 	path = pathes[0];
