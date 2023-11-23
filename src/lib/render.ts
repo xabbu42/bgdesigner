@@ -1,6 +1,15 @@
+import Token from "./Token.ts";
+
 const presets = {
-	"@cards": "<div class=\"{{class}} card relative\"><div class=\"absolute top-4 left-4 bottom-4 right-4\">{{background}}</div><div class=\"absolute top-4 left-4\">{{text}}</div><div class=\"center z-10\">{{text}}</div><div class=\"absolute bottom-4 right-4 rotate-180\">{{text}}</div></div>",
-	"@tokens": "<div class=\"{{class}} token\">{{symbol}}</div>"
+	"@cards": {
+		"front": "<div class=\"{{class}} card relative\"><div class=\"absolute top-4 left-4 bottom-4 right-4\">{{background}}</div><div class=\"absolute top-4 left-4\">{{text}}</div><div class=\"center z-10\">{{text}}</div><div class=\"absolute bottom-4 right-4 rotate-180\">{{text}}</div></div>",
+		"back": "<div class=\"{{class}} card\"></div>",
+		"type": Token
+	},
+	"@tokens": {
+		"html" : "<div class=\"{{class}} token\">{{symbol}}</div>",
+		"type" : Token
+	}
 }
 
 const registry = {
@@ -43,9 +52,9 @@ function* allstrings(obj: object) {
     }
 }
 
-function gettempl(obj: object, path: string) {
-	let templkeys = [...allpathes(obj)].filter((v) => v.startsWith('@') && path.startsWith(v.substring(1))).sort((a, b) => a.length - b.length);
-	return templkeys.length > 0 ? getpath(obj, templkeys[0]) : undefined;
+function getannotations(obj: object, path: string) {
+	let pathes = [...allpathes(obj)].filter((v) => v.startsWith('@') && path.startsWith(v.substring(1))).sort((a, b) => a.length - b.length);
+	return pathes.length > 0 ? pathes.map((p) => getpath(obj, p)) : null;
 }
 
 export function getpath(obj: object, path: string) {
@@ -76,8 +85,8 @@ function repls(value: any, data: object, game: object) {
 		value = {value};
 	for (let str of allstrings(value)) {
 		for (let expr of str.matchAll(/{{([^:]+?)}}/g)) {
-			if (!collections[expr[1]]) {
-				collections[expr[1]] = to_collection(render(expr[1], game, data));
+			if (!collections[expr[1]] && !value[expr[1]]) {
+				collections[expr[1]] = to_collection(render(expr[1], game, data, false));
 				collections[expr[1]].key = expr[1];
 			}
 		}
@@ -147,15 +156,25 @@ export function render(path: string, game: object, data: object = {}, strict:boo
 			if (Array.isArray(value)) {
 				return Array.from(value.keys()).map((v) => render(path + '.' + v, game, data)).flat(Infinity);
 			} else {
-				let templ = gettempl(game, path) || gettempl(presets, path);
-				if (templ) {
+				for (let annotation of getannotations(presets, path).concat(getannotations(game, path))) {
+					if (Array.isArray(annotation))
+						value.values = annotation; //maybe useful for bags and dices?
+					else if (typeof annotation == "object")
+						Object.assign(value, annotation);
+					else
+						value.front = annotation; //hack for backwards compatibility with the great microgame
+				}
+
+				if (value.type) {
 					const result = [];
-					const subdata = {};
 					for (let repl of repls(value, data, game)) {
+						const subdata = {};
+						Object.assign(subdata, value);
 						Object.assign(subdata, repl);
-						for (let k in value)
-							subdata[k] = render(path + '.' + k, game, subdata);
-						result.push(templ.replaceAll(/{{(.+?)}}/g, (_,expr) => subdata[expr] || render(expr, game, {}, false)));
+						for (let k in subdata)
+							if (typeof subdata[k] == 'string')
+								subdata[k] = subdata[k].replaceAll(/{{(.+?)}}/g, (_,expr) => subdata[expr] || render(expr, game, {}, false));
+						result.push(new value.type (subdata));
 					}
 					return result.flat(Infinity);
 				} else {
