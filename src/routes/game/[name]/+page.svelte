@@ -3,6 +3,7 @@
 	import { tick } from "svelte";
 	import { textfit } from "../../../lib/textfit.ts";
 	import { render,alltemplates,getpath } from "../../../lib/render.ts";
+	import Token from "../../../lib/Token.svelte";
 	export let data;
 	let things;
 	$:things = Object.fromEntries(
@@ -37,12 +38,10 @@
 	</table>
 </div>
 
-<div class="flex flex-wrap">
+<div class="flex flex-wrap gap-1" use:apply_textfit>
 	{#each Object.entries(things) as [path, perpath]}
 		{#each perpath as thing}
-			<div class="p-1" use:apply_textfit>
-				{@html thing}
-			</div>
+			<Token token="{thing}" />
 		{/each}
 	{/each}
 </div>
