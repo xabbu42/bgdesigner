@@ -1,4 +1,4 @@
-import Token from "./Token.ts";
+import Token from "./Token.js";
 
 const presets = {
 	"@cards": {
@@ -54,7 +54,7 @@ function* allstrings(obj: object) {
 
 function getannotations(obj: object, path: string) {
 	let pathes = [...allpathes(obj)].filter((v) => v.startsWith('@') && path.startsWith(v.substring(1))).sort((a, b) => a.length - b.length);
-	return pathes.length > 0 ? pathes.map((p) => getpath(obj, p)) : null;
+	return pathes.map((p) => getpath(obj, p));
 }
 
 export function getpath(obj: object, path: string) {
