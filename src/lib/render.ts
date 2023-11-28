@@ -1,14 +1,18 @@
 import Token from "./Token.js";
 
+const types = {
+	"Token": Token
+}
+
 const presets = {
 	"@cards": {
 		"front": "<div class=\"{{class}} card relative\"><div class=\"absolute top-4 left-4 bottom-4 right-4\">{{background}}</div><div class=\"absolute top-4 left-4\">{{text}}</div><div class=\"center z-10\">{{text}}</div><div class=\"absolute bottom-4 right-4 rotate-180\">{{text}}</div></div>",
 		"back": "<div class=\"{{class}} card\"></div>",
-		"type": Token
+		"type": "Token"
 	},
 	"@tokens": {
 		"html" : "<div class=\"{{class}} token\">{{symbol}}</div>",
-		"type" : Token
+		"type" : "Token"
 	}
 }
 
@@ -174,7 +178,7 @@ export function render(path: string, game: object, data: object = {}, strict:boo
 						for (let k in subdata)
 							if (typeof subdata[k] == 'string')
 								subdata[k] = subdata[k].replaceAll(/{{(.+?)}}/g, (_,expr) => subdata[expr] || render(expr, game, {}, false));
-						result.push(new value.type (subdata));
+						result.push(new types[value.type] (subdata));
 					}
 					return result.flat(Infinity);
 				} else {
