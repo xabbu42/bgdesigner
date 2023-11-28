@@ -180,7 +180,7 @@ export function render(path: string, game: object, data: object = {}, strict:boo
 								subdata[k] = subdata[k].replaceAll(/{{(.+?)}}/g, (_,expr) => subdata[expr] || render(expr, game, {}, false));
 						result.push(new types[value.type] (subdata));
 					}
-					return result.flat(Infinity);
+					return result.length == 1 ? result[0] : result;
 				} else {
 					return Object.fromEntries(Object.keys(value).map((v) => [v, render(path + '.' + v, game, data)]).concat([['path', path]]));
 				}
