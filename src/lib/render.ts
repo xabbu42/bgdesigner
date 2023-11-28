@@ -1,7 +1,12 @@
+import type Collection from "./types.ts"
 import Token from "./Token.js";
+import Bag from "./Bag.js";
+import Dice from "./Dice.js";
 
 const types = {
-	"Token": Token
+	"Token": Token,
+	"Bag": Bag,
+	"Dice": Dice,
 }
 
 const presets = {
@@ -74,13 +79,17 @@ export function getpath(obj: object, path: string) {
 	return prefix ? value[prefix] : value;
 }
 
+function is_collection(arg: any) : arg is Collection {
+	return arg.values !== undefined && arg.draw !== undefined;
+}
+
 function to_collection(arg: any) {
-	if (Array.isArray(arg))
-		return {"type" : "dice", 'values': arg};
-	else if (typeof arg === 'object' && 'values' in arg && 'type' in arg)
+	if (is_collection(arg))
 		return arg;
+	else if (Array.isArray(arg))
+		return new Dice ({"values": arg});
 	else
-		return {"type": "dice", 'values': [arg]};
+		return new Dice ({"values": [arg]});
 }
 
 function repls(value: any, data: object, game: object) {
@@ -89,22 +98,18 @@ function repls(value: any, data: object, game: object) {
 		value = {value};
 	for (let str of allstrings(value)) {
 		for (let expr of str.matchAll(/{{([^:]+?)}}/g)) {
-			if (!collections[expr[1]] && !value[expr[1]]) {
+			if (!collections[expr[1]] && !value[expr[1]])
 				collections[expr[1]] = to_collection(render(expr[1], game, data, false));
-				collections[expr[1]].key = expr[1];
-			}
 		}
 	}
 
-	var result = Object.values(collections).reduce(
+	var result = Object.entries(collections).reduce(
 		(repls, add) => repls.flatMap(
-			repl => add.values
-				.filter(value => add.type != "bag" || repl.filter(other => other[0] == add.path && other[2] == value).length == 0)
-				.map(value => [...repl, [add.path, add.key, value]])
+			repl => add[1].values.map(value => [...repl,  [add[0], add[1].draw(value)]])
 		),
 		[[]]
 	);
-	return result.map((repl) => Object.fromEntries(repl.map(v => v.slice(1))));
+	return result.map((repl) => Object.fromEntries(repl));
 }
 
 export function render(path: string, game: object, data: object = {}, strict:boolean = true) {
