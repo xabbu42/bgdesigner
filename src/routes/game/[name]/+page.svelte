@@ -5,11 +5,7 @@
 	import Token from "../../../lib/Token.svelte";
 	export let data;
 	let things;
-	$:things = Object.fromEntries(
-		[...data.game.alltemplates()]
-			.filter( (p) => data.game.getpath(p.substring(1)))
-			.map(    (p) => [p, data.game.render(p.substring(1)).flat(Infinity)])
-	);
+	$:things = data.game.allcomponents().reduce((t, v) => {let k = v.path.replace(/\.\d+.*$/, ''); t[k] = (t[k] || []); t[k].push(v); return t}, {});
 
 	function apply_textfit() {
 		for (const el of document.querySelectorAll(".text-fit-down")) {

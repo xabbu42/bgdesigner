@@ -88,18 +88,14 @@ export default class Game {
 		this.game = data;
 	}
 
-	alltemplates() {
-		const seen = {};
-		const result = [];
-		for (let obj of [this.game, this.presets]) {
-			for (let v of allpathes(obj)) {
-				if (v.startsWith('@') && !seen[v]) {
-					seen[v] = true;
-					result.push(v);
-				}
-			}
+	allcomponents() {
+		let result = [];
+		let pathes = [...allpathes(this.game), ...allpathes(this.presets)].filter(v => v.endsWith('.type')).map(v => v.slice(0,-5).replace(/^@/, ''));
+		for (let path of new Set(pathes)) {
+			if (this.getpath(path))
+				result.push(this.render(path));
 		}
-		return result;
+		return result.flat(Infinity);
 	}
 
 	getpath(path: string) {
