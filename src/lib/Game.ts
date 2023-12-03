@@ -126,9 +126,11 @@ export default class Game {
 		return result.map((repl) => Object.fromEntries(repl));
 	}
 
-	render(path: string, data: object = {}, strict:boolean = true) {
+	cache:object = {};
 
-		if (path in data)
+	render(path: string, data: object = null, strict:boolean = true) {
+
+		if (data && path in data)
 			return data[path];
 
 		let icon = path.match(/^([\w-]+:[\w-]+)\s*(.*)$/);
@@ -164,7 +166,11 @@ export default class Game {
 		}
 
 		path = pathes[0];
+		if (data === null && this.cache[path])
+			return this.cache[path];
+
 		let value = this.getpath(path);
+		let rendered;
 
 		switch (typeof value) {
 			case "string":
@@ -172,12 +178,12 @@ export default class Game {
 				if (single)
 					return this.render(single[1], data);
 				const result = this.repls(value, data).map((repl) => value.replaceAll(/{{(.+?)}}/g, (_,expr) => repl[expr] || this.render(expr, data)));
-				return result.length == 1 ? result[0] : result;
+				rendered = result.length == 1 ? result[0] : result;
 				break;
 
 			case "object":
 				if (Array.isArray(value)) {
-					return Array.from(value.keys()).map((v) => this.render(path + '.' + v, data)).flat(Infinity);
+					rendered = Array.from(value.keys()).map((v) => this.render(path + '.' + v, data)).flat(Infinity);
 				} else {
 					for (let annotation of getannotations(this.presets, path).concat(getannotations(this.game, path))) {
 						if (Array.isArray(annotation))
@@ -197,18 +203,21 @@ export default class Game {
 							for (let k in subdata)
 								if (typeof subdata[k] == 'string')
 									subdata[k] = subdata[k].replaceAll(/{{(.+?)}}/g, (_,expr) => subdata[expr] || this.render(expr, {}, false));
-							result.push(new this.types[value.type] (subdata));
+							result.push(new this.types[value.type] (path, subdata));
 						}
-						return result.length == 1 ? result[0] : result;
+						rendered = result.length == 1 ? result[0] : result;
 					} else {
-						return Object.fromEntries(Object.keys(value).map((v) => [v, this.render(path + '.' + v, data)]).concat([['path', path]]));
+						rendered = Object.fromEntries(Object.keys(value).map((v) => [v, this.render(path + '.' + v, data)]).concat([['path', path]]));
 					}
 				}
 				break;
 
 			default:
-				return value;
+				rendered = value;
 				break;
 		}
+
+		this.cache[path] = rendered;
+		return rendered;
 	}
 }
