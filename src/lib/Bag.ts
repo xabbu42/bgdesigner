@@ -13,8 +13,7 @@ export default class Bag implements Collection {
 
 	draw(value = null) {
 		let index = value == null ? Math.floor(Math.random() * this.values.length) : this.values.findIndex((v) => v == value);
-		let result = this.values.splice(index, index + 1)[0];
-		console.log(value, result);
+		let result = this.values.splice(index, 1)[0];
 		return result;
 	}
 
