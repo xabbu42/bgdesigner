@@ -2,14 +2,13 @@
 	import "iconify-icon";
 	import { tick } from "svelte";
 	import { textfit } from "../../../lib/textfit.ts";
-	import { render,alltemplates,getpath } from "../../../lib/render.ts";
 	import Token from "../../../lib/Token.svelte";
 	export let data;
 	let things;
 	$:things = Object.fromEntries(
-		[...alltemplates(data)]
-			.filter( (p) => getpath(data, p.substring(1)))
-			.map(    (p) => [p, render(p.substring(1), data).flat(Infinity)])
+		[...data.game.alltemplates()]
+			.filter( (p) => data.game.getpath(p.substring(1)))
+			.map(    (p) => [p, data.game.render(p.substring(1)).flat(Infinity)])
 	);
 
 	function apply_textfit() {
