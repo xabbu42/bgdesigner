@@ -1,7 +1,8 @@
 import type Collection from "./types.ts"
 
 export default class Dice implements Collection {
-	constructor(params: object) {
+	constructor(path: string, params: object) {
+		this.path = path;
 		this.values = params.values;
 		this.html = params.html;
 	}

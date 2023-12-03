@@ -47,13 +47,13 @@ function is_collection(arg: any) : arg is Collection {
 	return arg.values !== undefined && arg.draw !== undefined;
 }
 
-function to_collection(arg: any) {
+function to_collection(path: string, arg: any) {
 	if (is_collection(arg))
 		return arg;
 	else if (Array.isArray(arg))
-		return new Dice ({"values": arg});
+		return new Dice (path, {"values": arg});
 	else
-		return new Dice ({"values": [arg]});
+		return new Dice (path, {"values": [arg]});
 }
 
 export default class Game {
@@ -113,7 +113,7 @@ export default class Game {
 		for (let str of allstrings(value)) {
 			for (let expr of str.matchAll(/{{([^:]+?)}}/g)) {
 				if (!collections[expr[1]] && !value[expr[1]])
-					collections[expr[1]] = to_collection(this.render(expr[1], data, false));
+					collections[expr[1]] = to_collection(expr[1], this.render(expr[1], data, false));
 			}
 		}
 

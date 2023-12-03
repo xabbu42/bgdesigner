@@ -1,5 +1,6 @@
 export default class Token {
-	constructor(params: object) {
+	constructor(path: string, params: object) {
+		this.path = path;
 		this.flipped = false;
 		this.front = params.front || params.html;
 		this.back = params.back || params.html;
