@@ -168,49 +168,41 @@ export default class Game {
 		let value = this.getpath(path);
 		let rendered;
 
-		switch (typeof value) {
-			case "string":
-				const single = value.match(/^{{([^}]*)}}$/);
-				if (single)
-					return this.render(single[1], data);
-				const result = this.repls(value, data).map((repl) => value.replaceAll(/{{(.+?)}}/g, (_,expr) => repl[expr] || this.render(expr, data)));
-				rendered = result.length == 1 ? result[0] : result;
-				break;
+		if (typeof value == "string") {
+			const single = value.match(/^{{([^}]*)}}$/);
+			if (single)
+				return this.render(single[1], data);
+			const result = this.repls(value, data).map((repl) => value.replaceAll(/{{(.+?)}}/g, (_,expr) => repl[expr] || this.render(expr, data)));
+			rendered = result.length == 1 ? result[0] : result;
+		} else if (Array.isArray(value)) {
+			rendered = Array.from(value.keys()).map((v) => this.render(path + '.' + v, data)).flat(Infinity);
+		} else if (typeof value == "object") {
+			for (let annotation of getannotations(this.presets, path).concat(getannotations(this.game, path))) {
+				if (Array.isArray(annotation))
+					value.values = annotation; //maybe useful for bags and dices?
+				else if (typeof annotation == "object")
+					Object.assign(value, annotation);
+				else
+					value.front = annotation; //hack for backwards compatibility with the great microgame
+			}
 
-			case "object":
-				if (Array.isArray(value)) {
-					rendered = Array.from(value.keys()).map((v) => this.render(path + '.' + v, data)).flat(Infinity);
-				} else {
-					for (let annotation of getannotations(this.presets, path).concat(getannotations(this.game, path))) {
-						if (Array.isArray(annotation))
-							value.values = annotation; //maybe useful for bags and dices?
-						else if (typeof annotation == "object")
-							Object.assign(value, annotation);
-						else
-							value.front = annotation; //hack for backwards compatibility with the great microgame
-					}
-
-					if (value.type) {
-						const result = [];
-						for (let repl of this.repls(value, data)) {
-							const subdata = {};
-							Object.assign(subdata, value);
-							Object.assign(subdata, repl);
-							for (let k in subdata)
-								if (typeof subdata[k] == 'string')
-									subdata[k] = subdata[k].replaceAll(/{{(.+?)}}/g, (_,expr) => subdata[expr] || this.render(expr, {}, false));
-							result.push(new this.types[value.type] (path, subdata));
-						}
-						rendered = result.length == 1 ? result[0] : result;
-					} else {
-						rendered = Object.fromEntries(Object.keys(value).map((v) => [v, this.render(path + '.' + v, data)]).concat([['path', path]]));
-					}
+			if (value.type) {
+				const result = [];
+				for (let repl of this.repls(value, data)) {
+					const subdata = {};
+					Object.assign(subdata, value);
+					Object.assign(subdata, repl);
+					for (let k in subdata)
+						if (typeof subdata[k] == 'string')
+							subdata[k] = subdata[k].replaceAll(/{{(.+?)}}/g, (_,expr) => subdata[expr] || this.render(expr, {}, false));
+					result.push(new this.types[value.type] (path, subdata));
 				}
-				break;
-
-			default:
-				rendered = value;
-				break;
+				rendered = result.length == 1 ? result[0] : result;
+			} else {
+				rendered = Object.fromEntries(Object.keys(value).map((v) => [v, this.render(path + '.' + v, data)]).concat([['path', path]]));
+			}
+		} else {
+			rendered = value;
 		}
 
 		this.cache[path] = rendered;
