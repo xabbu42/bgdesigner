@@ -113,13 +113,20 @@ export default class Game {
 			}
 		}
 
-		var result = Object.entries(collections).reduce(
-			(repls, add) => repls.flatMap(
-				repl => add[1].values.map(value => [...repl,  [add[0], add[1].draw(value)]])
-			),
-			[[]]
-		);
-		return result.map((repl) => Object.fromEntries(repl));
+		function *combinations(comb:object, keys:[string], collections:object) {
+			const [head, ...tail] = keys;
+			for (let val of collections[head].values()) {
+				comb[head] = collections[head].draw(val);
+				if (tail.length > 0)
+					yield* combinations(comb, tail, collections);
+				else
+					yield {...comb};
+				collections[head].add(val);
+			}
+		}
+
+		const keys = Object.keys(collections);
+		return keys.length > 0 ? [...combinations({}, keys, collections)] : [{}];
 	}
 
 	cache:object = {};
