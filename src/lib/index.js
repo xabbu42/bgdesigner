@@ -1,3 +1,2 @@
 // Reexport your entry components here
-
-export { Game } from './Game.js'
+export { default as Game } from "./Game.js";
