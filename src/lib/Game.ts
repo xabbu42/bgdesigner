@@ -44,7 +44,7 @@ function getpath(obj: object, path: string) {
 }
 
 function is_collection(arg: any) : arg is Collection {
-	return arg.values !== undefined && arg.draw !== undefined;
+	return typeof arg == "object" && arg.values !== undefined && arg.draw !== undefined;
 }
 
 function to_collection(path: string, arg: any) {
@@ -107,7 +107,7 @@ export default class Game {
 		if (typeof value !== 'object')
 			value = {value};
 		for (let str of allstrings(value)) {
-			for (let expr of str.matchAll(/{{([^:]+?)}}/g)) {
+			for (let expr of str.matchAll(/{{(%[^:]+?)}}/g)) {
 				if (!collections[expr[1]] && !value[expr[1]])
 					collections[expr[1]] = to_collection(expr[1], this.render(expr[1], data, false));
 			}
@@ -142,12 +142,12 @@ export default class Game {
 			return `<iconify-icon ${params} icon="${icon[1]}" class="${icon[2]}"></iconify-icon>`;
 		}
 
-		let func = path.match(/^(\w+)\s+(.+)/);
-		if (func && func[1] in this.registry) {
-			return this.registry[func[1]](this.game, data, ...func[2].split(/\s+/));
+		let func = path.match(/^(%)?(\w+)\s+(.+)/);
+		if (func && func[2] in this.registry) {
+			return this.registry[func[2]](this.game, data, ...func[3].split(/\s+/));
 		}
 
-		let regexp = new RegExp('(^|\\.)' + path.replaceAll('.', '\.').replaceAll('*', '.*') + '$');
+		let regexp = new RegExp('(^|\\.)' + path.replace(/^%/, '').replaceAll('.', '\.').replaceAll('*', '.*') + '$');
 		let pathes = [...allpathes(this.game)].filter((v) => regexp.test(v));
 		if (pathes.filter((v) => v == path).length > 0)
 			pathes = [path];
@@ -193,21 +193,17 @@ export default class Game {
 					value.front = annotation; //hack for backwards compatibility with the great microgame
 			}
 
-			if (value.type) {
-				const result = [];
-				for (let repl of this.repls(value, data)) {
-					const subdata = {};
-					Object.assign(subdata, value);
-					Object.assign(subdata, repl);
-					for (let k in subdata)
-						if (typeof subdata[k] == 'string')
-							subdata[k] = subdata[k].replaceAll(/{{(.+?)}}/g, (_,expr) => subdata[expr] || this.render(expr, {}, false));
-					result.push(new this.types[value.type] (path, subdata));
-				}
-				rendered = result.length == 1 ? result[0] : result;
-			} else {
-				rendered = Object.fromEntries(Object.keys(value).map((v) => [v, this.render(path + '.' + v, data)]).concat([['path', path]]));
+			const result = [];
+			for (let repl of this.repls(value, data)) {
+				const subdata = {};
+				Object.assign(subdata, value);
+				Object.assign(subdata, repl);
+				for (let k in subdata)
+					if (typeof subdata[k] == 'string')
+						subdata[k] = subdata[k].replaceAll(/{{(.+?)}}/g, (_,expr) => subdata[expr] || this.render(expr, {}, false));
+				result.push(value.type ? new this.types[value.type] (path, subdata) : subdata);
 			}
+			rendered = result.length == 1 ? result[0] : result;
 		} else {
 			rendered = value;
 		}

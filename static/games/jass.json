@@ -9,5 +9,5 @@
 		"values" : ["A", "K", "Q", "J", "10", "9", "8", "7", "6"]
 	},
 
-	"cards": [{"text": "{{suits.*}}{{values}}"}]
+	"cards": [{"text": "{{%suits.*}}{{%values}}"}]
 }

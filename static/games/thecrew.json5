@@ -7,18 +7,18 @@
 			"green": "bg-green-300"
 		},
 		//TODO should use a better symbol for the last mission token
-		"mission": ["{{range 5}}", "Ω", "{{mdi:chevron-right}}", "{{mdi:chevron-double-right}}", "{{mdi:chevron-triple-right}}", "<nobr>{{mdi:chevron-double-right}}{{mdi:chevron-double-right}}</nobr>"]
+		"mission": ["{{%range 5}}", "Ω", "{{mdi:chevron-right}}", "{{mdi:chevron-double-right}}", "{{mdi:chevron-triple-right}}", "<nobr>{{mdi:chevron-double-right}}{{mdi:chevron-double-right}}</nobr>"]
 	},
 	"tokens": [
-		{"class": "bg-indigo-800 text-purple-500", "symbol": "{{mission}}"},
-		{"class": "bg-green-800 rounded-full token-lg", "symbol": "{{game-icons:astronaut-helmet}}", "i": "{{range 5}}"}
+		{"class": "bg-indigo-800 text-purple-500", "symbol": "{{%mission}}"},
+		{"class": "bg-green-800 rounded-full token-lg", "symbol": "{{game-icons:astronaut-helmet}}", "i": "{{%range 5}}"}
 	],
 	"cards": [
 		/* Main cards, suits and rockets */
-		{"class": "{{suits.*}}", "background": "{{game-icons:astronaut-helmet w-full h-full opacity-40}}", "text": "{{range 9}}"},
-		{"background": "{{game-icons:rocket w-full h-full opacity-40 -scale-y-100}}", "text": "{{range 4}}"},
+		{"class": "{{%suits.*}}", "background": "{{game-icons:astronaut-helmet w-full h-full opacity-40}}", "text": "{{%range 9}}"},
+		{"background": "{{game-icons:rocket w-full h-full opacity-40 -scale-y-100}}", "text": "{{%range 4}}"},
 
 		/* Small Mission cards */
-		{"class": "{{cards.0.class}} card-sm", "background": "{{cards.0.background}}", "text": "{{range 9}}"}
+		{"class": "{{%cards.0.class}} card-sm", "background": "{{cards.0.background}}", "text": "{{%range 9}}"}
 	]
 }
