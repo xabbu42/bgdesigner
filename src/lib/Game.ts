@@ -68,11 +68,16 @@ export default class Game {
 		"@cards": {
 			"front": "<div class=\"{{class}} card relative\"><div class=\"absolute top-4 left-4 bottom-4 right-4\">{{background}}</div><div class=\"absolute top-4 left-4\">{{text}}</div><div class=\"center z-10\">{{text}}</div><div class=\"absolute bottom-4 right-4 rotate-180\">{{text}}</div></div>",
 			"back": "<div class=\"{{class}} card\"></div>",
-			"type": "Token"
+			"type": "Token",
+			'class': '',
+			'background': '',
+			'text': '',
 		},
 		"@tokens": {
 			"html" : "<div class=\"{{class}} token\">{{symbol}}</div>",
-			"type" : "Token"
+			"type" : "Token",
+			'class' : '',
+			'symbol': '',
 		}
 	}
 
@@ -109,7 +114,7 @@ export default class Game {
 		for (let str of allstrings(value)) {
 			for (let expr of str.matchAll(/{{(%[^:]+?)}}/g)) {
 				if (!collections[expr[1]] && !value[expr[1]])
-					collections[expr[1]] = to_collection(expr[1], this.render(expr[1], data, false));
+					collections[expr[1]] = to_collection(expr[1], this.render(expr[1], data));
 			}
 		}
 
@@ -131,7 +136,7 @@ export default class Game {
 
 	cache:object = {};
 
-	render(path: string, data: object = null, strict:boolean = true) {
+	render(path: string, data: object = null) {
 
 		if (data && path in data)
 			return data[path];
@@ -157,15 +162,9 @@ export default class Game {
 				result.push(this.render(p, data));
 			return result;
 		} else if (pathes.length == 0) {
-			if (strict)
-				throw `Unknown path ${path}`;
-			else
-				return '';
+			throw `Unknown path ${path}`;
 		} else if (pathes.length > 1) {
-			if (strict)
-				throw `Ambigious path ${path}: ${pathes.join(',')}`;
-			else
-				return '';
+			throw `Ambigious path ${path}: ${pathes.join(',')}`;
 		}
 
 		path = pathes[0];
@@ -202,8 +201,9 @@ export default class Game {
 				Object.assign(subdata, value);
 				Object.assign(subdata, repl);
 				for (let k in subdata)
-					if (typeof subdata[k] == 'string')
-						subdata[k] = subdata[k].replaceAll(/{{(.+?)}}/g, (_,expr) => subdata[expr] || this.render(expr, {}, false));
+					if (typeof subdata[k] == 'string') {
+						subdata[k] = subdata[k].replaceAll(/{{(.+?)}}/g, (_,expr) => repl[expr] ?? this.render(expr, subdata));
+					}
 				result.push(value.type ? new this.types[value.type] (path, subdata) : subdata);
 			}
 			rendered = result.length == 1 ? result[0] : result;
