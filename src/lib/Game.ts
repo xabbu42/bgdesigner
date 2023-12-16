@@ -174,12 +174,15 @@ export default class Game {
 		let value = this.getpath(path);
 		let rendered;
 
-		if (typeof value == "string") {
+		let render_string = (value, repl, data) => {
 			const single = value.match(/^{{([^}]*)}}$/);
-			if (single)
-				return this.render(single[1], data);
-			const result = this.repls(value, data).map((repl) => value.replaceAll(/{{(.+?)}}/g, (_,expr) => repl[expr] || this.render(expr, data)));
-			rendered = result.length == 1 ? result[0] : result;
+			return single ? repl[single[1]] ?? this.render(single[1], data)
+			              : value.replaceAll(/{{(.+?)}}/g, (_,expr) => repl[expr] ?? this.render(expr, data));
+		};
+
+		if (typeof value == "string") {
+			rendered = this.repls(value, data).map(repl => render_string(value, repl, data));
+			rendered = rendered.length == 1 ? rendered[0] : rendered;
 		} else if (Array.isArray(value)) {
 			rendered = Array.from(value.keys()).map((v) => this.render(path + '.' + v, data)).flat(Infinity);
 		} else if (typeof value == "object") {
@@ -200,10 +203,10 @@ export default class Game {
 				const subdata = {};
 				Object.assign(subdata, value);
 				Object.assign(subdata, repl);
-				for (let k in subdata)
-					if (typeof subdata[k] == 'string') {
-						subdata[k] = subdata[k].replaceAll(/{{(.+?)}}/g, (_,expr) => repl[expr] ?? this.render(expr, subdata));
-					}
+				for (let k in subdata) {
+					if (typeof subdata[k] == 'string')
+						subdata[k] = render_string(subdata[k], repl, subdata);
+				}
 				result.push(value.type ? new this.types[value.type] (path, subdata) : subdata);
 			}
 			rendered = result.length == 1 ? result[0] : result;
