@@ -187,9 +187,12 @@ export default class Game {
 			for (let annotation of getannotations(this.presets, path).concat(getannotations(this.game, path))) {
 				if (Array.isArray(annotation))
 					value.values = annotation; //maybe useful for bags and dices?
-				else if (typeof annotation == "object")
-					Object.assign(value, annotation);
-				else
+				else if (typeof annotation == "object") {
+					// wie currently depend on key order TODO remove dependency and simplify this
+					for (let k in annotation)
+						if (!(k in value))
+							value[k] = annotation[k];
+				} else
 					value.front = annotation; //hack for backwards compatibility with the great microgame
 			}
 
