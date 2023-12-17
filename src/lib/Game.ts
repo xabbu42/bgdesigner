@@ -145,7 +145,7 @@ export default class Game {
 		let func = path.match(/^(%)?(\w+)\s+(.+)/);
 		if (func) {
 			if (!(func[2] in this.registry))
-				throw `Unknown function ${func[2]}`;
+				throw new Error(`Unknown function ${func[2]}`);
 			return this.registry[func[2]](this.game, data, ...func[3].split(/\s+/));
 		}
 
@@ -159,9 +159,9 @@ export default class Game {
 				result.push(this.render(p, data));
 			return result;
 		} else if (pathes.length == 0) {
-			throw `Unknown path ${path}`;
+			throw new Error(`Unknown path ${path}`);
 		} else if (pathes.length > 1) {
-			throw `Ambigious path ${path}: ${pathes.join(',')}`;
+			throw new Error(`Ambigious path ${path}: ${pathes.join(',')}`);
 		}
 
 		path = pathes[0];
