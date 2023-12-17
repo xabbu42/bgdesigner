@@ -1,4 +1,4 @@
-import {Collection,Bag,Dice} from "./collections.ts"
+import {Collection,Bag,Dice} from "./collections.js"
 import Token from "./Token.js";
 
 function* allpathes(obj: object, path: string[] = []) {
