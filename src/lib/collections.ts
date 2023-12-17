@@ -2,7 +2,7 @@ export abstract class Collection {
 	protected _values:[any] = []
 	constructor(path: string, params: object) {
 		this.path = path;
-		this._values = params.values;
+		this._values = Array.isArray(params.values) ? params.values : [params.values];
 		this.html = params.html;
 	}
 

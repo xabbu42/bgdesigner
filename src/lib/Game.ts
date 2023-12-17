@@ -36,15 +36,6 @@ function getpath(obj: object, path: string) {
 	return prefix ? value[prefix] : value;
 }
 
-function to_collection(path: string, arg: any) {
-	if (arg instanceof Collection)
-		return arg;
-	else if (Array.isArray(arg))
-		return new Dice (path, {"values": arg});
-	else
-		return new Dice (path, {"values": [arg]});
-}
-
 export default class Game {
 
 	types:object = {
@@ -104,8 +95,10 @@ export default class Game {
 			value = {value};
 		for (let str of allstrings(value)) {
 			for (let expr of str.matchAll(/{{(%[^:]+?)}}/g)) {
-				if (!collections[expr[1]] && !value[expr[1]])
-					collections[expr[1]] = to_collection(expr[1], this.render(expr[1], data));
+				if (!collections[expr[1]] && !value[expr[1]]) {
+					let values = this.render(expr[1], data);
+					collections[expr[1]] = values instanceof Collection ? values : new Dice(expr[1], {values});
+				}
 			}
 		}
 
