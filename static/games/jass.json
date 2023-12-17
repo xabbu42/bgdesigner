@@ -1,10 +1,10 @@
 {
 	"symbols": {
 		"suits" : {
-			"heart": "{{mdi:cards-heart text-red-600}}",
-			"diamond": "{{mdi:cards-diamond text-red-600}}",
-			"spade": "{{mdi:cards-spade}}",
-			"club": "{{mdi:cards-club}}"
+			"heart": "{{icon mdi:cards-heart text-red-600}}",
+			"diamond": "{{icon mdi:cards-diamond text-red-600}}",
+			"spade": "{{icon mdi:cards-spade}}",
+			"club": "{{icon mdi:cards-club}}"
 		},
 		"values" : ["A", "K", "Q", "J", "10", "9", "8", "7", "6"]
 	},

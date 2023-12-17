@@ -84,7 +84,9 @@ export default class Game {
 	registry:object = {
 		range: (g, d, a, b) => [...Array(b ? b - a + 1 : +a).keys()].map(i => i + (b ? +a : 1)),
 		max: (g, d, p) => Math.max(...g.render(p, d)),
-		min: (g, d, p) => Math.min(...g.render(p, d))
+		min: (g, d, p) => Math.min(...g.render(p, d)),
+		icon: (g, d, name, ...classes) =>
+			`<iconify-icon ${classes.join(' ').match(/\b[wh]-/) ? "width=none" : "inline"} icon="${name}" class="${classes.join(' ')}"></iconify-icon>`
 	}
 
 	game:object = {};
@@ -140,12 +142,6 @@ export default class Game {
 
 		if (data && path in data)
 			return data[path];
-
-		let icon = path.match(/^([\w-]+:[\w-]+)\s*(.*)$/);
-		if (icon) {
-			let params = icon[2].match(/\b[wh]-/) ? "width=none" : "inline";
-			return `<iconify-icon ${params} icon="${icon[1]}" class="${icon[2]}"></iconify-icon>`;
-		}
 
 		let func = path.match(/^(%)?(\w+)\s+(.+)/);
 		if (func) {
