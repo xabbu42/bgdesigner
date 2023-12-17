@@ -25,11 +25,6 @@ function* allstrings(obj: object) {
 	}
 }
 
-function getannotations(obj: object, path: string) {
-	let pathes = [...allpathes(obj)].filter((v) => v.startsWith('@') && path.startsWith(v.substring(1))).sort((a, b) => a.length - b.length);
-	return pathes.map((p) => getpath(obj, p));
-}
-
 function getpath(obj: object, path: string) {
 	let value = obj;
 	let prefix = '';
@@ -136,6 +131,22 @@ export default class Game {
 		return keys.length > 0 ? [...combinations({}, keys, collections)] : [{}];
 	}
 
+	annotations(path) {
+		const annotations = {};
+		for (let obj of [this.presets, this.game]) {
+			let pathes = [...allpathes(obj)].filter((v) => v.startsWith('@') && path.startsWith(v.substring(1))).sort((a, b) => a.length - b.length);
+			for (let annotation of pathes.map((p) => getpath(obj, p))) {
+				if (Array.isArray(annotation))
+					annotations.values = annotation; //maybe useful for bags and dices?
+				else if (typeof annotation == "object") {
+					Object.assign(annotations, annotation);
+				} else
+					annotations.front = annotation; //hack for backwards compatibility with the great microgame
+			}
+		}
+		return annotations;
+	}
+
 	cache:object = {};
 
 	render(path: string, data: object = null) {
@@ -181,33 +192,26 @@ export default class Game {
 		if (typeof value == "string") {
 			rendered = this.repls(value, data).map(repl => render_string(value, repl, data));
 			rendered = rendered.length == 1 ? rendered[0] : rendered;
+
 		} else if (Array.isArray(value)) {
 			rendered = Array.from(value.keys()).map((v) => this.render(path + '.' + v, data)).flat(Infinity);
+
 		} else if (typeof value == "object") {
-			for (let annotation of getannotations(this.presets, path).concat(getannotations(this.game, path))) {
-				if (Array.isArray(annotation))
-					value.values = annotation; //maybe useful for bags and dices?
-				else if (typeof annotation == "object") {
-					// wie currently depend on key order TODO remove dependency and simplify this
-					for (let k in annotation)
-						if (!(k in value))
-							value[k] = annotation[k];
-				} else
-					value.front = annotation; //hack for backwards compatibility with the great microgame
-			}
+			const annotations = this.annotations(path);
+			for (let k in annotations)
+				if (!(k in value))
+					value[k] = annotations[k];
 
 			const result = [];
 			for (let repl of this.repls(value, data)) {
-				const subdata = {};
-				Object.assign(subdata, value);
-				Object.assign(subdata, repl);
-				for (let k in subdata) {
+				const subdata = {...value, ...repl};
+				for (let k in subdata)
 					if (typeof subdata[k] == 'string')
 						subdata[k] = render_string(subdata[k], repl, subdata);
-				}
-				result.push(value.type ? new this.types[value.type] (path, subdata) : subdata);
+				result.push(subdata.type ? new this.types[subdata.type] (path, subdata) : subdata);
 			}
 			rendered = result.length == 1 ? result[0] : result;
+
 		} else {
 			rendered = value;
 		}
