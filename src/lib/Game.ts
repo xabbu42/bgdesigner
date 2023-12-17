@@ -148,7 +148,9 @@ export default class Game {
 		}
 
 		let func = path.match(/^(%)?(\w+)\s+(.+)/);
-		if (func && func[2] in this.registry) {
+		if (func) {
+			if (!(func[2] in this.registry))
+				throw `Unknown function ${func[2]}`;
 			return this.registry[func[2]](this.game, data, ...func[3].split(/\s+/));
 		}
 
