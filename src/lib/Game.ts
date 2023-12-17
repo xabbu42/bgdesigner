@@ -1,7 +1,5 @@
-import type Collection from "./types.ts"
+import {Collection,Bag,Dice} from "./collections.ts"
 import Token from "./Token.js";
-import Bag from "./Bag.js";
-import Dice from "./Dice.js";
 
 function* allpathes(obj: object, path: string[] = []) {
 	for (let key in obj) {
@@ -38,12 +36,8 @@ function getpath(obj: object, path: string) {
 	return prefix ? value[prefix] : value;
 }
 
-function is_collection(arg: any) : arg is Collection {
-	return typeof arg == "object" && arg.values !== undefined && arg.draw !== undefined;
-}
-
 function to_collection(path: string, arg: any) {
-	if (is_collection(arg))
+	if (arg instanceof Collection)
 		return arg;
 	else if (Array.isArray(arg))
 		return new Dice (path, {"values": arg});
