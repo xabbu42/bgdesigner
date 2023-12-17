@@ -10,19 +10,6 @@ function* allpathes(obj: object, path: string[] = []) {
 	}
 }
 
-function* allstrings(obj: object) {
-	for (let key in obj) {
-		switch (typeof(obj[key])) {
-			case "object":
-				yield* allstrings(obj[key]);
-				break;
-			case "string":
-				yield obj[key];
-				break;
-		}
-	}
-}
-
 function getpath(obj: object, path: string) {
 	let value = obj;
 	let prefix = '';
@@ -93,6 +80,20 @@ export default class Game {
 		const collections = {};
 		if (typeof value !== 'object')
 			value = {value};
+
+		function* allstrings(obj: object) {
+			for (let key in obj) {
+				switch (typeof(obj[key])) {
+					case "object":
+						yield* allstrings(obj[key]);
+						break;
+					case "string":
+						yield obj[key];
+						break;
+				}
+			}
+		}
+
 		for (let str of allstrings(value)) {
 			for (let expr of str.matchAll(/{{(%[^:]+?)}}/g)) {
 				if (!collections[expr[1]] && !value[expr[1]]) {
