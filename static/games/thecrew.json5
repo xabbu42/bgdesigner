@@ -19,6 +19,6 @@
 		{"background": "{{game-icons:rocket w-full h-full opacity-40 -scale-y-100}}", "text": "{{%range 4}}"},
 
 		/* Small Mission cards */
-		{"class": "{{%cards.0.class}} card-sm", "background": "{{cards.0.background}}", "text": "{{%range 9}}"}
+		{"class": "{{%cards.0.class}} card-sm", "background": "{{cards.0.background}}", "text": "{{%cards.0.text}}"}
 	]
 }
