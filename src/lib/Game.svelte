@@ -63,19 +63,12 @@
 	}
 
 	tick(() => apply_textfit());
-	let last;
 </script>
 
 <div class="viewport relative overflow-hidden w-full h-full"
 	bind:this="{viewport}"
 	on:wheel|preventDefault="{(e) => zoom(event_point(e), e.deltaY / 1000)}"
-	on:mousedown|preventDefault="{(e) => last = {clientX: e.clientX, clientY: e.clientY}}"
-	on:mousemove|preventDefault="{(e) => {
-		if (e.buttons == 1 && last) {
-			pan({x: (last.clientX - e.clientX), y: (last.clientY - e.clientY)});
-			last = {clientX: e.clientX, clientY: e.clientY};
-		 }
-	}}"
+	on:mousemove|preventDefault="{(e) => e.buttons == 1 ? pan({x: -e.movementX, y: -e.movementY}) : null}"
 >
 	<div class="canvas absolute origin-top-left" style="transform: scale({camera.z}) translate({camera.x}px,{camera.y}px)" use:apply_textfit>
 		<div class="flex flex-wrap gap-1">
