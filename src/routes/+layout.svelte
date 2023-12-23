@@ -5,8 +5,8 @@
 	const games = Object.keys(obj).map((v) => v.match(/([^\/]+)$/, v)[0]);
 </script>
 
-<div class="p-4 antialiased text-gray-900">
-	<nav class="font-sans border-b-2 p-1 w-full">
+<div class="p-1 antialiased text-gray-900 h-screen w-screen flex flex-col">
+	<nav class="font-sans border-b-2 p-1 mb-1">
 		<div>
 			<a href="/" class="text-2xl">BGDesigner</a>
 			{#each games as game}
@@ -14,7 +14,9 @@
 			{/each}
 		</div>
 	</nav>
-	<slot />
+	<div class="grow">
+		<slot />
+	</div>
 </div>
 <style lang="postcss">
 	nav a { @apply text-lg no-underline hover:text-blue-800 p-2 ml-2 rounded-t-lg font-semibold }
