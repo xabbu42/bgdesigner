@@ -4,6 +4,7 @@
 	export let camera;
 	let div;
 	let pos = {x:0, y:0};
+	let dragging = false;
 	onMount(async () => {
 		let initialpos = {x: div.offsetLeft, y: div.offsetTop};
 		await tick();
@@ -15,9 +16,12 @@
 <div
 	bind:this="{div}"
 	on:dblclick|preventDefault="{(e) => {token.flip(); token = token}}"
-	on:mousedown|preventDefault|stopPropagation="{(e) => div.parentNode.appendChild(div)}"
-	on:mousemove|preventDefault|stopPropagation="{(e) => e.buttons == 1 ? pos = {x: pos.x + e.movementX / camera.z, y: pos.y + e.movementY / camera.z} : null}"
+	on:mousedown|preventDefault|stopPropagation="{(e) => {dragging = true; div.parentNode.appendChild(div)}}"
 	style="left: {pos.x}px; top: {pos.y}px"
 >
 	{@html token}
 </div>
+<svelte:window
+	on:mousemove="{(e) => dragging ? pos = {x: pos.x + e.movementX / camera.z, y: pos.y + e.movementY / camera.z} : null}"
+	on:mouseup="{(e) => dragging = false}"
+/>

@@ -60,20 +60,27 @@
 				textfit(el);
 		}
 	}
+
+	let dragging = false;
 </script>
 
 <div class="viewport relative overflow-hidden w-full h-full"
 	bind:this="{viewport}"
 	on:wheel|preventDefault="{(e) => zoom(event_point(e), e.deltaY / 1000)}"
-	on:mousemove|preventDefault="{(e) => e.buttons == 1 ? pan({x: -e.movementX, y: -e.movementY}) : null}"
+	on:mousedown|preventDefault="{(e) => dragging = true}"
 >
 	<div class="canvas absolute origin-top-left" style="transform: scale({camera.z}) translate({camera.x}px,{camera.y}px)" use:apply_textfit>
 		<div class="flex flex-wrap gap-1">
 			{#each components as component}
-			<Token token="{component}" camera="{camera}" />
+				<Token token="{component}" camera="{camera}" />
 			{/each}
 		</div>
 	</div>
 	<div class="overlay absolute right-1 bottom-1 shadow-md bg-slate-100 p-1" >
 	</div>
 </div>
+
+<svelte:window
+	on:mousemove="{(e) => dragging ? pan({x: -e.movementX, y: -e.movementY}) : null}"
+	on:mouseup="{(e) => dragging = false}"
+/>
