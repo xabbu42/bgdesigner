@@ -1,6 +1,5 @@
 <script>
 	import Token from "./Token.svelte";
-	import { tick } from "svelte";
 	import { textfit } from "./textfit.ts";
 
 	export let game;
@@ -61,8 +60,6 @@
 				textfit(el);
 		}
 	}
-
-	tick(() => apply_textfit());
 </script>
 
 <div class="viewport relative overflow-hidden w-full h-full"
