@@ -70,7 +70,7 @@
 	<div class="canvas absolute origin-top-left" style="transform: scale({camera.z}) translate({camera.x}px,{camera.y}px)" use:apply_textfit>
 		<div class="flex flex-wrap gap-1">
 			{#each components as component}
-			<Token token="{component}" />
+			<Token token="{component}" camera="{camera}" />
 			{/each}
 		</div>
 	</div>

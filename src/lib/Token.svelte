@@ -1,6 +1,7 @@
 <script>
 	import { onMount,tick } from 'svelte';
 	export let token;
+	export let camera;
 	let div;
 	let pos = {x:0, y:0};
 	onMount(async () => {
@@ -17,7 +18,7 @@
 	on:mousedown|preventDefault|stopPropagation="{(e) => {div.parentNode.appendChild(div)}}"
 	on:mousemove|preventDefault|stopPropagation="{(e) => {
 		if (e.buttons == 1) {
-			pos = {x: pos.x + e.movementX, y: pos.y + e.movementY};
+			pos = {x: pos.x + e.movementX / camera.z, y: pos.y + e.movementY / camera.z};
 		}
 	}}"
 	style="left: {pos.x}px; top: {pos.y}px"
