@@ -4,8 +4,7 @@
 	let div;
 	let pos = {x:0, y:0};
 	onMount(async () => {
-		let rect = div.getBoundingClientRect();
-		let initialpos = {x: rect.left, y: rect.top};
+		let initialpos = {x: div.offsetLeft, y: div.offsetTop};
 		await tick();
 		div.style = "position: absolute";
 		pos = initialpos;
