@@ -15,12 +15,8 @@
 <div
 	bind:this="{div}"
 	on:dblclick|preventDefault="{(e) => {token.flip(); token = token}}"
-	on:mousedown|preventDefault|stopPropagation="{(e) => {div.parentNode.appendChild(div)}}"
-	on:mousemove|preventDefault|stopPropagation="{(e) => {
-		if (e.buttons == 1) {
-			pos = {x: pos.x + e.movementX / camera.z, y: pos.y + e.movementY / camera.z};
-		}
-	}}"
+	on:mousedown|preventDefault|stopPropagation="{(e) => div.parentNode.appendChild(div)}"
+	on:mousemove|preventDefault|stopPropagation="{(e) => e.buttons == 1 ? pos = {x: pos.x + e.movementX / camera.z, y: pos.y + e.movementY / camera.z} : null}"
 	style="left: {pos.x}px; top: {pos.y}px"
 >
 	{@html token}
