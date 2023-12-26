@@ -191,12 +191,13 @@ export default class Game {
 					value[k] = annotations[k];
 
 			const result = [];
-			for (let repl of this.repls(value, data)) {
+			const repls = this.repls(value, data);
+			for (let repl of repls) {
 				const subdata = {...value, ...repl};
 				for (let k in subdata)
 					if (typeof subdata[k] == 'string')
 						subdata[k] = render_string(subdata[k], repl, subdata);
-				result.push(subdata.type ? new this.types[subdata.type] (path, subdata) : subdata);
+				result.push(subdata.type ? new this.types[subdata.type] (path + (repls.length > 1 ? '.' + result.length : ''), subdata) : subdata);
 			}
 			rendered = result.length == 1 ? result[0] : result;
 
