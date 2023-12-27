@@ -43,7 +43,7 @@ function MergeGamesPlugin(root: string): Plugin {
 			}
 		},
 		handleHotUpdate({ file, server }) {
-			if (dirs.some((v) => file.startsWith(v))) {
+			if (dirs.some((v) => file.startsWith(v + '/'))) {
 				server.restart();
 			}
 		},
