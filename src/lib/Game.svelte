@@ -1,9 +1,19 @@
 <script>
+	import { writable } from 'svelte/store';
 	import Token from "./Token.svelte";
 	import { textfit } from "./textfit.ts";
 
 	export let game;
+
+	let dragitem = writable();
+
+	let components = [];
 	$:components = game.allcomponents();
+
+	dragitem.subscribe((component) => {
+		if (component)
+			components = [...components.filter(v => v != component), component];
+	})
 
 	let camera = {x: 0, y: 0, z: 1};
 	let viewport;
@@ -61,18 +71,18 @@
 		}
 	}
 
-	let dragging = false;
+	let paning = false;
 </script>
 
 <div class="viewport relative overflow-hidden w-full h-full"
 	bind:this="{viewport}"
 	on:wheel|preventDefault="{(e) => zoom(event_point(e), e.deltaY / 1000)}"
-	on:mousedown|preventDefault="{(e) => dragging = true}"
+	on:mousedown|preventDefault="{(e) => paning = true}"
 >
 	<div class="canvas absolute origin-top-left" style="transform: scale({camera.z}) translate({camera.x}px,{camera.y}px)" use:apply_textfit>
 		<div class="flex flex-wrap gap-1">
-			{#each components as component}
-				<Token token="{component}" camera="{camera}" />
+			{#each components as component(component.path)}
+				<Token token="{component}" camera="{camera}" dragitem="{dragitem}" />
 			{/each}
 		</div>
 	</div>
@@ -81,6 +91,6 @@
 </div>
 
 <svelte:window
-	on:mousemove="{(e) => dragging ? pan({x: -e.movementX, y: -e.movementY}) : null}"
-	on:mouseup="{(e) => dragging = false}"
+	on:mousemove="{(e) => paning ? pan({x: -e.movementX, y: -e.movementY}) : null}"
+	on:mouseup="{(e) => paning = false}"
 />
