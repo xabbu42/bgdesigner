@@ -1,9 +1,15 @@
+import type {Point} from "types.js";
+
 export abstract class Collection {
 	protected _values:[any] = []
+	pos: Point = {x:0, y:0};
+
 	constructor(path: string, params: object) {
 		this.path = path;
 		this._values = Array.isArray(params.values) ? params.values : [params.values];
 		this.html = params.html;
+		if (params.pos)
+			this.pos = params.pos;
 	}
 
 	values():[any] {

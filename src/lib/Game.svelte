@@ -1,4 +1,5 @@
-<script>
+<script lang="ts">
+	import type {Point} from "types.ts";
 	import { writable,get } from 'svelte/store';
 	import Token from "./Token.svelte";
 	import { textfit } from "./textfit.ts";
@@ -8,7 +9,6 @@
 	let dragitem = writable();
 
 	let components = game.allcomponents();
-	let elements = {};
 
 	dragitem.subscribe((component) => {
 		if (component)
@@ -23,21 +23,21 @@
 		return {x: e.clientX - rect.left, y: e.clientY - rect.top};
 	}
 
-	function canvas(point, camera) {
+	function canvas(point: Point, camera) {
 		return {
 			x: point.x / camera.z - camera.x,
 			y: point.y / camera.z - camera.y,
 		}
 	}
 
-	function screen(point, camera) {
+	function screen(point: Point, camera) {
 		return {
 			x: (point.x + camera.x) * camera.z,
 			y: (point.y + camera.y) * camera.z,
 		}
 	}
 
-	function zoom(point, dz) {
+	function zoom(point: Point, dz) {
 		const z = camera.z - dz * camera.z
 		const p1 = canvas(point, camera)
 		const p2 = canvas(point, { ...camera, z:z})
@@ -48,7 +48,7 @@
 		}
 	}
 
-	function pan(d) {
+	function pan(d: Point) {
 		camera = {
 			x: camera.x - d.x / camera.z,
 			y: camera.y - d.y / camera.z,
@@ -76,9 +76,9 @@
 		if (paning)
 			pan({x: -e.movementX, y: -e.movementY});
 		else if (di) {
+			let p = event_point(e);
 			for (let component of components.toReversed()) {
-				let rect = elements[component.path].div.getBoundingClientRect();
-				if (component != di && e.clientX > rect.left && e.clientX < rect.right && e.clientY > rect.top && e.clientY < rect.bottom) {
+				if (component != di && p.x > component.pos.x && p.x < component.pos.x + component.width && p.y > component.pos.y && p.y < component.pos.y + component.height) {
 					dropitem = component;
 					break;
 				}
@@ -103,7 +103,7 @@
 	<div class="canvas absolute origin-top-left" style="transform: scale({camera.z}) translate({camera.x}px,{camera.y}px)" use:apply_textfit>
 		<div class="flex flex-wrap gap-1">
 			{#each components as component(component.path)}
-				<Token bind:this="{elements[component.path]}" token="{component}" camera="{camera}" dragitem="{dragitem}" class="{dropitem == component ? 'outline outline-4 outline-blue-400/50' : ''}" />
+				<Token token="{component}" camera="{camera}" dragitem="{dragitem}" class="{dropitem == component ? 'outline outline-4 outline-blue-400/50' : ''}" />
 			{/each}
 		</div>
 	</div>
