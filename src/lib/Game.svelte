@@ -1,5 +1,5 @@
 <script>
-	import { writable } from 'svelte/store';
+	import { writable,get } from 'svelte/store';
 	import Token from "./Token.svelte";
 	import { textfit } from "./textfit.ts";
 
@@ -7,8 +7,8 @@
 
 	let dragitem = writable();
 
-	let components = [];
-	$:components = game.allcomponents();
+	let components = game.allcomponents();
+	let elements = {};
 
 	dragitem.subscribe((component) => {
 		if (component)
@@ -71,7 +71,28 @@
 		}
 	}
 
+	function onmousemove(e) {
+		let di = get(dragitem);
+		if (paning)
+			pan({x: -e.movementX, y: -e.movementY});
+		else if (di) {
+			for (let component of components.toReversed()) {
+				let rect = elements[component.path].div.getBoundingClientRect();
+				if (component != di && e.clientX > rect.left && e.clientX < rect.right && e.clientY > rect.top && e.clientY < rect.bottom) {
+					dropitem = component;
+					break;
+				}
+			}
+		}
+	}
+
+	function onmouseup(e) {
+		paning = false;
+		dropitem = null;
+	}
+
 	let paning = false;
+	let dropitem = null;
 </script>
 
 <div class="viewport relative overflow-hidden w-full h-full"
@@ -82,7 +103,7 @@
 	<div class="canvas absolute origin-top-left" style="transform: scale({camera.z}) translate({camera.x}px,{camera.y}px)" use:apply_textfit>
 		<div class="flex flex-wrap gap-1">
 			{#each components as component(component.path)}
-				<Token token="{component}" camera="{camera}" dragitem="{dragitem}" />
+				<Token bind:this="{elements[component.path]}" token="{component}" camera="{camera}" dragitem="{dragitem}" class="{dropitem == component ? 'outline outline-4 outline-blue-400/50' : ''}" />
 			{/each}
 		</div>
 	</div>
@@ -90,7 +111,4 @@
 	</div>
 </div>
 
-<svelte:window
-	on:mousemove="{(e) => paning ? pan({x: -e.movementX, y: -e.movementY}) : null}"
-	on:mouseup="{(e) => paning = false}"
-/>
+<svelte:window on:mousemove="{onmousemove}" on:mouseup="{onmouseup}" />
