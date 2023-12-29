@@ -1,3 +1,5 @@
+<svelte:options accessors></svelte:options>
+
 <script>
 	import { onMount,tick } from 'svelte';
 	import { get } from 'svelte/store'
@@ -5,7 +7,9 @@
 	export let token;
 	export let camera;
 	export let dragitem;
-	let div;
+	let classes = '';
+	export { classes as class };
+	export let div;
 
 	let pos = {x:0, y:0};
 	let dragging = false;
@@ -18,6 +22,7 @@
 </script>
 
 <div
+	class="{classes}"
 	bind:this="{div}"
 	on:dblclick|preventDefault="{(e) => {token.flip(); token = token}}"
 	on:mousedown|preventDefault|stopPropagation="{(e) => dragitem.set(token)}"
