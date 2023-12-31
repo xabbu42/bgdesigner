@@ -1,5 +1,5 @@
 {
-	"V": ["A", "B", "C", "D"],
+	"V": ["{{icon material-symbols:mode-heat text-red-800}}", "{{icon material-symbols:water-drop text-blue-800}}", "{{icon material-symbols:air text-cyan-800}}", "{{icon mdi:mountain text-green-800}}"],
 	"bag": {"type": "Bag", "values": "{{V}}" },
 	"X1": "{{bag}}",
 	"X2": "{{bag}}",
