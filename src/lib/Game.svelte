@@ -76,13 +76,14 @@
 		if (paning)
 			pan({x: -e.movementX, y: -e.movementY});
 		else if (di) {
-			let p = event_point(e);
+			let p = canvas(event_point(e), camera);
 			for (let component of components.toReversed()) {
 				if (component != di && p.x > component.pos.x && p.x < component.pos.x + component.width && p.y > component.pos.y && p.y < component.pos.y + component.height) {
 					dropitem = component;
-					break;
+					return;
 				}
 			}
+			dropitem = null;
 		}
 	}
 
