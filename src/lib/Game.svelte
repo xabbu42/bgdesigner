@@ -23,23 +23,17 @@
 		return {x: e.clientX - rect.left, y: e.clientY - rect.top};
 	}
 
-	function canvas(point: Point, camera) {
-		return {
-			x: point.x / camera.z - camera.x,
-			y: point.y / camera.z - camera.y,
-		}
+	function canvas(p: Point, c = camera) {
+		return { x: p.x / c.z - c.x, y: p.y / c.z - c.y };
 	}
 
-	function screen(point: Point, camera) {
-		return {
-			x: (point.x + camera.x) * camera.z,
-			y: (point.y + camera.y) * camera.z,
-		}
+	function screen(p: Point, c = camera) {
+		return { x: (p.x + c.x) * c.z, y: (p.y + c.y) * c.z };
 	}
 
 	function zoom(point: Point, dz) {
 		const z = camera.z - dz * camera.z
-		const p1 = canvas(point, camera)
+		const p1 = canvas(point)
 		const p2 = canvas(point, { ...camera, z:z})
 		camera = {
 			x: camera.x + (p2.x - p1.x),
@@ -76,7 +70,7 @@
 		if (paning)
 			pan({x: -e.movementX, y: -e.movementY});
 		else if (di) {
-			let p = canvas(event_point(e), camera);
+			let p = canvas(event_point(e));
 			for (let component of components.toReversed()) {
 				if (component != di && p.x > component.pos.x && p.x < component.pos.x + component.width && p.y > component.pos.y && p.y < component.pos.y + component.height) {
 					dropitem = component;
