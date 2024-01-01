@@ -65,7 +65,7 @@
 		}
 	}
 
-	function onmousemove(e) {
+	function onpointermove (e) {
 		let di = get(dragitem);
 		if (paning)
 			pan({x: -e.movementX, y: -e.movementY});
@@ -81,7 +81,7 @@
 		}
 	}
 
-	function onmouseup(e) {
+	function onpointerup(e) {
 		paning = false;
 		dropitem = null;
 	}
@@ -93,7 +93,7 @@
 <div class="viewport relative overflow-hidden w-full h-full"
 	bind:this="{viewport}"
 	on:wheel|preventDefault="{(e) => zoom(event_point(e), e.deltaY / 1000)}"
-	on:mousedown|preventDefault="{(e) => paning = true}"
+	on:pointerdown|preventDefault="{(e) => paning = true}"
 >
 	<div class="canvas absolute origin-top-left" style="transform: scale({camera.z}) translate({camera.x}px,{camera.y}px)" use:apply_textfit>
 		<div class="flex flex-wrap gap-1">
@@ -106,4 +106,4 @@
 	</div>
 </div>
 
-<svelte:window on:mousemove="{onmousemove}" on:mouseup="{onmouseup}" />
+<svelte:window on:pointermove="{onpointermove}" on:pointerup="{onpointerup}" />
