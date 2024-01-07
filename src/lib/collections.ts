@@ -32,8 +32,8 @@ export class Bag extends Collection {
 		return result;
 	}
 
-	add(value) {
-		this._values.push(value);
+	add(...args) {
+		this._values.push(...args);
 	}
 }
 
@@ -44,6 +44,6 @@ export class Dice extends Collection {
 		return result;
 	}
 
-	add(value) {
+	add() {
 	}
 }
