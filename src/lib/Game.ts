@@ -1,5 +1,6 @@
 import {Collection,Bag,Dice} from "./collections.js"
 import Token from "./Token.js";
+import colors from 'tailwindcss/colors'
 
 function* allpathes(obj: object, path: string[] = []) {
 	for (let key in obj) {
@@ -52,8 +53,15 @@ export default class Game {
 		range: (g, d, a, b) => [...Array(b ? b - a + 1 : +a).keys()].map(i => i + (b ? +a : 1)),
 		max: (g, d, p) => Math.max(...g.render(p, d)),
 		min: (g, d, p) => Math.min(...g.render(p, d)),
-		icon: (g, d, name, ...classes) =>
-			`<iconify-icon ${classes.join(' ').match(/\b[wh]-/) ? "width=none" : "inline"} icon="${name}" class="${classes.join(' ')}"></iconify-icon>`
+		icon: (g, d, name, ...classes) => {
+			let [color,shade] = (classes.find(v => v.match(/^(color|text)-/)) ?? '').replace(/^(color|text)-/, '').split('-');
+			let src = new URL('https://api.iconify.design/');
+			src.pathname = `/${name.replace(':', '/')}.svg`
+			if (color)
+				src.searchParams.set('color', colors[color][shade] ?? color ?? '');
+			let style = classes.find(v => v.match(/^[wh]-/)) ? "" : "width: 1em; height: 1em; vertical-align: -0.125em; display: inline";
+			return `<img src="${src}" style="${style}" class="${classes.join(' ')}" />`;
+		}
 	}
 
 	game:object = {};

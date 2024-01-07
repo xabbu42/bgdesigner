@@ -1,5 +1,5 @@
 {
-	"V": ["{{icon material-symbols:mode-heat text-red-800}}", "{{icon material-symbols:water-drop text-blue-800}}", "{{icon material-symbols:air text-cyan-800}}", "{{icon mdi:mountain text-green-800}}"],
+	"V": ["{{icon material-symbols:mode-heat color-red-800}}", "{{icon material-symbols:water-drop color-blue-800}}", "{{icon material-symbols:air color-cyan-800}}", "{{icon mdi:mountain color-green-800}}"],
 	"bag": {"type": "Bag", "values": "{{V}}" },
 	"X1": "{{bag}}",
 	"X2": "{{bag}}",
