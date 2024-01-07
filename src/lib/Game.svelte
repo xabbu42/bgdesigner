@@ -103,9 +103,11 @@
 {#if $selected && $selected.menu && !$selected.draging}
 	<nav class="border-2 p-1 border-gray-700 rounded-lg bg-white z-50" style="position: absolute; top:{$selected.menu.y - 10}px; left:{$selected.menu.x - 10}px" on:pointerleave="{e => $selected = null}">
 		<ul>
-			{#if 'flip' in $selected}
-				<li class="w-full"><button class="w-full hover:bg-gray-200 p-1 rounded-lg" on:click={(e) => {$selected.flip(); $selected = null; components = components}}>flip</button></li>
-			{/if}
+			{#each ['flip', 'shuffle'] as action}
+				{#if action in $selected}
+					<li class="w-full"><button class="w-full hover:bg-gray-200 p-1 rounded-lg" on:click={(e) => {$selected[action](); $selected = null; components = components}}>{action}</button></li>
+				{/if}
+			{/each}
 			{#if 'draw' in $selected}
 				<li class="w-full"><button class="w-full hover:bg-gray-200 p-1 rounded-lg" on:click={(e) => {let drawed = $selected.draw(); components.push(drawed); drawed.pos = canvas(event_point(e)); $selected = null; components = components}}>draw</button></li>
 			{/if}

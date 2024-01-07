@@ -52,6 +52,13 @@ export class Stack extends Collection {
 		this._values.map(v => v.flip());
 	}
 
+	shuffle() {
+		for (let i = this._values.length - 1; i > 0; i--) {
+			const j = Math.floor(Math.random() * (i + 1));
+			[this._values[i], this._values[j]] = [this._values[j], this._values[i]]
+		}
+	}
+
 	toString() {
 		return `<div class="relative">`
 			+ this._values.map((v, i) => i > 0 ? `<div class="absolute" style="left:${i*2}px; top:${i*2}px;">${v}</div>` : `<div>${v}</div>`).join('')
