@@ -27,10 +27,11 @@
 			div.setPointerCapture(e.pointerId); token.draging = true; $selected = token;
 		}
 	}}"
+	on:contextmenu|preventDefault="{(e) => {token.menu = {x: e.clientX, y: e.clientY}; $selected = token}}"
 	style="left: {token.pos.x}px; top: {token.pos.y}px; z-index: {$selected == token ? 50 : 0}"
 >
 	{@html token}
 </div>
 <svelte:window
-	on:pointermove="{(e) => $selected == token ? token.pos = {x: token.pos.x + e.movementX / camera.z, y: token.pos.y + e.movementY / camera.z} : null}"
+	on:pointermove="{(e) => token.draging ? token.pos = {x: token.pos.x + e.movementX / camera.z, y: token.pos.y + e.movementY / camera.z} : null}"
 />
