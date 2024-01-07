@@ -1,6 +1,5 @@
 <script>
 	import { onMount,tick } from 'svelte';
-	import { get } from 'svelte/store'
 
 	export let token;
 	export let camera;
@@ -23,11 +22,11 @@
 	bind:clientWidth="{token.width}"
 	bind:clientHeight="{token.height}"
 	on:dblclick|preventDefault="{(e) => {token.flip(); token = token}}"
-	on:pointerdown|preventDefault|stopPropagation="{(e) => {div.setPointerCapture(e.pointerId); dragitem.set(token)}}"
+	on:pointerdown|preventDefault|stopPropagation="{(e) => {div.setPointerCapture(e.pointerId); $dragitem = token}}"
 	style="left: {token.pos.x}px; top: {token.pos.y}px"
 >
 	{@html token}
 </div>
 <svelte:window
-	on:pointermove="{(e) => get(dragitem) == token ? token.pos = {x: token.pos.x + e.movementX / camera.z, y: token.pos.y + e.movementY / camera.z} : null}"
+	on:pointermove="{(e) => $dragitem == token ? token.pos = {x: token.pos.x + e.movementX / camera.z, y: token.pos.y + e.movementY / camera.z} : null}"
 />

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type {Point} from "types.ts";
-	import { writable,get } from 'svelte/store';
+	import { writable } from 'svelte/store';
 	import Token from "./Token.svelte";
 	import { textfit } from "./textfit.ts";
 	import { Collection,Stack } from "./collections.ts";
@@ -67,13 +67,12 @@
 	}
 
 	function onpointermove (e) {
-		let di = get(dragitem);
 		if (paning)
 			pan({x: -e.movementX, y: -e.movementY});
-		else if (di && !(di instanceof Collection)) {
+		else if ($dragitem && !($dragitem instanceof Collection)) {
 			let p = canvas(event_point(e));
 			for (let component of components.toReversed()) {
-				if (component != di && p.x > component.pos.x && p.x < component.pos.x + component.width && p.y > component.pos.y && p.y < component.pos.y + component.height) {
+				if (component != $dragitem && p.x > component.pos.x && p.x < component.pos.x + component.width && p.y > component.pos.y && p.y < component.pos.y + component.height) {
 					dropitem = component;
 					return;
 				}
@@ -85,16 +84,15 @@
 	let stackcount = 0;
 	function onpointerup(e) {
 		paning = false;
-		let di = get(dragitem);
-		if (dropitem && di) {
+		if (dropitem && $dragitem) {
 			if (dropitem instanceof Collection) {
-				components = [...components.filter(v => v != di)];
-				dropitem.add(di instanceof Collection ? di._values : di);
-			} else if (!(di instanceof Collection)) {
-				components = [...components.filter(v => v != dropitem && v != di), new Stack('__internal__.' + (stackcount++), {'values': [dropitem, di], pos: dropitem.pos})];
+				components = [...components.filter(v => v != $dragitem)];
+				dropitem.add($dragitem instanceof Collection ? $dragitem._values : $dragitem);
+			} else if (!($dragitem instanceof Collection)) {
+				components = [...components.filter(v => v != dropitem && v != $dragitem), new Stack('__internal__.' + (stackcount++), {'values': [dropitem, $dragitem], pos: dropitem.pos})];
 			}
 		}
-		dragitem.set(null);
+		$dragitem = null;
 		dropitem = null;
 	}
 
