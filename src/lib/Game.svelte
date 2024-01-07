@@ -7,14 +7,9 @@
 
 	export let game;
 
-	let dragitem = writable();
+	let selected = writable();
 
 	let components = game.allcomponents();
-
-	dragitem.subscribe((component) => {
-		if (component)
-			components = [...components.filter(v => v != component), component];
-	})
 
 	let camera = {x: 0, y: 0, z: 1};
 	let viewport;
@@ -69,10 +64,10 @@
 	function onpointermove (e) {
 		if (paning)
 			pan({x: -e.movementX, y: -e.movementY});
-		else if ($dragitem && !($dragitem instanceof Collection)) {
+		else if ($selected && $selected.draging && !($selected instanceof Collection)) {
 			let p = canvas(event_point(e));
 			for (let component of components.toReversed()) {
-				if (component != $dragitem && p.x > component.pos.x && p.x < component.pos.x + component.width && p.y > component.pos.y && p.y < component.pos.y + component.height) {
+				if (component != $selected && p.x > component.pos.x && p.x < component.pos.x + component.width && p.y > component.pos.y && p.y < component.pos.y + component.height) {
 					dropitem = component;
 					return;
 				}
@@ -84,16 +79,21 @@
 	let stackcount = 0;
 	function onpointerup(e) {
 		paning = false;
-		if (dropitem && $dragitem) {
-			if (dropitem instanceof Collection) {
-				components = [...components.filter(v => v != $dragitem)];
-				dropitem.add($dragitem instanceof Collection ? $dragitem._values : $dragitem);
-			} else if (!($dragitem instanceof Collection)) {
-				components = [...components.filter(v => v != dropitem && v != $dragitem), new Stack('__internal__.' + (stackcount++), {'values': [dropitem, $dragitem], pos: dropitem.pos})];
+		if ($selected && $selected.draging) {
+			$selected.draging = false;
+			if (dropitem) {
+				if (dropitem instanceof Collection) {
+					components = [...components.filter(v => v != $selected)];
+					dropitem.add($selected instanceof Collection ? $selected._values : $selected);
+				} else if (!($selected instanceof Collection)) {
+					components = [...components.filter(v => v != dropitem && v != $selected), new Stack('__internal__.' + (stackcount++), {'values': [dropitem, $selected], pos: dropitem.pos})];
+				}
+			} else {
+				components = [...components.filter(v => v != $selected), $selected];
 			}
+			$selected = null;
+			dropitem = null;
 		}
-		$dragitem = null;
-		dropitem = null;
 	}
 
 	let paning = false;
@@ -108,7 +108,7 @@
 	<div class="canvas absolute origin-top-left" style="transform: scale({camera.z}) translate({camera.x}px,{camera.y}px)" use:apply_textfit>
 		<div class="flex flex-wrap gap-1">
 			{#each components as component(component.path)}
-				<Token token="{component}" camera="{camera}" dragitem="{dragitem}" class="{dropitem == component ? 'outline outline-4 outline-blue-400/50' : ''}" />
+				<Token token="{component}" camera="{camera}" selected="{selected}" class="{dropitem == component ? 'outline outline-4 outline-blue-400/50' : ''}" />
 			{/each}
 		</div>
 	</div>

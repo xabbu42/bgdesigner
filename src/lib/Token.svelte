@@ -3,7 +3,7 @@
 
 	export let token;
 	export let camera;
-	export let dragitem;
+	export let selected;
 	let classes = '';
 	export { classes as class };
 	let div;
@@ -22,11 +22,11 @@
 	bind:clientWidth="{token.width}"
 	bind:clientHeight="{token.height}"
 	on:dblclick|preventDefault="{(e) => {token.flip(); token = token}}"
-	on:pointerdown|preventDefault|stopPropagation="{(e) => {div.setPointerCapture(e.pointerId); $dragitem = token}}"
-	style="left: {token.pos.x}px; top: {token.pos.y}px"
+	on:pointerdown|preventDefault|stopPropagation="{(e) => {div.setPointerCapture(e.pointerId); token.draging = true; $selected = token}}"
+	style="left: {token.pos.x}px; top: {token.pos.y}px; z-index: {$selected == token ? 50 : 0}"
 >
 	{@html token}
 </div>
 <svelte:window
-	on:pointermove="{(e) => $dragitem == token ? token.pos = {x: token.pos.x + e.movementX / camera.z, y: token.pos.y + e.movementY / camera.z} : null}"
+	on:pointermove="{(e) => $selected == token ? token.pos = {x: token.pos.x + e.movementX / camera.z, y: token.pos.y + e.movementY / camera.z} : null}"
 />
