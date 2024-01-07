@@ -48,6 +48,10 @@ export class Stack extends Collection {
 		this._values.push(...args);
 	}
 
+	flip() {
+		this._values.map(v => v.flip());
+	}
+
 	toString() {
 		return `<div class="relative">`
 			+ this._values.map((v, i) => i > 0 ? `<div class="absolute" style="left:${i*2}px; top:${i*2}px;">${v}</div>` : `<div>${v}</div>`).join('')
