@@ -22,7 +22,11 @@
 	bind:clientWidth="{token.width}"
 	bind:clientHeight="{token.height}"
 	on:dblclick|preventDefault="{(e) => {token.flip(); token = token}}"
-	on:pointerdown|preventDefault|stopPropagation="{(e) => {div.setPointerCapture(e.pointerId); token.draging = true; $selected = token}}"
+	on:pointerdown|preventDefault|stopPropagation="{(e) => {
+		if (e.button === 0) {
+			div.setPointerCapture(e.pointerId); token.draging = true; $selected = token;
+		}
+	}}"
 	style="left: {token.pos.x}px; top: {token.pos.y}px; z-index: {$selected == token ? 50 : 0}"
 >
 	{@html token}
