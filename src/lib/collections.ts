@@ -37,6 +37,24 @@ export class Bag extends Collection {
 	}
 }
 
+export class Stack extends Collection {
+	draw(value = null) {
+		let index = value == null ? this._values.length - 1 : this._values.findIndex((v) => v == value);
+		let result = this._values.splice(index, 1)[0];
+		return result;
+	}
+
+	add(...args) {
+		this._values.push(...args);
+	}
+
+	toString() {
+		return `<div class="relative">`
+			+ this._values.map((v, i) => i > 0 ? `<div class="absolute" style="left:${i*2}px; top:${i*2}px;">${v}</div>` : `<div>${v}</div>`).join('')
+			+ '</div>';
+	}
+}
+
 export class Dice extends Collection {
 	draw(value = null) {
 		let index = value == null ? Math.floor(Math.random() * this._values.length) : this._values.findIndex((v) => v == value);
