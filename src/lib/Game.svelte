@@ -3,6 +3,7 @@
 	import { writable,get } from 'svelte/store';
 	import Token from "./Token.svelte";
 	import { textfit } from "./textfit.ts";
+	import { Collection,Stack } from "./collections.ts";
 
 	export let game;
 
@@ -69,7 +70,7 @@
 		let di = get(dragitem);
 		if (paning)
 			pan({x: -e.movementX, y: -e.movementY});
-		else if (di) {
+		else if (di && !(di instanceof Collection)) {
 			let p = canvas(event_point(e));
 			for (let component of components.toReversed()) {
 				if (component != di && p.x > component.pos.x && p.x < component.pos.x + component.width && p.y > component.pos.y && p.y < component.pos.y + component.height) {
@@ -81,8 +82,19 @@
 		}
 	}
 
+	let stackcount = 0;
 	function onpointerup(e) {
 		paning = false;
+		let di = get(dragitem);
+		if (dropitem && di) {
+			if (dropitem instanceof Collection) {
+				components = [...components.filter(v => v != di)];
+				dropitem.add(di instanceof Collection ? di._values : di);
+			} else if (!(di instanceof Collection)) {
+				components = [...components.filter(v => v != dropitem && v != di), new Stack('__internal__.' + (stackcount++), {'values': [dropitem, di], pos: dropitem.pos})];
+			}
+		}
+		dragitem.set(null);
 		dropitem = null;
 	}
 

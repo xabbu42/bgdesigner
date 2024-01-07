@@ -30,5 +30,4 @@
 </div>
 <svelte:window
 	on:pointermove="{(e) => get(dragitem) == token ? token.pos = {x: token.pos.x + e.movementX / camera.z, y: token.pos.y + e.movementY / camera.z} : null}"
-	on:pointerup="{(e) => dragitem.set(null)}"
 />
