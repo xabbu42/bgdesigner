@@ -50,6 +50,7 @@ export class Stack extends Collection {
 
 	flip() {
 		this._values.map(v => v.flip());
+		this._values.reverse();
 	}
 
 	shuffle() {
