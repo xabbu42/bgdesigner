@@ -2,28 +2,6 @@ import {Collection,Bag,Dice} from "./collections.js"
 import Token from "./Token.js";
 import colors from 'tailwindcss/colors'
 
-function* allpathes(obj: object, path: string[] = []) {
-	for (let key in obj) {
-		const newpath = path.concat(key);
-		yield newpath.join('.');
-		if (obj[key] !== null && typeof(obj[key])=="object")
-			yield* allpathes(obj[key], newpath);
-	}
-}
-
-function getpath(obj: object, path: string) {
-	let value = obj;
-	let prefix = '';
-	for (let part of path.split('.')) {
-		if (prefix + part in value) {
-			value = value[prefix + part];
-			prefix = '';
-		} else
-			prefix += part + '.';
-	}
-	return prefix ? value[prefix] : value;
-}
-
 export default class Game {
 
 	types:object = {
@@ -32,7 +10,7 @@ export default class Game {
 		"Dice": Dice,
 	}
 
-	presets:object = {
+	game:object = {
 		"@cards": {
 			"front": "<div class=\"{{class}} card relative\"><div class=\"absolute top-4 left-4 bottom-4 right-4\">{{background}}</div><div class=\"absolute top-4 left-4\">{{text}}</div><div class=\"center\">{{text}}</div><div class=\"absolute bottom-4 right-4 rotate-180\">{{text}}</div></div>",
 			"back": "<div class=\"{{class}} card\"></div>",
@@ -64,15 +42,16 @@ export default class Game {
 		}
 	}
 
-	game:object = {};
-
 	constructor(data:object) {
-		this.game = data;
+		// this only handles . special in the first level of data
+		// TODO do we want that everywhere? => implement it
+		for (let path in data)
+			this.setpath(path, data[path]);
 	}
 
 	allcomponents() {
 		let result = [];
-		let pathes = [...allpathes(this.game), ...allpathes(this.presets)].filter(v => v.endsWith('.type')).map(v => v.slice(0,-5).replace(/^@/, ''));
+		let pathes = this.allpathes().filter(v => v.endsWith('.type')).map(v => v.slice(0,-5).replace(/^@/, ''));
 		for (let path of new Set(pathes)) {
 			if (this.getpath(path))
 				result.push(this.render(path));
@@ -80,8 +59,32 @@ export default class Game {
 		return result.flat(Infinity);
 	}
 
+	allpathes() {
+		function* generator(obj: object, path: string[]) {
+			for (let key in obj) {
+				const newpath = path.concat(key);
+				yield newpath.join('.');
+				if (obj[key] !== null && typeof(obj[key])=="object")
+					yield* generator(obj[key], newpath);
+			}
+		};
+
+		return [...generator(this.game, [])];
+	}
+
 	getpath(path: string) {
-		return getpath(this.game, path);
+		return path.split('.').reduce((v, p) => v[p], this.game);
+	}
+
+	setpath(path: string, value: any) {
+		let cont = this.game;
+		let parts = path.split('.');
+		for (let part of parts.slice(0, -1)) {
+			if (!(part in cont))
+				cont[part] = part.match(/^\d+$/) ? [] : {};
+			cont = cont[part];
+		}
+		cont[parts[parts.length-1]] = value;
 	}
 
 	repls(value: any, data: object) {
@@ -129,16 +132,14 @@ export default class Game {
 
 	annotations(path) {
 		const annotations = {};
-		for (let obj of [this.presets, this.game]) {
-			let pathes = [...allpathes(obj)].filter((v) => v.startsWith('@') && path.startsWith(v.substring(1))).sort((a, b) => a.length - b.length);
-			for (let annotation of pathes.map((p) => getpath(obj, p))) {
-				if (Array.isArray(annotation))
-					annotations.values = annotation; //maybe useful for bags and dices?
-				else if (typeof annotation == "object") {
-					Object.assign(annotations, annotation);
-				} else
-					annotations.front = annotation; //hack for backwards compatibility with the great microgame
-			}
+		let pathes = this.allpathes().filter((v) => v.startsWith('@') && path.startsWith(v.substring(1))).sort((a, b) => a.length - b.length);
+		for (let annotation of pathes.map((p) => this.getpath(p))) {
+			if (Array.isArray(annotation))
+				annotations.values = annotation; //maybe useful for bags and dices?
+			else if (typeof annotation == "object") {
+				Object.assign(annotations, annotation);
+			} else
+				annotations.front = annotation; //hack for backwards compatibility with the great microgame
 		}
 		return annotations;
 	}
@@ -158,7 +159,7 @@ export default class Game {
 		}
 
 		let regexp = new RegExp('(^|\\.)' + path.replace(/^%/, '').replaceAll('.', '\.').replaceAll('*', '.*') + '$');
-		let pathes = [...allpathes(this.game)].filter((v) => regexp.test(v));
+		let pathes = this.allpathes().filter((v) => regexp.test(v));
 		if (pathes.filter((v) => v == path).length > 0)
 			pathes = [path];
 		if (path.includes('*')) {
