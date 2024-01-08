@@ -21,7 +21,6 @@
 	bind:this="{div}"
 	bind:clientWidth="{token.width}"
 	bind:clientHeight="{token.height}"
-	on:dblclick|preventDefault="{(e) => {token.flip(); token = token}}"
 	on:pointerdown|preventDefault|stopPropagation="{(e) => {
 		if (e.button === 0) {
 			div.setPointerCapture(e.pointerId); token.draging = true; $selected = token;
