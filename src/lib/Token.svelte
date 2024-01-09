@@ -10,6 +10,8 @@
 
 	onMount(async () => {
 		let initialpos = {x: div.offsetLeft, y: div.offsetTop};
+		token.width = div.offsetWidth;
+		token.height = div.offsetHeight;
 		await tick();
 		div.style = "position: absolute";
 		token.pos = initialpos;
@@ -19,8 +21,6 @@
 <div
 	class="{classes}"
 	bind:this="{div}"
-	bind:clientWidth="{token.width}"
-	bind:clientHeight="{token.height}"
 	on:pointerdown|preventDefault|stopPropagation="{(e) => {
 		if (e.button === 0) {
 			div.setPointerCapture(e.pointerId); token.draging = true; $selected = token;
