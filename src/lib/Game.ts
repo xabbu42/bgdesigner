@@ -51,10 +51,10 @@ export default class Game {
 
 	allcomponents() {
 		let result = [];
-		let pathes = this.allpathes().filter(v => v.endsWith('.type')).map(v => v.slice(0,-5).replace(/^@/, ''));
-		for (let path of new Set(pathes)) {
-			if (this.getpath(path))
-				result.push(this.render(path));
+		for (let path of this.allpathes().filter(v => v.endsWith('.type'))) {
+			let comppath = path.replaceAll(/^@|\.type$/g, '');
+			if (this.getpath(path) == 'Token' && this.getpath(comppath))
+				result.push(this.render(comppath));
 		}
 		return result.flat(Infinity);
 	}
