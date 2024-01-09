@@ -64,10 +64,10 @@
 	function onpointermove (e) {
 		if (paning)
 			pan({x: -e.movementX, y: -e.movementY});
-		else if ($selected && $selected.draging && !($selected instanceof Collection)) {
+		else if ($selected && $selected.draging) {
 			let p = canvas(event_point(e));
 			for (let component of components.toReversed()) {
-				if (component != $selected && p.x > component.pos.x && p.x < component.pos.x + component.width && p.y > component.pos.y && p.y < component.pos.y + component.height) {
+				if (component != $selected && (!($selected instanceof Collection) || (component instanceof Collection)) && p.x > component.pos.x && p.x < component.pos.x + component.width && p.y > component.pos.y && p.y < component.pos.y + component.height) {
 					dropitem = component;
 					return;
 				}
@@ -83,8 +83,8 @@
 			$selected.draging = false;
 			if (dropitem) {
 				if (dropitem instanceof Collection) {
-					components = [...components.filter(v => v != $selected)];
-					dropitem.add($selected instanceof Collection ? $selected._values : $selected);
+					components = components.filter(v => v != $selected);
+					dropitem.add(...($selected instanceof Collection ? $selected._values : [$selected]));
 				} else if (!($selected instanceof Collection)) {
 					components = [...components.filter(v => v != dropitem && v != $selected), new Stack('__internal__.' + (stackcount++), {'values': [dropitem, $selected], pos: dropitem.pos})];
 				}
