@@ -1,10 +1,10 @@
 {
 	"symbols": {
 		"suits" : {
-			"red": "bg-red-300",
-			"blue": "bg-blue-300",
-			"yellow": "bg-yellow-300",
-			"green": "bg-green-300"
+			"red": "front:bg-red-300",
+			"blue": "front:bg-blue-300",
+			"yellow": "front:bg-yellow-300",
+			"green": "front:bg-green-300"
 		},
 		//TODO should use a better symbol for the last mission token
 		"mission": ["{{%range 5}}", "Ω", "{{icon mdi:chevron-right}}", "{{icon mdi:chevron-double-right}}", "{{icon mdi:chevron-triple-right}}", "<nobr>{{icon mdi:chevron-double-right}}{{icon mdi:chevron-double-right}}</nobr>"]

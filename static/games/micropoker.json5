@@ -2,10 +2,10 @@
 	// some assets to be used for the cards
 	"symbols": {
 		"suits" : {
-			"red": "bg-red-300",
-			"blue": "bg-blue-300",
-			"yellow": "bg-yellow-300",
-			"green": "bg-green-300"
+			"red": "front:bg-red-300",
+			"blue": "front:bg-blue-300",
+			"yellow": "front:bg-yellow-300",
+			"green": "front:bg-green-300"
 		},
 		"valuesrg": [4, 4, 1, 1], // values for the red and green suits
 		"valuesby": [3, 3, 2, 2], // values for the blue and yellow suits
