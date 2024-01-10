@@ -12,8 +12,8 @@ export default class Game {
 
 	game:object = {
 		"@cards": {
-			"front": "<div class=\"{{class}} card relative\"><div class=\"absolute top-4 left-4 bottom-4 right-4\">{{background}}</div><div class=\"absolute top-4 left-4\">{{text}}</div><div class=\"center\">{{text}}</div><div class=\"absolute bottom-4 right-4 rotate-180\">{{text}}</div></div>",
-			"back": "<div class=\"{{class}} card\"></div>",
+			"front": "<div class=\"{{class}} card front relative\"><div class=\"absolute top-4 left-4 bottom-4 right-4\">{{background}}</div><div class=\"absolute top-4 left-4\">{{text}}</div><div class=\"center\">{{text}}</div><div class=\"absolute bottom-4 right-4 rotate-180\">{{text}}</div></div>",
+			"back": "<div class=\"{{class}} card back relative\"></div>",
 			"type": "Token",
 			'class': '',
 			'background': '',
