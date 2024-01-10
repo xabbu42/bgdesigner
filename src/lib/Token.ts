@@ -5,7 +5,7 @@ export default class Token {
 	flipped: boolean;
 	front: string;
 	back: string;
-	pos: Point = {x: 0, y: 0};
+	pos: Point;
 	width: number;
 	height: number;
 

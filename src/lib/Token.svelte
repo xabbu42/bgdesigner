@@ -13,7 +13,6 @@
 		token.width = div.offsetWidth;
 		token.height = div.offsetHeight;
 		await tick();
-		div.style = "position: absolute";
 		token.pos = initialpos;
 	});
 </script>
@@ -27,7 +26,7 @@
 		}
 	}}"
 	on:contextmenu|preventDefault="{(e) => {token.menu = {x: e.clientX, y: e.clientY}; $selected = token}}"
-	style="left: {token.pos.x}px; top: {token.pos.y}px; z-index: {$selected == token ? 50 : 0}"
+	style="{token.pos ? `position: absolute; left: ${token.pos.x}px; top: ${token.pos.y}px;` : ''} z-index: {$selected == token ? 50 : 0}"
 >
 	{@html token}
 </div>
