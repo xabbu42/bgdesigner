@@ -6,8 +6,9 @@
 			"spade": "{{icon mdi:cards-spade}}",
 			"club": "{{icon mdi:cards-club}}"
 		},
-		"values" : ["A", "K", "Q", "J", "10", "9", "8", "7", "6"]
+		"ranks" : ["A", "K", "Q", "J", "10", "9", "8", "7", "6"]
 	},
 
-	"cards": [{"text": "{{%suits.*}}{{%values}}"}]
+	"cards": [{"text": "{{%suits.*}}{{%ranks}}"}],
+	"setup": [{"type": "Stack", "values": "{{cards}}", "flip": true, "shuffle": true}],
 }
