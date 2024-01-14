@@ -6,10 +6,12 @@
 	import { Collection,Stack } from "./collections.ts";
 
 	export let game;
+	export let setup;
 
 	let selected = writable();
 
-	let components = game.allcomponents();
+	let setuppath = setup ? `setups.${setup}` : 'setup';
+	let components = game.getpath(setuppath) ? game.render(setuppath) : game.allcomponents();
 
 	let camera = {x: 0, y: 0, z: 1};
 	let viewport;
