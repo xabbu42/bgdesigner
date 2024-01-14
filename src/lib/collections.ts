@@ -10,6 +10,10 @@ export abstract class Collection {
 		this.html = params.html;
 		if (params.pos)
 			this.pos = params.pos;
+		if (params.flip)
+			this.flip();
+		if (params.shuffle)
+			this.shuffle();
 	}
 
 	values():[any] {
