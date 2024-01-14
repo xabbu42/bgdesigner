@@ -1,4 +1,4 @@
-import {Collection,Bag,Dice} from "./collections.js"
+import {Collection,Bag,Dice,Stack} from "./collections.js"
 import Token from "./Token.js";
 import colors from 'tailwindcss/colors'
 
@@ -8,6 +8,7 @@ export default class Game {
 		"Token": Token,
 		"Bag": Bag,
 		"Dice": Dice,
+		"Stack": Stack,
 	}
 
 	game:object = {
