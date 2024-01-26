@@ -1,9 +1,7 @@
 {
 	"V": ["{{icon material-symbols:mode-heat color-red-800}}", "{{icon material-symbols:water-drop color-blue-800}}", "{{icon material-symbols:air color-cyan-800}}", "{{icon mdi:mountain color-green-800}}"],
-	"bag": {"type": "Bag", "values": "{{V}}" },
+	"bag": {"Bag": "{{V}}"},
 	"X1": "{{bag}}",
 	"X2": "{{bag}}",
-	"cards" : [{
-		"text": "{{%X1}}{{%X2}}"
-	}]
+	"cards": [{"Card": "{{%X1}}{{%X2}}"}]
 }

@@ -88,7 +88,7 @@
 					components = components.filter(v => v != $selected);
 					dropitem.add(...($selected instanceof Collection ? $selected._values : [$selected]));
 				} else if (!($selected instanceof Collection)) {
-					components = [...components.filter(v => v != dropitem && v != $selected), new Stack('__internal__.' + (stackcount++), {'values': [dropitem, $selected], pos: dropitem.pos})];
+					components = [...components.filter(v => v != dropitem && v != $selected), new Stack('__internal__.' + (stackcount++), {'Stack': [dropitem, $selected], pos: dropitem.pos})];
 				}
 			} else {
 				components = [...components.filter(v => v != $selected), $selected];

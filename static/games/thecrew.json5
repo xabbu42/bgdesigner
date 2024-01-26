@@ -10,15 +10,18 @@
 		"mission": ["{{%range 5}}", "Ω", "{{icon mdi:chevron-right}}", "{{icon mdi:chevron-double-right}}", "{{icon mdi:chevron-triple-right}}", "<nobr>{{icon mdi:chevron-double-right}}{{icon mdi:chevron-double-right}}</nobr>"]
 	},
 	"tokens": [
-		{"class": "bg-indigo-800 text-purple-500", "symbol": "{{%mission}}"},
-		{"class": "bg-green-800 rounded-full token-lg", "symbol": "{{icon game-icons:astronaut-helmet}}", "i": "{{%range 5}}"}
+		{"Token": "{{%mission}}", "class": "bg-indigo-800 text-purple-500"},
+		{"Token": "{{icon game-icons:astronaut-helmet}}",  "class": "bg-green-800 rounded-full token-lg", "i": "{{%range 5}}"}
 	],
-	"cards": [
+	"cards": {
 		/* Main cards, suits and rockets */
-		{"class": "{{%suits.*}}", "background": "{{icon game-icons:astronaut-helmet w-full h-full opacity-40}}", "text": "{{%range 9}}"},
-		{"background": "{{icon game-icons:rocket w-full h-full opacity-40 -scale-y-100}}", "text": "{{%range 4}}"},
-
+		"play": [
+			{"class": "{{%suits.*}}", "Card": "{{%range 9}}", "background": "{{icon game-icons:astronaut-helmet w-full h-full opacity-40}}"},
+			{"Card": "{{%range 4}}", "background": "{{icon game-icons:rocket w-full h-full opacity-40 -scale-y-100}}"},
+		],
 		/* Small Mission cards */
-		{"class": "{{%cards.0.class}} card-sm", "background": "{{cards.0.background}}", "text": "{{%cards.0.text}}"}
-	]
+		"missions": [
+			{"class": "{{%cards.play.0.class}} card-sm", "Card": "{{%cards.play.0.Card}}", "background": "{{cards.play.0.background}}"}
+		],
+	}
 }

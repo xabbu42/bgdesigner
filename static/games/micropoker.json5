@@ -13,9 +13,9 @@
 
 	// the actual cards, 16 in total
 	"cards": [
-		{"class": "{{%suits.red}}", "text": "{{%valuesrg}}"},
-		{"class": "{{%suits.green}}", "text": "{{%valuesrg}}"},
-		{"class": "{{%suits.blue}}", "text": "{{%valuesby}}"},
-		{"class": "{{%suits.yellow}}", "text": "{{%valuesby}}"}
+		{"class": "{{%suits.red}}", "Card": "{{%valuesrg}}"},
+		{"class": "{{%suits.green}}", "Card": "{{%valuesrg}}"},
+		{"class": "{{%suits.blue}}", "Card": "{{%valuesby}}"},
+		{"class": "{{%suits.yellow}}", "Card": "{{%valuesby}}"}
 	]
 }

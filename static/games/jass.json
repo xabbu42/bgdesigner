@@ -9,6 +9,6 @@
 		"ranks" : ["A", "K", "Q", "J", "10", "9", "8", "7", "6"]
 	},
 
-	"cards": [{"text": "{{%suits.*}}{{%ranks}}"}],
-	"setup": [{"type": "Stack", "values": "{{cards}}", "flip": true, "shuffle": true}],
+	"cards": [{"Card": "{{%suits.*}}{{%ranks}}"}],
+	"setup": [{"Stack": "{{cards}}", "flip": true, "shuffle": true}],
 }

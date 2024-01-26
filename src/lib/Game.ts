@@ -1,32 +1,18 @@
 import {Collection,Bag,Dice,Stack} from "./collections.js"
-import Token from "./Token.js";
+import {Component,Token,Card} from "./components.js";
 import colors from 'tailwindcss/colors'
 
 export default class Game {
 
 	types:object = {
 		"Token": Token,
+		"Card": Card,
 		"Bag": Bag,
 		"Dice": Dice,
 		"Stack": Stack,
 	}
 
-	game:object = {
-		"@cards": {
-			"front": "<div class=\"{{class}} card front relative\"><div class=\"absolute top-4 left-4 bottom-4 right-4\">{{background}}</div><div class=\"absolute top-4 left-4\">{{text}}</div><div class=\"center\">{{text}}</div><div class=\"absolute bottom-4 right-4 rotate-180\">{{text}}</div></div>",
-			"back": "<div class=\"{{class}} card back relative\"></div>",
-			"type": "Token",
-			'class': '',
-			'background': '',
-			'text': '',
-		},
-		"@tokens": {
-			"html" : "<div class=\"{{class}} token\">{{symbol}}</div>",
-			"type" : "Token",
-			'class' : '',
-			'symbol': '',
-		}
-	}
+	game:object = {}
 
 	registry:object = {
 		range: (g, d, a, b) => [...Array(b ? b - a + 1 : +a).keys()].map(i => i + (b ? +a : 1)),
@@ -52,9 +38,11 @@ export default class Game {
 
 	allcomponents() {
 		let result = [];
-		for (let path of this.allpathes().filter(v => v.endsWith('.type'))) {
-			let comppath = path.replaceAll(/^@|\.type$/g, '');
-			if (this.getpath(path) == 'Token' && this.getpath(comppath))
+		let typeregex = new RegExp('\\.(' + Object.keys(this.types).concat(['type']).join('|') + ')$');
+		for (let path of this.allpathes().filter(v => typeregex.test(v))) {
+			let type = typeregex.exec(path)[1];
+			let comppath = path.replace(/^@/, '').replace(typeregex, '');
+			if (Component.isPrototypeOf(this.types[type == 'type' ? this.getpath(path) : type]) && this.getpath(comppath))
 				result.push(this.render(comppath));
 		}
 		return result.flat(Infinity);
@@ -110,7 +98,7 @@ export default class Game {
 			for (let expr of str.matchAll(/{{(%[^:]+?)}}/g)) {
 				if (!collections[expr[1]] && !value[expr[1]]) {
 					let values = this.render(expr[1], data);
-					collections[expr[1]] = values instanceof Collection ? values : new Dice(expr[1], {values});
+					collections[expr[1]] = values instanceof Collection ? values : new Dice(expr[1], {Dice: values});
 				}
 			}
 		}
@@ -135,9 +123,7 @@ export default class Game {
 		const annotations = {};
 		let pathes = this.allpathes().filter((v) => v.startsWith('@') && path.startsWith(v.substring(1))).sort((a, b) => a.length - b.length);
 		for (let annotation of pathes.map((p) => this.getpath(p))) {
-			if (Array.isArray(annotation))
-				annotations.values = annotation; //maybe useful for bags and dices?
-			else if (typeof annotation == "object") {
+			if (typeof annotation == "object") {
 				Object.assign(annotations, annotation);
 			} else
 				annotations.front = annotation; //hack for backwards compatibility with the great microgame
@@ -207,6 +193,11 @@ export default class Game {
 				for (let k in subdata)
 					if (typeof subdata[k] == 'string')
 						subdata[k] = render_string(subdata[k], repl, subdata);
+				if (!subdata.type) {
+					let typekeys = Object.keys(subdata).filter(v => this.types[v]);
+					if (typekeys.length == 1)
+						subdata.type = typekeys[0];
+				}
 				result.push(subdata.type ? new this.types[subdata.type] (path + (repls.length > 1 ? '.' + result.length : ''), subdata) : subdata);
 			}
 			rendered = result.length == 1 ? result[0] : result;

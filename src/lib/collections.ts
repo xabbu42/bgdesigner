@@ -6,7 +6,8 @@ export abstract class Collection {
 
 	constructor(path: string, params: object) {
 		this.path = path;
-		this._values = Array.isArray(params.values) ? params.values : [params.values];
+		let type = this.constructor.name;
+		this._values = Array.isArray(params[type]) ? params[type] : [params[type]];
 		this.html = params.html;
 		if (params.pos)
 			this.pos = params.pos;
