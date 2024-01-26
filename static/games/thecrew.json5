@@ -23,5 +23,11 @@
 		"missions": [
 			{"class": "{{%cards.play.0.class}} card-sm", "Card": "{{%cards.play.0.Card}}", "background": "{{cards.play.0.background}}"}
 		],
-	}
+	},
+	"setup": [
+		{"Stack": "{{cards.play}}", "shuffle": true, "flip": true},
+		{"Stack": "{{cards.missions}}", "shuffle": true, "flip": true},
+		"{{%tokens.0}}",
+		"{{%tokens.1}}",
+	]
 }
