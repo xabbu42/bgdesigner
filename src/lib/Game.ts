@@ -1,6 +1,6 @@
 import {Collection,Bag,Dice,Stack} from "./collections.js"
 import {Component,Token,Card} from "./components.js";
-import colors from 'tailwindcss/colors'
+import colors from 'tailwindcss/colors.js'
 
 export default class Game {
 
