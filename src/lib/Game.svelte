@@ -2,8 +2,8 @@
 	import type {Point} from "types.ts";
 	import { writable } from 'svelte/store';
 	import Token from "./Token.svelte";
-	import { textfit } from "./textfit.ts";
-	import { Collection,Stack } from "./collections.ts";
+	import { textfit } from "./textfit.js";
+	import { Collection,Stack } from "./collections.js";
 
 	export let game;
 	export let setup;
