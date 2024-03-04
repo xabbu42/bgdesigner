@@ -1,0 +1,21 @@
+
+@layer components {
+	.center-content { @apply w-full h-full grid place-content-center }
+
+	.symbol { @apply rounded-full m-1 p-2 w-fit aspect-square text-center inline-block }
+
+	.card { @apply  w-[64mm] h-[89mm] text-4xl p-4 bg-slate-200 shadow-xl grid place-content-center rounded-lg }
+	.card .center { @apply text-6xl }
+	.card-sm { @apply w-[41mm] h-[63mm] text-3xl card }
+	.card-sm .center { @apply text-5xl }
+	.card-md { @apply card }
+	.card-md .center { @apply text-6xl }
+	.card-lg { @apply w-[70mm] h-[121mm] text-5xl card }
+	.card-lg .center { @apply text-7xl }
+
+	.token { @apply  w-[20mm] h-[20mm] text-4xl p-4 bg-slate-200 shadow-xl grid place-content-center rounded-lg }
+	.token-sm { @apply w-[10mm] h-[10mm] text-2xl token }
+	.token-md { @apply token }
+	.token-lg { @apply w-[30mm] h-[30mm] text-6xl token }
+	.token-xl { @apply w-[40mm] h-[40mm] text-8xl token }
+}
