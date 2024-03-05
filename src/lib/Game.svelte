@@ -6,7 +6,7 @@
 	import { Collection,Stack } from "./collections.js";
 
 	export let game;
-	export let setup;
+	export let setup = undefined;
 
 	let selected = writable();
 
