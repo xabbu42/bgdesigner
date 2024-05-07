@@ -181,11 +181,7 @@ export default class Game {
 			rendered = Array.from(value.keys()).map(v => this.render(path + '.' + v, data)).flat(Infinity);
 
 		} else if (typeof value == "object") {
-			const annotations = this.annotations(path);
-			for (let k in annotations)
-				if (!(k in value))
-					value[k] = annotations[k];
-
+			value = Object.assign(this.annotations(path), value);
 			const result = [];
 			const repls = this.repls(value, data);
 			for (let repl of repls) {
