@@ -121,8 +121,8 @@ export default class Game {
 
 	annotations(path) {
 		const annotations = {};
-		let pathes = this.allpathes().filter((v) => v.startsWith('@') && path.startsWith(v.substring(1))).sort((a, b) => a.length - b.length);
-		for (let annotation of pathes.map((p) => this.getpath(p))) {
+		let pathes = this.allpathes().filter(v => v.startsWith('@') && path.startsWith(v.substring(1))).sort((a, b) => a.length - b.length);
+		for (let annotation of pathes.map(p => this.getpath(p))) {
 			if (typeof annotation == "object") {
 				Object.assign(annotations, annotation);
 			} else
@@ -146,8 +146,8 @@ export default class Game {
 		}
 
 		let regexp = new RegExp('(^|\\.)' + path.replace(/^%/, '').replaceAll('.', '\.').replaceAll('*', '.*') + '$');
-		let pathes = this.allpathes().filter((v) => regexp.test(v));
-		if (pathes.filter((v) => v == path).length > 0)
+		let pathes = this.allpathes().filter(v => regexp.test(v));
+		if (pathes.filter(v => v == path).length > 0)
 			pathes = [path];
 		if (path.includes('*')) {
 			let result = [];
@@ -178,7 +178,7 @@ export default class Game {
 			rendered = rendered.length == 1 ? rendered[0] : rendered;
 
 		} else if (Array.isArray(value)) {
-			rendered = Array.from(value.keys()).map((v) => this.render(path + '.' + v, data)).flat(Infinity);
+			rendered = Array.from(value.keys()).map(v => this.render(path + '.' + v, data)).flat(Infinity);
 
 		} else if (typeof value == "object") {
 			const annotations = this.annotations(path);
