@@ -2,7 +2,7 @@ import type {Point} from "types.js";
 
 export abstract class Collection {
 	protected _values:[any] = []
-	pos: Point = {x:0, y:0};
+	pos: Point;
 
 	constructor(path: string, params: object) {
 		this.path = path;
