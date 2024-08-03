@@ -66,8 +66,8 @@ export class Stack extends Collection {
 	}
 
 	toString() {
-		return `<div class="relative">`
-			+ this._values.map((v, i) => i > 0 ? `<div class="absolute" style="left:${i*2}px; top:${i*2}px;">${v}</div>` : `<div>${v}</div>`).join('')
+		return `<div class="grid">`
+			+ this._values.map((v, i) => `<div class="col-start-1 row-start-1" style="margin-left:${i*2}px; margin-top:${i*2}px;">${v}</div>`).join('')
 			+ '</div>';
 	}
 }
