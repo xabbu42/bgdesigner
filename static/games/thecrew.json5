@@ -25,9 +25,9 @@
 		],
 	},
 	"setup": [
-		{"Stack": "{{cards.play}}", "shuffle": true, "flip": true},
-		{"Stack": "{{cards.missions}}", "shuffle": true, "flip": true},
 		"{{%tokens.0}}",
 		"{{%tokens.1}}",
+		{"Stack": "{{cards.play}}", "shuffle": true, "flip": true},
+		{"Stack": "{{cards.missions}}", "shuffle": true, "flip": true},
 	]
 }
