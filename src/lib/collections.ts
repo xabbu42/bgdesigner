@@ -21,6 +21,10 @@ export abstract class Collection {
 		return [...this._values];
 	}
 
+	length() {
+		return this._values.length;
+	}
+
 
 	toString() {
 		return this.html;

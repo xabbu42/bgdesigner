@@ -111,7 +111,20 @@
 				{/if}
 			{/each}
 			{#if 'draw' in $selected}
-				<li class="w-full"><button class="w-full hover:bg-gray-200 p-1 rounded-lg" on:click={(e) => {let drawed = $selected.draw(); components.push(drawed); drawed.pos = canvas(event_point(e)); $selected = null; components = components}}>draw</button></li>
+				<li class="w-full">
+					<button
+						class="w-full hover:bg-gray-200 p-1 rounded-lg"
+						on:click={(e) => {
+							let drawed = $selected.draw();
+							if ($selected.length() == 0)
+								 components = components.filter(v => v != $selected);
+							components.push(drawed);
+							drawed.pos = canvas(event_point(e));
+							$selected = null; components = components
+						}}>
+						draw
+					</button>
+				</li>
 			{/if}
 		</ul>
 	</nav>
