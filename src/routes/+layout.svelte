@@ -10,7 +10,7 @@
 		<div>
 			<a href="/" class="text-2xl">BGDesigner</a>
 			{#each games as game}
-				<a data-sveltekit-reload href="/game/{game}" class:active={$page.params.name === game}>{game}</a>
+				<a href="/game/{game}" class:active={$page.params.name === game}>{game}</a>
 			{/each}
 		</div>
 	</nav>
