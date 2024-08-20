@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type {Point} from "types.ts";
+	import type {Point} from "types.js";
 	import { writable } from 'svelte/store';
 	import Token from "./Token.svelte";
 	import { textfit } from "./textfit.js";
