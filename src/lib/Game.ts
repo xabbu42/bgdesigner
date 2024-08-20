@@ -12,6 +12,7 @@ export default class Game {
 		"Stack": Stack,
 	}
 
+	name:string = ''
 	game:any = {}
 
 	registry:any = {
@@ -30,7 +31,8 @@ export default class Game {
 		}
 	}
 
-	constructor(data:any) {
+	constructor(name:string, data:any) {
+		this.name = name;
 		// this only handles . special in the first level of data
 		// TODO do we want that everywhere? => implement it
 		for (let path in data)
