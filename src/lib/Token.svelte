@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { onMount,tick } from 'svelte';
 
 	export let token;
@@ -6,7 +6,7 @@
 	export let selected;
 	let classes = '';
 	export { classes as class };
-	let div;
+	let div:HTMLElement;
 
 	onMount(async () => {
 		let initialpos = {x: div.offsetLeft, y: div.offsetTop};

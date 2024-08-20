@@ -1,23 +1,19 @@
-import type {Point} from "types.js";
+import type {Point} from "./types.js";
+import {Component} from "./components.js";
 
-export abstract class Collection {
-	protected _values:[any] = []
-	pos: Point;
+export abstract class Collection extends Component {
+	html: string;
+	protected _values:any[] = []
 
-	constructor(path: string, params: object) {
-		this.path = path;
+	constructor(path: string, params: any) {
+		super(path, params);
+
 		let type = this.constructor.name;
 		this._values = Array.isArray(params[type]) ? params[type] : [params[type]];
-		this.html = params.html;
-		if (params.pos)
-			this.pos = params.pos;
-		if (params.flip)
-			this.flip();
-		if (params.shuffle)
-			this.shuffle();
+		this.html = params.html ?? '';
 	}
 
-	values():[any] {
+	values():any[] {
 		return [...this._values];
 	}
 
@@ -31,29 +27,38 @@ export abstract class Collection {
 	}
 
 	abstract draw():any
-	abstract add(v:any)
+	abstract add(...args:any[]):void
 }
 
 export class Bag extends Collection {
-	draw(value = null) {
+	draw(value:any = null) {
 		let index = value == null ? Math.floor(Math.random() * this._values.length) : this._values.findIndex((v) => v == value);
 		let result = this._values.splice(index, 1)[0];
 		return result;
 	}
 
-	add(...args) {
+	add(...args:any[]):void {
 		this._values.push(...args);
 	}
 }
 
 export class Stack extends Collection {
-	draw(value = null) {
+
+	constructor(path: string, params: any) {
+		super(path, params);
+		if (params.flip)
+			this.flip();
+		if (params.shuffle)
+			this.shuffle();
+	}
+
+	draw(value:any = null) {
 		let index = value == null ? this._values.length - 1 : this._values.findIndex((v) => v == value);
 		let result = this._values.splice(index, 1)[0];
 		return result;
 	}
 
-	add(...args) {
+	add(...args:any[]):void {
 		this._values.push(...args);
 	}
 
@@ -77,7 +82,7 @@ export class Stack extends Collection {
 }
 
 export class Dice extends Collection {
-	draw(value = null) {
+	draw(value:any = null) {
 		let index = value == null ? Math.floor(Math.random() * this._values.length) : this._values.findIndex((v) => v == value);
 		let result = this._values.slice(index, index + 1)[0];
 		return result;

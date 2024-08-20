@@ -1,5 +1,5 @@
 
-export function textfit(el, options = {}) {
+export function textfit(el:HTMLElement, options:{up?:boolean,down?:boolean} = {}) {
 	const computed = window.getComputedStyle(el);
 	const targetheight = parseInt(computed.height);
 	const targetwidth = parseInt(computed.width);
@@ -9,7 +9,7 @@ export function textfit(el, options = {}) {
 	let mid;
     while (low <= high) {
 		mid = (high + low) >> 1;
-		el.style.height = targetheight;
+		el.style.height = targetheight.toString();
 		el.style.fontSize = mid + 'px';
 		if(el.scrollWidth <= targetwidth + 1 && el.scrollHeight <= targetheight + 1) {
 			size = mid;

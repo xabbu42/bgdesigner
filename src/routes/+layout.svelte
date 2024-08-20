@@ -1,8 +1,8 @@
-<script>
+<script lang="ts">
 	import "../app.css";
 	import { page } from '$app/stores';
 	const obj = import.meta.glob('../../static/games/*');
-	const games = Object.keys(obj).map((v) => v.match(/([^\/]+)$/, v)[0]);
+	const games = Object.keys(obj).map((v) => v.match(/([^\/]*)$/)![0]);
 </script>
 
 <div class="p-1 antialiased text-gray-900 h-screen w-screen flex flex-col">

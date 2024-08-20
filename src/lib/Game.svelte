@@ -1,22 +1,23 @@
 <script lang="ts">
-	import type {Point} from "types.js";
-	import { writable } from 'svelte/store';
+	import type {Point} from "./types.js";
+	import { type Writable, writable } from 'svelte/store';
 	import Token from "./Token.svelte";
 	import { textfit } from "./textfit.js";
 	import { Collection,Stack } from "./collections.js";
+	import type { Component } from "./components.js";
 
 	export let game;
-	export let setup = undefined;
+	export let setup = '';
 
-	let selected = writable();
+	let selected:Writable<Component | Collection | null> = writable();
 
 	let setuppath = setup ? `setups.${setup}` : 'setup';
-	let components = game.getpath(setuppath) ? game.render(setuppath) : game.allcomponents();
+	let components:Component[] = game.getpath(setuppath) ? game.render(setuppath) : game.allcomponents();
 
 	let camera = {x: 0, y: 0, z: 1};
-	let viewport;
+	let viewport:HTMLElement;
 
-	function event_point(e) {
+	function event_point(e:MouseEvent) {
 		var rect = viewport.getBoundingClientRect();
 		return {x: e.clientX - rect.left, y: e.clientY - rect.top};
 	}
@@ -29,7 +30,7 @@
 		return { x: (p.x + c.x) * c.z, y: (p.y + c.y) * c.z };
 	}
 
-	function zoom(point: Point, dz) {
+	function zoom(point: Point, dz: number) {
 		const z = camera.z - dz * camera.z
 		const p1 = canvas(point)
 		const p2 = canvas(point, { ...camera, z:z})
@@ -48,28 +49,28 @@
 		}
 	}
 
-	function apply_textfit() {
-		for (const el of document.querySelectorAll(".text-fit-down")) {
+	function apply_textfit(element:HTMLElement) {
+		for (const el of element.querySelectorAll(".text-fit-down") as NodeListOf<HTMLElement>) {
 			if (!el.style.fontSize)
 				textfit(el, {down: true});
 		}
-		for (const el of document.querySelectorAll(".text-fit-up")) {
+		for (const el of element.querySelectorAll(".text-fit-up") as NodeListOf<HTMLElement>) {
 			if (!el.style.fontSize)
 				textfit(el, {up: true});
 		}
-		for (const el of document.querySelectorAll(".text-fit")) {
+		for (const el of element.querySelectorAll(".text-fit") as NodeListOf<HTMLElement>) {
 			if (!el.style.fontSize)
 				textfit(el);
 		}
 	}
 
-	function onpointermove (e) {
+	function onpointermove (e:MouseEvent) {
 		if (paning)
 			pan({x: -e.movementX, y: -e.movementY});
 		else if ($selected && $selected.draging) {
 			let p = canvas(event_point(e));
 			for (let component of components.toReversed()) {
-				if (component != $selected && (!($selected instanceof Collection) || (component instanceof Collection)) && p.x > component.pos.x && p.x < component.pos.x + component.width && p.y > component.pos.y && p.y < component.pos.y + component.height) {
+				if (component != $selected && (!($selected instanceof Collection) || (component instanceof Collection)) && component.pos && component.width && component.height && p.x > component.pos.x && p.x < component.pos.x + component.width && p.y > component.pos.y && p.y < component.pos.y + component.height) {
 					dropitem = component;
 					return;
 				}
@@ -79,14 +80,14 @@
 	}
 
 	let stackcount = 0;
-	function onpointerup(e) {
+	function onpointerup(e:MouseEvent) {
 		paning = false;
 		if ($selected && $selected.draging) {
 			$selected.draging = false;
 			if (dropitem) {
 				if (dropitem instanceof Collection) {
 					components = components.filter(v => v != $selected);
-					dropitem.add(...($selected instanceof Collection ? $selected._values : [$selected]));
+					dropitem.add(...($selected instanceof Collection ? $selected.values() : [$selected]));
 				} else if (!($selected instanceof Collection)) {
 					components = [...components.filter(v => v != dropitem && v != $selected), new Stack('__internal__.' + (stackcount++), {'Stack': [dropitem, $selected], pos: dropitem.pos})];
 				}
@@ -99,23 +100,34 @@
 	}
 
 	let paning = false;
-	let dropitem = null;
+	let dropitem: Component | null = null;
 </script>
 
 {#if $selected && $selected.menu && !$selected.draging}
 	<nav class="border-2 p-1 border-gray-700 rounded-lg bg-white z-50" style="position: absolute; top:{$selected.menu.y - 10}px; left:{$selected.menu.x - 10}px" on:pointerleave="{e => $selected = null}">
 		<ul>
 			{#each ['flip', 'shuffle'] as action}
-				{#if action in $selected}
-					<li class="w-full"><button class="w-full hover:bg-gray-200 p-1 rounded-lg" on:click={(e) => {$selected[action](); $selected = null; components = components}}>{action}</button></li>
+				{#if $selected && action in $selected}
+					<li class="w-full">
+						<button
+							class="w-full hover:bg-gray-200 p-1 rounded-lg"
+							on:click={(e) => {
+								// @ts-ignore
+								$selected[action](); $selected = null; components = components
+							}}>
+							{action}
+						</button>
+					</li>
 				{/if}
 			{/each}
-			{#if 'draw' in $selected}
+			{#if $selected instanceof Collection}
 				<li class="w-full">
 					<button
 						class="w-full hover:bg-gray-200 p-1 rounded-lg"
 						on:click={(e) => {
+							// @ts-ignore
 							let drawed = $selected.draw();
+							// @ts-ignore
 							if ($selected.length() == 0)
 								 components = components.filter(v => v != $selected);
 							components.push(drawed);

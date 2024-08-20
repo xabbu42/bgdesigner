@@ -4,7 +4,7 @@ import colors from 'tailwindcss/colors.js'
 
 export default class Game {
 
-	types:object = {
+	types:any = {
 		"Token": Token,
 		"Card": Card,
 		"Bag": Bag,
@@ -12,24 +12,25 @@ export default class Game {
 		"Stack": Stack,
 	}
 
-	game:object = {}
+	game:any = {}
 
-	registry:object = {
-		range: (g, d, a, b) => [...Array(b ? b - a + 1 : +a).keys()].map(i => i + (b ? +a : 1)),
-		max: (g, d, p) => Math.max(...g.render(p, d)),
-		min: (g, d, p) => Math.min(...g.render(p, d)),
-		icon: (g, d, name, ...classes) => {
+	registry:any = {
+		range: (g:Game, d:object, a:number, b:number) => [...Array(b ? b - a + 1 : +a).keys()].map(i => i + (b ? +a : 1)),
+		max: (g:Game, d:object, p:string):number => Math.max(...g.render(p, d)),
+		min: (g:Game, d:object, p:string):number => Math.min(...g.render(p, d)),
+		icon: (g:Game, d:object, name:string, ...classes:string[]) => {
 			let [color,shade] = (classes.find(v => v.match(/^(color|text)-/)) ?? '').replace(/^(color|text)-/, '').split('-');
 			let src = new URL('https://api.iconify.design/');
 			src.pathname = `/${name.replace(':', '/')}.svg`
 			if (color)
+				// @ts-ignore
 				src.searchParams.set('color', colors[color][shade] ?? color ?? '');
 			let style = classes.find(v => v.match(/^[wh]-/)) ? "" : "width: 1em; height: 1em; vertical-align: -0.125em; display: inline";
 			return `<img src="${src}" style="${style}" class="${classes.join(' ')}" />`;
 		}
 	}
 
-	constructor(data:object) {
+	constructor(data:any) {
 		// this only handles . special in the first level of data
 		// TODO do we want that everywhere? => implement it
 		for (let path in data)
@@ -39,17 +40,20 @@ export default class Game {
 	allcomponents() {
 		let result = [];
 		let typeregex = new RegExp('\\.(' + Object.keys(this.types).concat(['type']).join('|') + ')$');
-		for (let path of this.allpathes().filter(v => typeregex.test(v))) {
-			let type = typeregex.exec(path)[1];
-			let comppath = path.replace(/^@/, '').replace(typeregex, '');
-			if (Component.isPrototypeOf(this.types[type == 'type' ? this.getpath(path) : type]) && this.getpath(comppath))
-				result.push(this.render(comppath));
+		for (let path of this.allpathes()) {
+			let match = typeregex.exec(path);
+			if (match) {
+				let type:string = match[1];
+				let comppath:string = path.replace(/^@/, '').replace(typeregex, '');
+				if (Component.isPrototypeOf(this.types[type == 'type' ? this.getpath(path) : type]) && this.getpath(comppath))
+					result.push(this.render(comppath));
+			}
 		}
 		return result.flat(Infinity);
 	}
 
 	allpathes() {
-		function* generator(obj: object, path: string[]) {
+		function* generator(obj:any, path: string[]):Generator<string> {
 			for (let key in obj) {
 				const newpath = path.concat(key);
 				yield newpath.join('.');
@@ -62,12 +66,12 @@ export default class Game {
 	}
 
 	getpath(path: string) {
-		return path.split('.').reduce((v, p) => v[p], this.game);
+		return path.split('.').reduce((v:any, p:string) => v[p], this.game);
 	}
 
 	setpath(path: string, value: any) {
-		let cont = this.game;
-		let parts = path.split('.');
+		let cont:any = this.game;
+		let parts:string[] = path.split('.');
 		for (let part of parts.slice(0, -1)) {
 			if (!(part in cont))
 				cont[part] = part.match(/^\d+$/) ? [] : {};
@@ -77,11 +81,11 @@ export default class Game {
 	}
 
 	repls(value: any, data: object) {
-		const collections = {};
+		const collections:any = {};
 		if (typeof value !== 'object')
 			value = {value};
 
-		function* allstrings(obj: object) {
+		function* allstrings(obj: any):Generator<string> {
 			for (let key in obj) {
 				switch (typeof(obj[key])) {
 					case "object":
@@ -103,7 +107,7 @@ export default class Game {
 			}
 		}
 
-		function *combinations(comb:object, keys:[string], collections:object) {
+		function *combinations(comb:any, keys:string[], collections:any):Generator<any> {
 			const [head, ...tail] = keys;
 			for (let val of collections[head].values()) {
 				comb[head] = collections[head].draw(val);
@@ -119,8 +123,8 @@ export default class Game {
 		return keys.length > 0 ? [...combinations({}, keys, collections)] : [{}];
 	}
 
-	annotations(path) {
-		const annotations = {};
+	annotations(path:string) {
+		const annotations:any = {};
 		let pathes = this.allpathes().filter(v => v.startsWith('@') && path.startsWith(v.substring(1))).sort((a, b) => a.length - b.length);
 		for (let annotation of pathes.map(p => this.getpath(p))) {
 			if (typeof annotation == "object") {
@@ -131,18 +135,19 @@ export default class Game {
 		return annotations;
 	}
 
-	cache:object = {};
+	cache:any = {};
 
-	render(path: string, data: object = null) {
+	render(path: string, data: any = null):any {
 
 		if (data && path in data)
 			return data[path];
 
 		let func = path.match(/^(%)?(\w+)\s+(.+)/);
 		if (func) {
-			if (!(func[2] in this.registry))
+			if (func[2] in this.registry)
+				return this.registry[func[2]](this.game, data, ...func[3].split(/\s+/));
+			else
 				throw new Error(`Unknown function ${func[2]}`);
-			return this.registry[func[2]](this.game, data, ...func[3].split(/\s+/));
 		}
 
 		let regexp = new RegExp('(^|\\.)' + path.replace(/^%/, '').replaceAll('.', '\.').replaceAll('*', '.*') + '$');
@@ -167,7 +172,7 @@ export default class Game {
 		let value = this.getpath(path);
 		let rendered;
 
-		let render_string = (value, repl, data) => {
+		let render_string = (value:string, repl:any, data:any) => {
 			const single = value.match(/^{{([^}]*)}}$/);
 			return single ? repl[single[1]] ?? this.render(single[1], data)
 			              : value.replaceAll(/{{(.+?)}}/g, (_,expr) => repl[expr] ?? this.render(expr, data));

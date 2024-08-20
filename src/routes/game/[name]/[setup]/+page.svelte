@@ -1,4 +1,5 @@
 <script>
+	import Game from "$lib/Game.svelte";
 	import { page } from '$app/stores';
 	export let data;
 </script>

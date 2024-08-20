@@ -1,11 +1,11 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
 
-import { Plugin } from 'vite';
+import type { Plugin } from 'vite';
 import fs from 'fs';
 import JSON5 from 'json5';
 
-function* walk(dir: string, prefix: string = "") {
+function* walk(dir: string, prefix: string = ""): Generator<string> {
 	const files = fs.readdirSync(dir, {withFileTypes: true});
     for (const d of files) {
         if (d.isDirectory())
@@ -16,7 +16,7 @@ function* walk(dir: string, prefix: string = "") {
 }
 
 function MergeGamesPlugin(root: string): Plugin {
-	const dirs = [];
+	const dirs:string[] = [];
 	return {
 		name: 'merge-games-plugin',
 		buildStart() {
@@ -24,7 +24,7 @@ function MergeGamesPlugin(root: string): Plugin {
 			for (const d of files) {
 				if (d.isDirectory()) {
 					const gamedir = path.join(root, d.name);
-					const game = {};
+					const game:any = {};
 					dirs.push(gamedir);
 
 					for (let p of walk(gamedir)) {
