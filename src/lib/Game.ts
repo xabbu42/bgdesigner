@@ -14,6 +14,7 @@ export default class Game {
 
 	name:string = ''
 	game:any = {}
+	state:Components[] = [];
 
 	registry:any = {
 		range: (g:Game, d:object, a:number, b:number) => [...Array(b ? b - a + 1 : +a).keys()].map(i => i + (b ? +a : 1)),
@@ -31,12 +32,14 @@ export default class Game {
 		}
 	}
 
-	constructor(name:string, data:any) {
+	constructor(name:string, data:any, setup:string = 'setup') {
 		this.name = name;
 		// this only handles . special in the first level of data
 		// TODO do we want that everywhere? => implement it
 		for (let path in data)
 			this.setpath(path, data[path]);
+
+		this.state = this.getpath(setup) ? this.render(setup) : this.allcomponents();
 	}
 
 	allcomponents() {
@@ -211,5 +214,25 @@ export default class Game {
 
 		this.cache[path] = rendered;
 		return rendered;
+	}
+
+	stackcount: number = 0;
+	drop(selected:Component, dropitem:Component) {
+		if (dropitem) {
+			if (dropitem instanceof Collection) {
+				this.state = this.state.filter(v => v != selected);
+				dropitem.add(...(selected instanceof Collection ? selected.values() : [selected]));
+			} else if (!(selected instanceof Collection)) {
+				this.state = [...this.state.filter(v => v != dropitem && v != selected), new Stack('__internal__.' + (this.stackcount++), {'Stack': [dropitem, selected], pos: dropitem.pos})];
+			}
+		} else {
+			this.state = [...this.state.filter(v => v != selected), selected];
+		}
+	}
+
+	draw(from:Collection) {
+		let drew = from.draw();
+		this.state.push(drew);
+		return drew;
 	}
 }

@@ -4,15 +4,11 @@
 	import Token from "./Token.svelte";
 	import { textfit } from "./textfit.js";
 	import { Collection,Stack } from "./collections.js";
-	import type { Component } from "./components.js";
+	import type { Game } from "./Game.js";
 
-	export let game;
-	export let setup = '';
+	export let game:Writable<Game>;
 
 	let selected:Writable<Component | Collection | null> = writable();
-
-	let setuppath = setup ? `setups.${setup}` : 'setup';
-	let components:Component[] = game.getpath(setuppath) ? game.render(setuppath) : game.allcomponents();
 
 	let camera = {x: 0, y: 0, z: 1};
 	let viewport:HTMLElement;
@@ -69,7 +65,7 @@
 			pan({x: -e.movementX, y: -e.movementY});
 		else if ($selected && $selected.draging) {
 			let p = canvas(event_point(e));
-			for (let component of components.toReversed()) {
+			for (let component of $game.state.toReversed()) {
 				if (component != $selected && (!($selected instanceof Collection) || (component instanceof Collection)) && component.pos && component.width && component.height && p.x > component.pos.x && p.x < component.pos.x + component.width && p.y > component.pos.y && p.y < component.pos.y + component.height) {
 					dropitem = component;
 					return;
@@ -84,18 +80,10 @@
 		paning = false;
 		if ($selected && $selected.draging) {
 			$selected.draging = false;
-			if (dropitem) {
-				if (dropitem instanceof Collection) {
-					components = components.filter(v => v != $selected);
-					dropitem.add(...($selected instanceof Collection ? $selected.values() : [$selected]));
-				} else if (!($selected instanceof Collection)) {
-					components = [...components.filter(v => v != dropitem && v != $selected), new Stack('__internal__.' + (stackcount++), {'Stack': [dropitem, $selected], pos: dropitem.pos})];
-				}
-			} else {
-				components = [...components.filter(v => v != $selected), $selected];
-			}
+			$game.drop($selected, dropitem);
 			$selected = null;
 			dropitem = null;
+			$game = $game;
 		}
 	}
 
@@ -113,7 +101,8 @@
 							class="w-full hover:bg-gray-200 p-1 rounded-lg"
 							on:click={(e) => {
 								// @ts-ignore
-								$selected[action](); $selected = null; components = components
+								$selected[action](); $selected = null;
+								$game = $game;
 							}}>
 							{action}
 						</button>
@@ -125,14 +114,10 @@
 					<button
 						class="w-full hover:bg-gray-200 p-1 rounded-lg"
 						on:click={(e) => {
-							// @ts-ignore
-							let drawed = $selected.draw();
-							// @ts-ignore
-							if ($selected.length() == 0)
-								 components = components.filter(v => v != $selected);
-							components.push(drawed);
-							drawed.pos = canvas(event_point(e));
-							$selected = null; components = components
+							let drew = $game.draw($selected);
+							drew.pos = canvas(event_point(e));
+							$selected = null;
+							$game = $game;
 						}}>
 						draw
 					</button>
@@ -149,7 +134,7 @@
 >
 	<div class="canvas absolute origin-top-left" style="transform: scale({camera.z}) translate({camera.x}px,{camera.y}px)" use:apply_textfit>
 		<div class="flex flex-wrap gap-1">
-			{#each components as component(component.path)}
+			{#each $game.state as component(component.path)}
 				<Token token="{component}" camera="{camera}" selected="{selected}" class="{dropitem == component ? 'outline outline-4 outline-blue-400/50' : ''}" />
 			{/each}
 		</div>

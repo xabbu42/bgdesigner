@@ -2,7 +2,8 @@
 	import Game from "$lib/Game.svelte";
 	export let data;
 
-	let components = data.game.allcomponents();
+	let game = data.game;
+	let components = $game.allcomponents();
 </script>
 
 <div class="flex flex-wrap gap-1">
