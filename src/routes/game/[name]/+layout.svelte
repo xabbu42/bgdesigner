@@ -1,16 +1,22 @@
 <script>
 	import { page } from '$app/stores';
+	import { setContext } from 'svelte';
+	import { writable } from 'svelte/store';
+
+	setContext('games', writable({}));
 </script>
 
 <div class="flex flex-col h-full w-full">
 	<nav class="font-sans border-b-2 p-1 mb-1">
 		<div>
-			<a href="/game/{$page.params.name}/" class:active="{$page.route.id == '/game/[name]'}" class="text-lg">setup</a>
-			<a href="/game/{$page.params.name}/components" class:active="{$page.route.id == '/game/[name]/components'}">components</a>
+			<a href="/game/{$page.params.name}/" class:active="{$page.route.id == '/game/[name]'}" class="text-lg">overview</a>
+			<a href="/game/{$page.params.name}/lobby" class:active="{$page.route.id == '/game/[name]/lobby'}">lobby</a>
 		</div>
 	</nav>
 	<div class="grow">
-		<slot />
+		{#key $page.params.name}
+			<slot />
+		{/key}
 	</div>
 </div>
 

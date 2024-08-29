@@ -1,8 +1,13 @@
-<script>
-	import Game from "$lib/Game.svelte";
-	export let data;
+<script lang="ts">
+import { page } from '$app/stores';
+
+export let data;
+
+let components = data.game.allcomponents();
 </script>
 
-{#key data.game}
-	<Game game="{data.game}" />
-{/key}
+<div class="flex flex-wrap gap-1">
+	{#each components as component(component.path)}
+		{@html component}
+	{/each}
+</div>
