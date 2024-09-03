@@ -1,3 +1,15 @@
+export function hash(str:string) {
+	let hash = 0;
+	for (let i = 0; i < str.length; i++) {
+		const char = str.charCodeAt(i);
+		hash = (hash << 5) - hash + char;
+	}
+	return hash;
+}
+
+export function hashcolor(str:string) {
+	return `hsl(${(hash(str) % 360)}, 70%, 50%)`;
+}
 
 export function textfit(el:HTMLElement, options:{up?:boolean,down?:boolean} = {}) {
 	const computed = window.getComputedStyle(el);

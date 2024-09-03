@@ -2,7 +2,7 @@
 	import type {Point} from "./types.js";
 	import { type Writable, writable } from 'svelte/store';
 	import Token from "./Token.svelte";
-	import { textfit } from "./textfit.js";
+	import { textfit } from "./utils.js";
 	import { Collection,Stack } from "./collections.js";
 	import type { Game } from "./Game.js";
 
