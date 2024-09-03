@@ -143,4 +143,4 @@
 	</div>
 </div>
 
-<svelte:window on:pointermove="{onpointermove}" on:pointerup="{onpointerup}" />
+<svelte:window on:pointermove|passive="{onpointermove}" on:pointerup|passive="{onpointerup}" />
