@@ -9,6 +9,10 @@ if (!$games[$page.params.name])
 
 </script>
 
+<svelte:head>
+	<title>{$page.params.name} - Lobby</title>
+</svelte:head>
+
 <div>
 	<ul class="max-w-md divide-y m-2 border-solid border-2">
 		{#each Object.keys($games[$page.params.name]) as game}

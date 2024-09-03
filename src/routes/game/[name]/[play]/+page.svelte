@@ -14,4 +14,8 @@ if (!$games[$page.params.name][$page.params.play])
 let game = $games[$page.params.name][$page.params.play];
 </script>
 
+<svelte:head>
+	<title>{$page.params.name} - {$page.params.play}</title>
+</svelte:head>
+
 <GameComp {game} />
