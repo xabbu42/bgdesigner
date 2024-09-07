@@ -3,9 +3,12 @@ import { getContext } from 'svelte';
 import { page } from '$app/stores';
 import randomWords from 'random-words'
 
-let games = getContext('games');
-if (!$games[$page.params.name])
-	$games[$page.params.name] = {};
+let members = getContext('members');
+
+let plays = {}
+members.subscribe(vs => {
+	plays = vs.filter(v => v.location && v.location.params.name == $page.params.name && v.location.params.play).reduce((acc, v) => { (acc[v.location.params.play] = acc[v.location.params.play] || []).push(v); return acc }, {});
+});
 
 </script>
 
@@ -15,9 +18,14 @@ if (!$games[$page.params.name])
 
 <div>
 	<ul class="max-w-md divide-y m-2 border-solid border-2">
-		{#each Object.keys($games[$page.params.name]) as game}
+		{#each Object.entries(plays) as [play, members]}
 			<li class="p-1">
-				<a href="/game/{$page.params.name}/{game}">{game}</a>
+				<a href="/game/{$page.params.name}/{play}">
+					{play}
+					{#each members as member(member.connectionId)}
+						<span class="m-1 p-1 rounded-xl" style="background-color: {member.location.color}">{member.location.username}</span>
+					{/each}
+				</a>
 			</li>
 		{/each}
 	</ul>

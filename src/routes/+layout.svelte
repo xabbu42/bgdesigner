@@ -1,8 +1,53 @@
 <script lang="ts">
+	import { onMount, onDestroy, setContext } from 'svelte';
+	import { writable } from 'svelte/store';
 	import "../app.css";
 	import { page } from '$app/stores';
+	import { hashcolor } from '$lib/utils';
+	import { PUBLIC_ABLY_KEY } from '$env/static/public';
+
+
 	const obj = import.meta.glob('../../static/games/*');
 	const games = Object.keys(obj).map((v) => v.match(/([^\/]*)$/)![0]);
+
+	import rug from 'random-username-generator';
+
+	import Ably from 'ably';
+	import Spaces from '@ably/spaces';
+
+	let username = rug.generate();
+	let color = hashcolor(username);
+	let members = writable([]);
+	setContext('members', members);
+
+	let ably;
+	let spaces;
+	let space;
+
+	function change_username(newusername) {
+		localStorage.setItem('username', newusername);
+		username = newusername;
+		color = hashcolor(username);
+		space.locations.set({params: $page.params, username, color});
+	}
+
+	onMount(async () => {
+		username = localStorage.getItem('username') || username;
+		ably = new Ably.Realtime({key: PUBLIC_ABLY_KEY, clientId: username});
+		spaces = new Spaces(ably);
+		space = await spaces.get('bgdesigner');
+		space.subscribe('update', (vs) => $members = vs.members.filter(v => v.isConnected));
+		await space.enter();
+		space.locations.set({params: $page.params, username, color});
+		page.subscribe(v => space.locations.set({params: v.params, username, color}));
+	});
+
+	onDestroy(() => {
+		if (space)
+			space.leave();
+		if (ably)
+			ably.close();
+	});
 </script>
 
 <div class="p-1 antialiased text-gray-900 h-screen w-screen flex flex-col">
@@ -12,6 +57,7 @@
 			{#each games as game}
 				<a href="/game/{game}" class:active={$page.params.name === game}>{game}</a>
 			{/each}
+			<form class="inline float-end" on:submit="{(e) => change_username(username)}"><input class="m-1 select-all" id="seed" type="text" bind:value={username} /></form>
 		</div>
 	</nav>
 	<div class="grow">
