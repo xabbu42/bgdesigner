@@ -1,6 +1,8 @@
 <script lang="ts">
 	import type {Point} from "./types.js";
 	import { type Writable, writable } from 'svelte/store';
+	import { createEventDispatcher } from 'svelte';
+
 	import Token from "./Token.svelte";
 	import { textfit } from "./utils.js";
 	import { Collection,Stack } from "./collections.js";
@@ -8,6 +10,7 @@
 
 	export let game:Writable<Game>;
 
+	const dispatch = createEventDispatcher();
 	let selected:Writable<Component | Collection | null> = writable();
 
 	let camera = {x: 0, y: 0, z: 1};
@@ -80,6 +83,7 @@
 		paning = false;
 		if ($selected && $selected.draging) {
 			$selected.draging = false;
+			dispatch('gameevent', {action: 'drop', pos: dropitem ? null : $selected.pos, args: [$selected.path, dropitem ? dropitem.path : undefined]});
 			$game.drop($selected, dropitem);
 			$selected = null;
 			dropitem = null;
@@ -101,7 +105,9 @@
 							class="w-full hover:bg-gray-200 p-1 rounded-lg"
 							on:click={(e) => {
 								// @ts-ignore
-								$selected[action](); $selected = null;
+								$selected[action]();
+								dispatch('gameevent', {action, path: $selected.path});
+								$selected = null;
 								$game = $game;
 							}}>
 							{action}
@@ -114,8 +120,10 @@
 					<button
 						class="w-full hover:bg-gray-200 p-1 rounded-lg"
 						on:click={(e) => {
+							let pos = canvas(event_point(e));
 							let drew = $game.draw($selected);
-							drew.pos = canvas(event_point(e));
+							dispatch('gameevent', {action: 'draw', pos, args: [$selected.path]});
+							drew.pos = pos;
 							$selected = null;
 							$game = $game;
 						}}>
