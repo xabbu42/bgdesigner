@@ -156,7 +156,7 @@ export default class Game {
 		}
 
 		let regexp = new RegExp('(^|\\.)' + path.replace(/^%/, '').replaceAll('.', '\.').replaceAll('*', '.*') + '$');
-		let pathes = this.allpathes().filter(v => regexp.test(v));
+		let pathes = [... new Set(this.allpathes().concat(Object.keys(this.cache)).filter(v => regexp.test(v)))];
 		if (pathes.filter(v => v == path).length > 0)
 			pathes = [path];
 		if (path.includes('*')) {
@@ -204,7 +204,11 @@ export default class Game {
 					if (typekeys.length == 1)
 						subdata.type = typekeys[0];
 				}
-				result.push(subdata.type ? new this.types[subdata.type] (path + (repls.length > 1 ? '.' + result.length : ''), subdata) : subdata);
+				let variantpath = path + (repls.length > 1 ? '.' + result.length : '');
+				let variant = subdata.type ? new this.types[subdata.type] (variantpath, subdata) : subdata;
+				result.push(variant);
+				if (repls.length > 1)
+					this.cache[variantpath] = variant;
 			}
 			rendered = result.length == 1 ? result[0] : result;
 
