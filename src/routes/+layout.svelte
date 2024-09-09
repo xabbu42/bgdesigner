@@ -18,9 +18,10 @@
 	let username = rug.generate();
 	let color = hashcolor(username);
 	let members = writable([]);
+	let ably = writable();
 	setContext('members', members);
+	setContext('ably', ably);
 
-	let ably;
 	let spaces;
 	let space;
 
@@ -33,8 +34,8 @@
 
 	onMount(async () => {
 		username = localStorage.getItem('username') || username;
-		ably = new Ably.Realtime({key: PUBLIC_ABLY_KEY, clientId: username});
-		spaces = new Spaces(ably);
+		$ably = new Ably.Realtime({key: PUBLIC_ABLY_KEY, clientId: username});
+		spaces = new Spaces($ably);
 		space = await spaces.get('bgdesigner');
 		space.subscribe('update', (vs) => $members = vs.members.filter(v => v.isConnected));
 		await space.enter();
@@ -45,8 +46,8 @@
 	onDestroy(() => {
 		if (space)
 			space.leave();
-		if (ably)
-			ably.close();
+		if ($ably)
+			$ably.close();
 	});
 </script>
 
