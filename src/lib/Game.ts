@@ -226,13 +226,16 @@ export default class Game {
 			if (dropitem instanceof Collection) {
 				this.state = this.state.filter(v => v != selected);
 				dropitem.add(...(selected instanceof Collection ? selected.values() : [selected]));
+				return dropitem;
 			} else if (!(selected instanceof Collection)) {
 				let internalpath = '__internal__.' + (this.stackcount++);
 				this.cache[internalpath] = new Stack(internalpath, {'Stack': [dropitem, selected], pos: dropitem.pos});
 				this.state = [...this.state.filter(v => v != dropitem && v != selected), this.cache[internalpath]];
+				return this.cache[internalpath];
 			}
 		} else {
 			this.state = [...this.state.filter(v => v != selected), selected];
+			return selected;
 		}
 	}
 
