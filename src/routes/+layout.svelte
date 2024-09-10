@@ -19,34 +19,34 @@ let username = rug.generate();
 let color = hashcolor(username);
 let members = writable([]);
 let ably = writable();
+let spaces = writable();
 setContext('members', members);
 setContext('ably', ably);
+setContext('spaces', spaces);
 
-let spaces;
-let space;
-
+let channel;
 function change_username(newusername) {
 	localStorage.setItem('username', newusername);
 	username = newusername;
 	color = hashcolor(username);
-	space.locations.set({params: $page.params, username, color});
+	if (channel)
+		channel.presence.update({username,color,params: $page.params});
 }
 
 if ('PUBLIC_ABLY_KEY' in env) {
 	onMount(async () => {
 		username = localStorage.getItem('username') || username;
 		$ably = new Ably.Realtime({key: env.PUBLIC_ABLY_KEY, clientId: username});
-		spaces = new Spaces($ably);
-		space = await spaces.get('bgdesigner');
-		space.subscribe('update', (vs) => $members = vs.members.filter(v => v.isConnected));
-		await space.enter();
-		space.locations.set({params: $page.params, username, color});
-		page.subscribe(v => space.locations.set({params: v.params, username, color}));
+		$spaces = new Spaces($ably);
+		channel = $ably.channels.get('bgdesigner');
+		channel.presence.enter({username,color,params: $page.params});
+		page.subscribe((v) => channel.presence.update({username, color, params: v.params}));
+		channel.presence.subscribe(async (m) => $members = await channel.presence.get());
 	});
 
 	onDestroy(() => {
-		if (space)
-			space.leave();
+		if (channel)
+			channel.detach();
 		if ($ably)
 			$ably.close();
 	});

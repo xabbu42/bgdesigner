@@ -7,7 +7,7 @@ let members = getContext('members');
 
 let plays = {}
 members.subscribe(vs => {
-	plays = vs.filter(v => v.location && v.location.params.name == $page.params.name && v.location.params.play).reduce((acc, v) => { (acc[v.location.params.play] = acc[v.location.params.play] || []).push(v); return acc }, {});
+	plays = vs.filter(v => v.data && v.data.params.name == $page.params.name && v.data.params.play).reduce((acc, v) => { (acc[v.data.params.play] = acc[v.data.params.play] || []).push(v); return acc }, {});
 });
 
 </script>
@@ -23,7 +23,7 @@ members.subscribe(vs => {
 				<a href="/game/{$page.params.name}/{play}">
 					{play}
 					{#each members as member(member.connectionId)}
-						<span class="m-1 p-1 rounded-xl" style="background-color: {member.location.color}">{member.location.username}</span>
+						<span class="m-1 p-1 rounded-xl" style="background-color: {member.data.color}">{member.data.username}</span>
 					{/each}
 				</a>
 			</li>
