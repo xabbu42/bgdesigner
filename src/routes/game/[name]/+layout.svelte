@@ -1,9 +1,9 @@
 <script>
-	import { page } from '$app/stores';
-	import { setContext } from 'svelte';
-	import { writable } from 'svelte/store';
+import { page } from '$app/stores';
+import { setContext } from 'svelte';
+import { writable } from 'svelte/store';
 
-	setContext('games', writable({}));
+setContext('games', writable({}));
 </script>
 
 <div class="flex flex-col h-full w-full">
