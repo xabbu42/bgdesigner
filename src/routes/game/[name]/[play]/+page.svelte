@@ -41,4 +41,4 @@ function handle_message(msg) {
 	<title>{$page.params.name} - {$page.params.play}</title>
 </svelte:head>
 
-<GameComp on:gameevent="{e => {channel.publish(e.detail.action, e.detail)}}" {game} />
+<GameComp on:gameevent="{e => {if (channel) channel.publish(e.detail.action, e.detail)}}" {game} />

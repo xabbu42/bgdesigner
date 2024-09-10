@@ -4,7 +4,7 @@ import { writable } from 'svelte/store';
 import "../app.css";
 import { page } from '$app/stores';
 import { hashcolor } from '$lib/utils';
-import { PUBLIC_ABLY_KEY } from '$env/static/public';
+import * as env from '$env/static/public';
 
 
 const obj = import.meta.glob('../../static/games/*');
@@ -32,23 +32,25 @@ function change_username(newusername) {
 	space.locations.set({params: $page.params, username, color});
 }
 
-onMount(async () => {
-	username = localStorage.getItem('username') || username;
-	$ably = new Ably.Realtime({key: PUBLIC_ABLY_KEY, clientId: username});
-	spaces = new Spaces($ably);
-	space = await spaces.get('bgdesigner');
-	space.subscribe('update', (vs) => $members = vs.members.filter(v => v.isConnected));
-	await space.enter();
-	space.locations.set({params: $page.params, username, color});
-	page.subscribe(v => space.locations.set({params: v.params, username, color}));
-});
+if ('PUBLIC_ABLY_KEY' in env) {
+	onMount(async () => {
+		username = localStorage.getItem('username') || username;
+		$ably = new Ably.Realtime({key: env.PUBLIC_ABLY_KEY, clientId: username});
+		spaces = new Spaces($ably);
+		space = await spaces.get('bgdesigner');
+		space.subscribe('update', (vs) => $members = vs.members.filter(v => v.isConnected));
+		await space.enter();
+		space.locations.set({params: $page.params, username, color});
+		page.subscribe(v => space.locations.set({params: v.params, username, color}));
+	});
 
-onDestroy(() => {
-	if (space)
-		space.leave();
-	if ($ably)
-		$ably.close();
-});
+	onDestroy(() => {
+		if (space)
+			space.leave();
+		if ($ably)
+			$ably.close();
+	});
+}
 </script>
 
 <div class="p-1 antialiased text-gray-900 h-screen w-screen flex flex-col">
