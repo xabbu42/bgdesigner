@@ -15,11 +15,12 @@ import rug from 'random-username-generator';
 import Ably from 'ably';
 import Spaces from '@ably/spaces';
 
-let username = rug.generate();
-let color = hashcolor(username);
+let name = rug.generate();
+let user = writable({name, color: hashcolor(name)});
 let members = writable([]);
 let ably = writable();
 let spaces = writable();
+setContext('user', user);
 setContext('members', members);
 setContext('ably', ably);
 setContext('spaces', spaces);
@@ -27,20 +28,19 @@ setContext('spaces', spaces);
 let channel;
 function change_username(newusername) {
 	localStorage.setItem('username', newusername);
-	username = newusername;
-	color = hashcolor(username);
-	if (channel)
-		channel.presence.update({username,color,params: $page.params});
+	$user = {name: newusername, color: hashcolor(newusername)};
 }
 
 if ('PUBLIC_ABLY_KEY' in env) {
 	onMount(async () => {
-		username = localStorage.getItem('username') || username;
-		$ably = new Ably.Realtime({key: env.PUBLIC_ABLY_KEY, clientId: username});
+		name = localStorage.getItem('username') || name;
+		$user = {name, color: hashcolor(name)};
+		$ably = new Ably.Realtime({key: env.PUBLIC_ABLY_KEY, clientId: $user.name});
 		$spaces = new Spaces($ably);
 		channel = $ably.channels.get('bgdesigner');
-		channel.presence.enter({username,color,params: $page.params});
-		page.subscribe((v) => channel.presence.update({username, color, params: v.params}));
+		channel.presence.enter({user:$user,params: $page.params});
+		page.subscribe((v) => channel.presence.update({user:$user, params: v.params}));
+		user.subscribe((v) => channel.presence.update({user:v, params: $page.params}));
 		channel.presence.subscribe(async (m) => $members = await channel.presence.get());
 	});
 
@@ -60,7 +60,7 @@ if ('PUBLIC_ABLY_KEY' in env) {
 			{#each games as game}
 				<a href="/game/{game}" class:active={$page.params.name === game}>{game}</a>
 			{/each}
-			<form class="inline float-end" on:submit="{(e) => change_username(username)}"><input class="m-1 select-all" id="seed" type="text" bind:value={username} /></form>
+			<form class="inline float-end" on:submit="{(e) => change_username(name)}"><input class="m-1 select-all" id="seed" type="text" bind:value={name} /></form>
 		</div>
 	</nav>
 	<div class="grow">
