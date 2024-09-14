@@ -8,7 +8,7 @@ export function hash(str:string) {
 }
 
 export function hashcolor(str:string) {
-	return `hsl(${(hash(str) % 360)}, 70%, 50%)`;
+	return `hsl(${(hash(str) % 360)}, 70%, 70%)`;
 }
 
 export function textfit(el:HTMLElement, options:{up?:boolean,down?:boolean} = {}) {
