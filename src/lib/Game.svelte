@@ -72,15 +72,20 @@
 			pan({x: -e.movementX, y: -e.movementY});
 		else {
 			let p = canvas(event_point(e));
-			if (hovered) {
-				hovered.usermode = UserMode.None;
-				hovered = null;
-			}
 			for (let component of $game.state.toReversed()) {
 				if (component != selected && component.pos && component.width && component.height && p.x > component.pos.x && p.x < component.pos.x + component.width && p.y > component.pos.y && p.y < component.pos.y + component.height) {
-					hovered = component;
-					component.usermode = UserMode.Hover;
-					component.usercolor = $user.color;
+					if (component != hovered) {
+						if (hovered) {
+							hovered.usermode = UserMode.None;
+							hovered = null;
+						}
+						if (dispatch('uievent', {action: 'hover', path: component.path}, {cancelable: true})) {
+							console.log(component);
+							hovered = component;
+							component.usermode = UserMode.Hover;
+							component.usercolor = $user.color;
+						}
+					}
 					break;
 				}
 			}
@@ -94,11 +99,12 @@
 	function onpointerup(e:MouseEvent) {
 		paning = false;
 		if (selected && selected.usermode == UserMode.Drag) {
-			dispatch('gameevent', {action: 'drop', pos: hovered ? null : selected.pos, args: [selected.path, hovered ? hovered.path : undefined]});
-			$game.drop(selected, hovered);
-			selected.usermode = UserMode.None;
-			selected = null;
-			$game = $game;
+			if (dispatch('gameevent', {action: 'drop', pos: hovered ? null : selected.pos, args: [selected.path, hovered ? hovered.path : undefined]}, {cancelable: true})) {
+				$game.drop(selected, hovered);
+				selected.usermode = UserMode.None;
+				selected = null;
+				$game = $game;
+			}
 		}
 	}
 
@@ -113,11 +119,12 @@
 						<button
 							class="w-full hover:bg-gray-200 p-1 rounded-lg"
 							on:click={(e) => {
-								// @ts-ignore
-								selected[action]();
-								dispatch('gameevent', {action, path: selected.path});
-								selected = null;
-								$game = $game;
+								if (dispatch('gameevent', {action, path: selected.path}, {cancelable: true})) {
+								   // @ts-ignore
+								   selected[action]();
+								   selected = null;
+								   $game = $game;
+								}
 							}}>
 							{action}
 						</button>
@@ -130,11 +137,12 @@
 						class="w-full hover:bg-gray-200 p-1 rounded-lg"
 						on:click={(e) => {
 							let pos = canvas(event_point(e));
-							let drew = $game.draw(selected);
-							dispatch('gameevent', {action: 'draw', pos, args: [selected.path]});
-							drew.pos = pos;
-							selected = null;
-							$game = $game;
+							if (dispatch('gameevent', {action: 'draw', pos, args: [selected.path]}, {cancelable: true})) {
+							   let drew = $game.draw(selected);
+								drew.pos = pos;
+								selected = null;
+								$game = $game;
+							}
 						}}>
 						draw
 					</button>
@@ -156,10 +164,12 @@
 					on:pointerdown="{(e) => {
 						if (e.button === 0) {
 							/*div.setPointerCapture(e.pointerId);*/
-							component.usermode = UserMode.Drag;
-							component.usercolor = $user.color;
-							selected = component;
-							hovered = null;
+							if (dispatch('uievent', {action: 'drag', path: component.path}, {cancelable: true})) {
+								component.usermode = UserMode.Drag;
+								component.usercolor = $user.color;
+								selected = component;
+								hovered = null;
+							}
 							e.preventDefault();
 							e.stopPropagation();
 						}
