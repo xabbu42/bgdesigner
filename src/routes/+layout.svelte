@@ -27,13 +27,13 @@ setContext('spaces', spaces);
 
 let channel;
 function change_username(newusername) {
-	localStorage.setItem('username', newusername);
+	sessionStorage.setItem('username', newusername);
 	$user = {name: newusername, color: hashcolor(newusername)};
 }
 
 if ('PUBLIC_ABLY_KEY' in env) {
 	onMount(async () => {
-		name = localStorage.getItem('username') || name;
+		name = sessionStorage.getItem('username') || name;
 		$user = {name, color: hashcolor(name)};
 		$ably = new Ably.Realtime({key: env.PUBLIC_ABLY_KEY, clientId: $user.name});
 		$spaces = new Spaces($ably);
