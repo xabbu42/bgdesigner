@@ -158,7 +158,7 @@
 			on:pointerdown|preventDefault="{(e) => paning = true}"
 >
 	<div class="canvas absolute origin-top-left" style="transform: scale({camera.z}) translate({camera.x}px,{camera.y}px)" use:apply_textfit>
-		<div class="flex flex-wrap gap-1">
+		<div class="flex flex-wrap gap-1" style="width:96rem">
 			{#each $game.state as component(component.path)}
 				<Token
 					on:pointerdown="{(e) => {
