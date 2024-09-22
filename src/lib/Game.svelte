@@ -64,27 +64,29 @@
 	}
 
 	let paning = false;
-	let dropitem: Component | null = null;
 	let selected: Component | null = null;
+	let hovered: Component | null = null;
 
 	function onpointermove (e:MouseEvent) {
 		if (paning)
 			pan({x: -e.movementX, y: -e.movementY});
-		else if (selected && selected.usermode == UserMode.Drag) {
+		else {
 			let p = canvas(event_point(e));
-			selected.pos = {x: selected.pos.x + e.movementX / camera.z, y: selected.pos.y + e.movementY / camera.z};
-			if (dropitem && dropitem != selected)
-				dropitem.usermode = UserMode.None;
-			$game = $game;
+			if (hovered) {
+				hovered.usermode = UserMode.None;
+				hovered = null;
+			}
 			for (let component of $game.state.toReversed()) {
-				if (!component.usermode && (!(selected instanceof Collection) || (component instanceof Collection)) && component.pos && component.width && component.height && p.x > component.pos.x && p.x < component.pos.x + component.width && p.y > component.pos.y && p.y < component.pos.y + component.height) {
-					dropitem = component;
-					component.usermode = UserMode.Drop;
+				if (component != selected && component.pos && component.width && component.height && p.x > component.pos.x && p.x < component.pos.x + component.width && p.y > component.pos.y && p.y < component.pos.y + component.height) {
+					hovered = component;
+					component.usermode = UserMode.Hover;
 					component.usercolor = $user.color;
-					return;
+					break;
 				}
 			}
-			dropitem = null;
+			if (selected && selected.usermode == UserMode.Drag)
+				selected.pos = {x: selected.pos.x + e.movementX / camera.z, y: selected.pos.y + e.movementY / camera.z};
+			$game = $game;
 		}
 	}
 
@@ -92,13 +94,10 @@
 	function onpointerup(e:MouseEvent) {
 		paning = false;
 		if (selected && selected.usermode == UserMode.Drag) {
-			dispatch('gameevent', {action: 'drop', pos: dropitem ? null : selected.pos, args: [selected.path, dropitem ? dropitem.path : undefined]});
-			$game.drop(selected, dropitem);
+			dispatch('gameevent', {action: 'drop', pos: hovered ? null : selected.pos, args: [selected.path, hovered ? hovered.path : undefined]});
+			$game.drop(selected, hovered);
 			selected.usermode = UserMode.None;
 			selected = null;
-			if (dropitem)
-				dropitem.usermode = UserMode.None;
-			dropitem = null;
 			$game = $game;
 		}
 	}
@@ -160,6 +159,7 @@
 							component.usermode = UserMode.Drag;
 							component.usercolor = $user.color;
 							selected = component;
+							hovered = null;
 							e.preventDefault();
 							e.stopPropagation();
 						}
