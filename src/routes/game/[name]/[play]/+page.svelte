@@ -72,7 +72,7 @@ function handle_message(msg) {
 </svelte:head>
 <svelte:window on:pointermove|passive="{onpointermove}" on:pointerup|passive="{onpointerup}" />
 
-<GameComp on:gameevent="{e => {if (channel) channel.publish(e.detail.action, e.detail)}}" {game} />
+<GameComp on:gameevent="{e => {if (channel) channel.publish(e.detail.action, e.detail)}}" {game} {user} />
 {#each Object.values(cursors) as cursor(cursor.connectionId)}
 	<div class="absolute pointer-events-none" style="left: {cursor.position.x - 10}px; top: {cursor.position.y - 10}px;">
 		<div class="rounded-full border-solid border-2 inline-block" style="width: 21px; height: 21px; border-color: {cursor.data.color}"></div>

@@ -1,4 +1,4 @@
-import type {Point} from "./types.js";
+import {type Point, UserMode} from "./types.js";
 
 function render_string(value:string, params:any) {
 	return value.replaceAll(/{{(.+?)}}/g, (_,expr) => params[expr] ?? '');
@@ -12,7 +12,8 @@ export abstract class Component {
 	menu?: Point;
 	width?: number;
 	height?: number;
-	draging: boolean = false;
+	usercolor?: string;
+	usermode: UserMode = UserMode.None;
 
 	constructor(path: string, params:any) {
 		this.path = path;

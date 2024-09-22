@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type {Point} from "./types.js";
+	import {type Point, UserMode} from "./types.js";
 	import { type Writable, writable } from 'svelte/store';
 	import { createEventDispatcher } from 'svelte';
 
@@ -9,9 +9,9 @@
 	import type { Game } from "./Game.js";
 
 	export let game:Writable<Game>;
+	export let user;
 
 	const dispatch = createEventDispatcher();
-	let selected:Writable<Component | Collection | null> = writable();
 
 	let camera = {x: 0, y: 0, z: 1};
 	let viewport:HTMLElement;
@@ -63,14 +63,24 @@
 		}
 	}
 
+	let paning = false;
+	let dropitem: Component | null = null;
+	let selected: Component | null = null;
+
 	function onpointermove (e:MouseEvent) {
 		if (paning)
 			pan({x: -e.movementX, y: -e.movementY});
-		else if ($selected && $selected.draging) {
+		else if (selected && selected.usermode == UserMode.Drag) {
 			let p = canvas(event_point(e));
+			selected.pos = {x: selected.pos.x + e.movementX / camera.z, y: selected.pos.y + e.movementY / camera.z};
+			if (dropitem && dropitem != selected)
+				dropitem.usermode = UserMode.None;
+			$game = $game;
 			for (let component of $game.state.toReversed()) {
-				if (component != $selected && (!($selected instanceof Collection) || (component instanceof Collection)) && component.pos && component.width && component.height && p.x > component.pos.x && p.x < component.pos.x + component.width && p.y > component.pos.y && p.y < component.pos.y + component.height) {
+				if (!component.usermode && (!(selected instanceof Collection) || (component instanceof Collection)) && component.pos && component.width && component.height && p.x > component.pos.x && p.x < component.pos.x + component.width && p.y > component.pos.y && p.y < component.pos.y + component.height) {
 					dropitem = component;
+					component.usermode = UserMode.Drop;
+					component.usercolor = $user.color;
 					return;
 				}
 			}
@@ -81,33 +91,33 @@
 	let stackcount = 0;
 	function onpointerup(e:MouseEvent) {
 		paning = false;
-		if ($selected && $selected.draging) {
-			$selected.draging = false;
-			dispatch('gameevent', {action: 'drop', pos: dropitem ? null : $selected.pos, args: [$selected.path, dropitem ? dropitem.path : undefined]});
-			$game.drop($selected, dropitem);
-			$selected = null;
+		if (selected && selected.usermode == UserMode.Drag) {
+			dispatch('gameevent', {action: 'drop', pos: dropitem ? null : selected.pos, args: [selected.path, dropitem ? dropitem.path : undefined]});
+			$game.drop(selected, dropitem);
+			selected.usermode = UserMode.None;
+			selected = null;
+			if (dropitem)
+				dropitem.usermode = UserMode.None;
 			dropitem = null;
 			$game = $game;
 		}
 	}
 
-	let paning = false;
-	let dropitem: Component | null = null;
 </script>
 
-{#if $selected && $selected.menu && !$selected.draging}
-	<nav class="border-2 p-1 border-gray-700 rounded-lg bg-white z-50" style="position: absolute; top:{$selected.menu.y - 10}px; left:{$selected.menu.x - 10}px" on:pointerleave="{e => $selected = null}">
+{#if selected && selected.menu && !selected.usermode}
+	<nav class="border-2 p-1 border-gray-700 rounded-lg bg-white z-50" style="position: absolute; top:{selected.menu.y - 10}px; left:{selected.menu.x - 10}px" on:pointerleave="{e => selected = null}">
 		<ul>
 			{#each ['flip', 'shuffle'] as action}
-				{#if $selected && action in $selected}
+				{#if selected && action in selected}
 					<li class="w-full">
 						<button
 							class="w-full hover:bg-gray-200 p-1 rounded-lg"
 							on:click={(e) => {
 								// @ts-ignore
-								$selected[action]();
-								dispatch('gameevent', {action, path: $selected.path});
-								$selected = null;
+								selected[action]();
+								dispatch('gameevent', {action, path: selected.path});
+								selected = null;
 								$game = $game;
 							}}>
 							{action}
@@ -115,16 +125,16 @@
 					</li>
 				{/if}
 			{/each}
-			{#if $selected instanceof Collection}
+			{#if selected instanceof Collection}
 				<li class="w-full">
 					<button
 						class="w-full hover:bg-gray-200 p-1 rounded-lg"
 						on:click={(e) => {
 							let pos = canvas(event_point(e));
-							let drew = $game.draw($selected);
-							dispatch('gameevent', {action: 'draw', pos, args: [$selected.path]});
+							let drew = $game.draw(selected);
+							dispatch('gameevent', {action: 'draw', pos, args: [selected.path]});
 							drew.pos = pos;
-							$selected = null;
+							selected = null;
 							$game = $game;
 						}}>
 						draw
@@ -138,12 +148,25 @@
 <div class="viewport relative overflow-hidden w-full h-full"
 	bind:this="{viewport}"
 	on:wheel|preventDefault="{(e) => zoom(event_point(e), e.deltaY / 1000)}"
-	on:pointerdown|preventDefault="{(e) => paning = true}"
+			on:pointerdown|preventDefault="{(e) => paning = true}"
 >
 	<div class="canvas absolute origin-top-left" style="transform: scale({camera.z}) translate({camera.x}px,{camera.y}px)" use:apply_textfit>
 		<div class="flex flex-wrap gap-1">
 			{#each $game.state as component(component.path)}
-				<Token token="{component}" camera="{camera}" selected="{selected}" class="{dropitem == component ? 'outline outline-4 outline-blue-400/50' : ''}" />
+				<Token
+					on:pointerdown="{(e) => {
+						if (e.button === 0) {
+							/*div.setPointerCapture(e.pointerId);*/
+							component.usermode = UserMode.Drag;
+							component.usercolor = $user.color;
+							selected = component;
+							e.preventDefault();
+							e.stopPropagation();
+						}
+					}}"
+					on:contextmenu="{(e) => {component.menu = {x: e.clientX, y: e.clientY}; selected = component; e.preventDefault()}}"
+					token="{component}"
+				/>
 			{/each}
 		</div>
 	</div>
