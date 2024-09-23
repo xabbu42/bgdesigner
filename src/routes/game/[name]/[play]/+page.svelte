@@ -4,6 +4,7 @@ import { onMount, onDestroy, getContext } from 'svelte';
 import { writable } from 'svelte/store';
 import Game from "$lib/Game.js"
 import GameComp from "$lib/Game.svelte"
+import {UserMode} from "$lib/types.js";
 
 export let data;
 let games = getContext('games');
@@ -42,6 +43,18 @@ ably.subscribe(async a => {
 			cursors[update.connectionId] = update;
 			cursors = cursors;
 		});
+		space.locks.subscribe((lock) => {
+			if (lock.member.connectionId != $ably.connection.id) {
+				let obj = $game.render(lock.id);
+				if (lock.status == 'unlocked')
+					obj.usermode = UserMode.None;
+				else if (lock.status == 'locked') {
+					obj.usermode = UserMode.Hover;
+					obj.usercolor = cursors[lock.member.connectionId].data.color;
+				}
+				$game = $game;
+			}
+		});
 	}
 });
 
@@ -65,6 +78,31 @@ function handle_message(msg) {
 		$game = $game;
 	}
 }
+
+function ongameevent(e) {
+	if (channel)
+		channel.publish(e.detail.action, e.detail);
+}
+
+let locked;
+function onuievent(e) {
+	if (!space)
+		return;
+	if (locked && e.detail.path != locked) {
+		space.locks.release(locked);
+		locked = undefined;
+	}
+	if (e.detail.path) {
+		const lock = space.locks.get(e.detail.path);
+		if (lock && lock.member.connectionId != $ably.connection.id)
+			e.preventDefault();
+		else if (!lock) {
+			space.locks.acquire(e.detail.path);
+			locked = e.detail.path;
+		}
+	}
+}
+
 </script>
 
 <svelte:head>
@@ -72,7 +110,7 @@ function handle_message(msg) {
 </svelte:head>
 <svelte:window on:pointermove|passive="{onpointermove}" on:pointerup|passive="{onpointerup}" />
 
-<GameComp on:gameevent="{e => {if (channel) channel.publish(e.detail.action, e.detail)}}" {game} {user} />
+<GameComp on:uievent="{onuievent}" on:gameevent="{ongameevent}" {game} {user} />
 {#each Object.values(cursors) as cursor(cursor.connectionId)}
 	<div class="absolute pointer-events-none" style="left: {cursor.position.x - 10}px; top: {cursor.position.y - 10}px;">
 		<div class="rounded-full border-solid border-2 inline-block" style="width: 21px; height: 21px; border-color: {cursor.data.color}"></div>
