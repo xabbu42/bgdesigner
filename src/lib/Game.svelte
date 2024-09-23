@@ -72,21 +72,25 @@
 			pan({x: -e.movementX, y: -e.movementY});
 		else {
 			let p = canvas(event_point(e));
+			let newhovered;
 			for (let component of $game.state.toReversed()) {
 				if (component != selected && component.pos && component.width && component.height && p.x > component.pos.x && p.x < component.pos.x + component.width && p.y > component.pos.y && p.y < component.pos.y + component.height) {
-					if (component != hovered) {
-						if (hovered) {
-							hovered.usermode = UserMode.None;
-							hovered = null;
-						}
-						if (dispatch('uievent', {action: 'hover', path: component.path}, {cancelable: true})) {
-							console.log(component);
-							hovered = component;
-							component.usermode = UserMode.Hover;
-							component.usercolor = $user.color;
-						}
-					}
+					newhovered = component;
 					break;
+				}
+			}
+
+			if (hovered != newhovered) {
+				if (hovered) {
+					hovered.usermode = UserMode.None;
+					hovered = null;
+				}
+				if (dispatch('uievent', {action: 'hover', path: newhovered ? newhovered.path : undefined}, {cancelable: true})) {
+					hovered = newhovered;
+					if (hovered) {
+						hovered.usermode = UserMode.Hover;
+						hovered.usercolor = $user.color;
+					}
 				}
 			}
 			if (selected && selected.usermode == UserMode.Drag)
