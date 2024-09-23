@@ -20,6 +20,7 @@ let spaces = getContext('spaces');
 let user = getContext('user');
 let space;
 let entered = false;
+let members = {};
 let cursors = {};
 
 ably.subscribe(async a => {
@@ -33,10 +34,19 @@ ably.subscribe(async a => {
 		channel.subscribe(handle_message);
 
 		space = await $spaces.get(key);
-		await space.enter();
+		await space.enter($user);
+		user.subscribe(u => space.updateProfileData(u));
+		members = Object.fromEntries((await space.getState()).members.map(v => [v.connectionId, v]));
 		cursors = Object.fromEntries(Object.entries(await space.cursors.getAll()).filter(v => v[1] != undefined));
-		space.members.subscribe('leave', (ms) => {
+		space.members.subscribe(['leave', 'remove'], (ms) => {
 			delete cursors[ms.connectionId];
+			delete members[ms.connectionId];
+			cursors = cursors;
+			members = members;
+		});
+		space.members.subscribe(['enter', 'updateProfile'], (ms) => {
+			members[ms.connectionId] = ms;
+			members = members;
 		});
 		entered = true;
 		space.cursors.subscribe(async (update) => {
@@ -50,7 +60,7 @@ ably.subscribe(async a => {
 					obj.usermode = UserMode.None;
 				else if (lock.status == 'locked') {
 					obj.usermode = UserMode.Hover;
-					obj.usercolor = cursors[lock.member.connectionId].data.color;
+					obj.usercolor = members[lock.member.connectionId].profileData.color;
 				}
 				$game = $game;
 			}
@@ -61,7 +71,7 @@ ably.subscribe(async a => {
 let position;
 function onpointermove({clientX, clientY}) {
 	if (entered)
-		space.cursors.set({position: {x: clientX, y: clientY}, data: $user});
+		space.cursors.set({position: {x: clientX, y: clientY}});
 }
 
 onDestroy(() => {
@@ -113,7 +123,7 @@ function onuievent(e) {
 <GameComp on:uievent="{onuievent}" on:gameevent="{ongameevent}" {game} {user} />
 {#each Object.values(cursors) as cursor(cursor.connectionId)}
 	<div class="absolute pointer-events-none" style="left: {cursor.position.x - 10}px; top: {cursor.position.y - 10}px;">
-		<div class="rounded-full border-solid border-2 inline-block" style="width: 21px; height: 21px; border-color: {cursor.data.color}"></div>
-		<span class="rounded-xl m-1 p-1" style="background-color: {cursor.data.color}">{cursor.data.name}</span>
+		<div class="rounded-full border-solid border-2 inline-block" style="width: 21px; height: 21px; border-color: {members[cursor.connectionId].profileData.color}"></div>
+		<span class="rounded-xl m-1 p-1" style="background-color: {members[cursor.connectionId].profileData.color}">{members[cursor.connectionId].profileData.name}</span>
 	</div>
 {/each}
