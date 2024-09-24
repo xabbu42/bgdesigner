@@ -104,8 +104,9 @@
 		paning = false;
 		if (selected && selected.usermode == UserMode.Drag) {
 			if (dispatch('gameevent', {action: 'drop', pos: hovered ? null : selected.pos, args: [selected.path, hovered ? hovered.path : undefined]}, {cancelable: true})) {
-				$game.drop(selected, hovered);
-				selected.usermode = UserMode.None;
+				hovered = $game.drop(selected, hovered);
+				hovered.usermode = UserMode.Hover;
+				hovered.usercolor = $user.color;
 				selected = null;
 				$game = $game;
 			}
