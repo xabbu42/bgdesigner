@@ -103,7 +103,8 @@
 	function onpointerup(e:MouseEvent) {
 		paning = false;
 		if (selected && selected.usermode == UserMode.Drag) {
-			if (dispatch('gameevent', {action: 'drop', pos: hovered ? null : selected.pos, args: [selected.path, hovered ? hovered.path : undefined]}, {cancelable: true})) {
+			if (dispatch('uievent', {action: 'drop', path: selected.path}, {cancelable: true})
+				&& dispatch('gameevent', {action: 'drop', pos: hovered ? null : selected.pos, args: [selected.path, hovered ? hovered.path : undefined]}, {cancelable: true})) {
 				hovered = $game.drop(selected, hovered);
 				hovered.usermode = UserMode.Hover;
 				hovered.usercolor = $user.color;
