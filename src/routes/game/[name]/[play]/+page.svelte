@@ -108,13 +108,13 @@ function ongameevent(e) {
 		channel.publish(e.detail.action, e.detail);
 }
 
-let locked;
+let mylock;
 function onuievent(e) {
 	if (!space)
 		return;
-	if (locked && e.detail.path != locked) {
-		space.locks.release(locked);
-		locked = undefined;
+	if (mylock && e.detail.path != mylock) {
+		space.locks.release(mylock);
+		mylock = undefined;
 	}
 	if (e.detail.path) {
 		const lock = space.locks.get(e.detail.path);
@@ -122,7 +122,7 @@ function onuievent(e) {
 			e.preventDefault();
 		else if (!lock) {
 			space.locks.acquire(e.detail.path);
-			locked = e.detail.path;
+			mylock = e.detail.path;
 		}
 		if (e.detail.action == 'drag')
 			space.locations.set({path: e.detail.path});
