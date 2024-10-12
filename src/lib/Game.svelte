@@ -16,17 +16,14 @@
 	let camera = {x: 0, y: 0, z: 1};
 	let viewport:HTMLElement;
 
-	function event_point(e:MouseEvent) {
+	export function canvas(p: Point, c = camera) {
 		var rect = viewport.getBoundingClientRect();
-		return {x: e.clientX - rect.left, y: e.clientY - rect.top};
+		return { x: (p.x - rect.left) / c.z - c.x, y: (p.y - rect.top) / c.z - c.y };
 	}
 
-	function canvas(p: Point, c = camera) {
-		return { x: p.x / c.z - c.x, y: p.y / c.z - c.y };
-	}
-
-	function screen(p: Point, c = camera) {
-		return { x: (p.x + c.x) * c.z, y: (p.y + c.y) * c.z };
+	export function screen(p: Point, c = camera) {
+		var rect = viewport.getBoundingClientRect();
+		return { x: (p.x + c.x) * c.z + rect.left, y: (p.y + c.y) * c.z + rect.top };
 	}
 
 	function zoom(point: Point, dz: number) {
@@ -71,7 +68,7 @@
 		if (paning)
 			pan({x: -e.movementX, y: -e.movementY});
 		else {
-			let p = canvas(event_point(e));
+			let p = canvas(e);
 			let newhovered;
 			for (let component of $game.state.toReversed()) {
 				if (component != selected && component.pos && component.width && component.height && p.x > component.pos.x && p.x < component.pos.x + component.width && p.y > component.pos.y && p.y < component.pos.y + component.height) {
@@ -142,7 +139,7 @@
 					<button
 						class="w-full hover:bg-gray-200 p-1 rounded-lg"
 						on:click={(e) => {
-							let pos = canvas(event_point(e));
+							let pos = canvas(e);
 							if (dispatch('gameevent', {action: 'draw', pos, args: [selected.path]}, {cancelable: true})) {
 							   let drew = $game.draw(selected);
 								drew.pos = pos;
