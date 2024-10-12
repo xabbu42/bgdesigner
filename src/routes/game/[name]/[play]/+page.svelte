@@ -100,7 +100,7 @@ onDestroy(() => {
 
 function onpointermove({clientX, clientY}) {
 	if (entered)
-		space.cursors.set({position: {x: clientX, y: clientY}});
+		space.cursors.set({position: gamecomp.canvas({x: clientX, y: clientY})});
 }
 
 function ongameevent(e) {
@@ -131,6 +131,8 @@ function onuievent(e) {
 	}
 }
 
+let gamecomp;
+
 </script>
 
 <svelte:head>
@@ -138,9 +140,9 @@ function onuievent(e) {
 </svelte:head>
 <svelte:window on:pointermove|passive="{onpointermove}" on:pointerup|passive="{onpointerup}" />
 
-<GameComp on:uievent="{onuievent}" on:gameevent="{ongameevent}" {game} {user} />
+<GameComp on:uievent="{onuievent}" on:gameevent="{ongameevent}" bind:this="{gamecomp}" {game} {user} />
 {#each Object.values(cursors) as cursor(cursor.connectionId)}
-	<div class="absolute pointer-events-none" style="left: {cursor.position.x - 10}px; top: {cursor.position.y - 10}px;">
+	<div class="absolute pointer-events-none" style="left: {gamecomp.screen(cursor.position).x - 10}px; top: {gamecomp.screen(cursor.position).y - 10}px;">
 		<div class="rounded-full border-solid border-2 inline-block" style="width: 21px; height: 21px; border-color: {members[cursor.connectionId].profileData.color}"></div>
 		<span class="rounded-xl m-1 p-1" style="background-color: {members[cursor.connectionId].profileData.color}">{members[cursor.connectionId].profileData.name}</span>
 	</div>
