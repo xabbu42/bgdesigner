@@ -28,13 +28,15 @@ let locks = {};
 function handle_lock(lock) {
 	if (lock.member.connectionId != $ably.connection.id) {
 		let obj = $game.render(lock.id);
+		if (!locks[lock.member.connectionId])
+			locks[lock.member.connectionId] = {};
 		if (lock.status == 'unlocked') {
+			delete locks[lock.member.connectionId][obj.usermode];
 			obj.usermode = UserMode.None;
-			delete locks[lock.member.connectionId];
 		} else if (lock.status == 'locked') {
 			obj.usermode = locations[lock.member.connectionId] && locations[lock.member.connectionId].path == lock.id ? UserMode.Drag : UserMode.Hover;
 			obj.usercolor = members[lock.member.connectionId].profileData.color;
-			locks[lock.member.connectionId] = obj;
+			locks[lock.member.connectionId][obj.usermode] = obj;
 		}
 		$game = $game;
 	}
@@ -71,6 +73,8 @@ ably.subscribe(async a => {
 		space.members.subscribe(['leave', 'remove'], (ms) => {
 			delete cursors[ms.connectionId];
 			delete members[ms.connectionId];
+			delete locations[ms.connectionId];
+			delete locks[ms.connectionId];
 			cursors = cursors;
 			members = members;
 		});
@@ -79,11 +83,14 @@ ably.subscribe(async a => {
 			members = members;
 		});
 		space.locations.subscribe('update', (ms) => {
-			locations[ms.member.connectionId] = ms.currentLocation;
-			if (locks[ms.member.connectionId]) {
-				locks[ms.member.connectionId].usermode = locks[ms.member.connectionId].path == ms.currentLocation.path ? UserMode.Drag : UserMode.Hover;
-				$game = $game;
+			if (locations[ms.member.connectionId])
+				locations[ms.member.connectionId].usermode = UserMode.Hover;
+			locations[ms.member.connectionId] = ms.currentLocation.path ? $game.render(ms.currentLocation.path) : null;
+			if (locations[ms.member.connectionId]) {
+				locations[ms.member.connectionId].usermode = UserMode.Drag;
+				locations[ms.member.connectionId].usercolor = members[ms.member.connectionId].profileData.color;
 			}
+			$game = $game;
 		});
 		entered = true;
 		space.cursors.subscribe(async (update) => {
@@ -98,40 +105,51 @@ onDestroy(() => {
 		space.leave();
 });
 
+let gamecomp;
+
 function onpointermove({clientX, clientY}) {
 	if (entered)
 		space.cursors.set({position: gamecomp.canvas({x: clientX, y: clientY})});
 }
 
 function ongameevent(e) {
-	if (channel)
+	if (!space || !channel)
+		return;
+	let lock = space.locks.get(e.detail.path);
+	if (lock && lock.member.connectionId != $ably.connection.id)
+		e.preventDefault();
+	else
 		channel.publish(e.detail.action, e.detail);
 }
 
-let mylock;
-function onuievent(e) {
+async function onuievent(e) {
 	if (!space)
 		return;
-	if (mylock && e.detail.path != mylock) {
-		space.locks.release(mylock);
-		mylock = undefined;
-	}
-	if (e.detail.path) {
-		const lock = space.locks.get(e.detail.path);
-		if (lock && lock.member.connectionId != $ably.connection.id)
-			e.preventDefault();
-		else if (!lock) {
-			space.locks.acquire(e.detail.path);
-			mylock = e.detail.path;
-		}
-		if (e.detail.action == 'drag')
-			space.locations.set({path: e.detail.path});
-		else if (e.detail.action == 'drop')
-			space.locations.set({path: undefined});
-	}
-}
 
-let gamecomp;
+	let lock;
+	if (
+		e.detail.hovered && (lock = space.locks.get(e.detail.hovered)) && lock.member.connectionId != $ably.connection.id
+		|| e.detail.selected && (lock = space.locks.get(e.detail.selected)) && lock.member.connectionId != $ably.connection.id
+	) {
+		e.preventDefault();
+		return;
+	}
+
+	space.locations.set({path: e.detail.selected});
+
+	let tolock = e.detail;
+	for (let lock of await space.locks.getSelf()) {
+		if ((lock.id != tolock.hovered) && (lock.id != tolock.selected))
+			space.locks.release(lock.id);
+		else if (lock.id == tolock.hovered)
+			delete tolock.hovered;
+		else if (lock.id == tolock.selected)
+			delete tolock.selected;
+	}
+	for (let lockid of Object.values(tolock))
+		if (lockid)
+			space.locks.acquire(lockid);
+}
 
 </script>
 

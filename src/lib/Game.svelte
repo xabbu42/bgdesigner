@@ -82,7 +82,7 @@
 					hovered.usermode = UserMode.None;
 					hovered = null;
 				}
-				if (dispatch('uievent', {action: 'hover', path: newhovered ? newhovered.path : undefined}, {cancelable: true})) {
+				if (dispatch('uievent', {hovered: newhovered?.path, selected: selected?.path}, {cancelable: true})) {
 					hovered = newhovered;
 					if (hovered) {
 						hovered.usermode = UserMode.Hover;
@@ -100,11 +100,15 @@
 	function onpointerup(e:MouseEvent) {
 		paning = false;
 		if (selected && selected.usermode == UserMode.Drag) {
-			if (dispatch('uievent', {action: 'drop', path: selected.path}, {cancelable: true})
-				&& dispatch('gameevent', {action: 'drop', pos: hovered ? null : selected.pos, args: [selected.path, hovered ? hovered.path : undefined]}, {cancelable: true})) {
-				hovered = $game.drop(selected, hovered);
-				hovered.usermode = UserMode.Hover;
-				hovered.usercolor = $user.color;
+			if (dispatch('gameevent', {action: 'drop', pos: hovered ? null : selected.pos, args: [selected.path, hovered ? hovered.path : undefined]}, {cancelable: true})) {
+				let newhovered = $game.drop(selected, hovered);
+				if (dispatch('uievent', {hovered: newhovered?.path, selected: null}, {cancelable: true})) {
+					hovered = newhovered;
+					if (hovered) {
+						hovered.usermode = UserMode.Hover;
+						hovered.usercolor = $user.color;
+					}
+				}
 				selected = null;
 				$game = $game;
 			}
@@ -167,7 +171,7 @@
 					on:pointerdown="{(e) => {
 						if (e.button === 0) {
 							/*div.setPointerCapture(e.pointerId);*/
-							if (dispatch('uievent', {action: 'drag', path: component.path}, {cancelable: true})) {
+							if (dispatch('uievent', {hovered: null, selected: component.path}, {cancelable: true})) {
 								component.usermode = UserMode.Drag;
 								component.usercolor = $user.color;
 								selected = component;
