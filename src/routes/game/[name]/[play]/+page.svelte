@@ -122,7 +122,8 @@ function ongameevent(e) {
 		channel.publish(e.detail.action, e.detail);
 }
 
-async function onuievent(e) {
+let mylocks = {};
+function onuievent(e) {
 	if (!space)
 		return;
 
@@ -138,17 +139,20 @@ async function onuievent(e) {
 	space.locations.set({path: e.detail.selected});
 
 	let tolock = e.detail;
-	for (let lock of await space.locks.getSelf()) {
-		if ((lock.id != tolock.hovered) && (lock.id != tolock.selected))
-			space.locks.release(lock.id);
-		else if (lock.id == tolock.hovered)
+	for (let lock in mylocks) {
+		if ((lock != tolock.hovered) && (lock != tolock.selected)) {
+			space.locks.release(lock);
+			delete mylocks[lock];
+		} else if (lock == tolock.hovered)
 			delete tolock.hovered;
-		else if (lock.id == tolock.selected)
+		else if (lock == tolock.selected)
 			delete tolock.selected;
 	}
 	for (let lockid of Object.values(tolock))
-		if (lockid)
+		if (lockid) {
+			mylocks[lockid] = true;
 			space.locks.acquire(lockid);
+		}
 }
 
 </script>
