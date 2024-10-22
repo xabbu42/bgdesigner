@@ -138,7 +138,7 @@ function onuievent(e) {
 
 	space.locations.set({path: e.detail.selected});
 
-	let tolock = e.detail;
+	let tolock = {hovered: e.detail.hovered, selected: e.detail.selected};
 	for (let lock in mylocks) {
 		if ((lock != tolock.hovered) && (lock != tolock.selected)) {
 			space.locks.release(lock);
