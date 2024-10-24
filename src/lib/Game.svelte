@@ -82,7 +82,7 @@
 					hovered.usermode = UserMode.None;
 					hovered = null;
 				}
-				if (dispatch('uievent', {hovered: newhovered?.path, selected: selected?.path}, {cancelable: true})) {
+				if (dispatch('uievent', {hovered: newhovered?.path, selected: selected?.path, dragoffset: selected?.dragoffset}, {cancelable: true})) {
 					hovered = newhovered;
 					if (hovered) {
 						hovered.usermode = UserMode.Hover;
@@ -91,7 +91,7 @@
 				}
 			}
 			if (selected && selected.usermode == UserMode.Drag)
-				selected.pos = {x: selected.pos.x + e.movementX / camera.z, y: selected.pos.y + e.movementY / camera.z};
+				selected.pos = {x: p.x - selected.dragoffset.x, y: p.y - selected.dragoffset.y};
 			$game = $game;
 		}
 	}
@@ -171,10 +171,13 @@
 					on:pointerdown="{(e) => {
 						if (e.button === 0) {
 							/*div.setPointerCapture(e.pointerId);*/
-							if (dispatch('uievent', {hovered: null, selected: component.path}, {cancelable: true})) {
+							let bounds = e.target.getBoundingClientRect();
+							let dragoffset = {x: (e.clientX - bounds.x) / camera.z, y: (e.clientY - bounds.y) / camera.z};
+							if (dispatch('uievent', {hovered: null, selected: component.path, dragoffset}, {cancelable: true})) {
 								component.usermode = UserMode.Drag;
 								component.usercolor = $user.color;
 								selected = component;
+								selected.dragoffset = dragoffset;
 								hovered = null;
 							}
 							e.preventDefault();

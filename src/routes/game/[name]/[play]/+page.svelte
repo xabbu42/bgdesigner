@@ -83,18 +83,26 @@ ably.subscribe(async a => {
 			members = members;
 		});
 		space.locations.subscribe('update', (ms) => {
-			if (locations[ms.member.connectionId])
-				locations[ms.member.connectionId].usermode = UserMode.Hover;
-			locations[ms.member.connectionId] = ms.currentLocation.path ? $game.render(ms.currentLocation.path) : null;
-			if (locations[ms.member.connectionId]) {
-				locations[ms.member.connectionId].usermode = UserMode.Drag;
-				locations[ms.member.connectionId].usercolor = members[ms.member.connectionId].profileData.color;
+			if (ms.member.connectionId != $ably.connection.id) {
+				if (locations[ms.member.connectionId])
+					locations[ms.member.connectionId].usermode = UserMode.Hover;
+				locations[ms.member.connectionId] = ms.currentLocation.path ? $game.render(ms.currentLocation.path) : null;
+				if (locations[ms.member.connectionId]) {
+					locations[ms.member.connectionId].usermode = UserMode.Drag;
+					locations[ms.member.connectionId].usercolor = members[ms.member.connectionId].profileData.color;
+					locations[ms.member.connectionId].dragoffset = ms.currentLocation.dragoffset;
+				}
+				$game = $game;
 			}
-			$game = $game;
 		});
 		entered = true;
 		space.cursors.subscribe(async (update) => {
 			cursors[update.connectionId] = update;
+			let selected = locations[update.connectionId];
+			if (selected && update.connectionId != $ably.connection.id) {
+				selected.pos = {x: update.position.x - selected.dragoffset.x, y: update.position.y - selected.dragoffset.y};
+				$game = $game;
+			}
 			cursors = cursors;
 		});
 	}
@@ -136,7 +144,7 @@ function onuievent(e) {
 		return;
 	}
 
-	space.locations.set({path: e.detail.selected});
+	space.locations.set({path: e.detail.selected, dragoffset: e.detail.dragoffset});
 
 	let tolock = {hovered: e.detail.hovered, selected: e.detail.selected};
 	for (let lock in mylocks) {
