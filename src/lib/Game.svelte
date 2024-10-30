@@ -67,7 +67,7 @@
 	function onpointermove (e:MouseEvent) {
 		if (paning)
 			pan({x: -e.movementX, y: -e.movementY});
-		else {
+		else if (!selected || selected.usermode != UserMode.Menu) {
 			let p = canvas(e);
 			let newhovered;
 			for (let component of $game.state.toReversed()) {
@@ -101,6 +101,7 @@
 		paning = false;
 		if (selected && selected.usermode == UserMode.Drag) {
 			if (dispatch('gameevent', {action: 'drop', pos: hovered ? null : selected.pos, args: [selected.path, hovered ? hovered.path : undefined]}, {cancelable: true})) {
+				selected.usermode = UserMode.None;
 				let newhovered = $game.drop(selected, hovered);
 				if (dispatch('uievent', {hovered: newhovered?.path, selected: null}, {cancelable: true})) {
 					hovered = newhovered;
@@ -117,7 +118,7 @@
 
 </script>
 
-{#if selected && selected.menu && !selected.usermode}
+{#if selected && selected.usermode == UserMode.Menu}
 	<nav class="border-2 p-1 border-gray-700 rounded-lg bg-white z-50" style="position: absolute; top:{selected.menu.y - 10}px; left:{selected.menu.x - 10}px" on:pointerleave="{e => selected = null}">
 		<ul>
 			{#each ['flip', 'shuffle'] as action}
@@ -127,10 +128,15 @@
 							class="w-full hover:bg-gray-200 p-1 rounded-lg"
 							on:click={(e) => {
 								if (dispatch('gameevent', {action, path: selected.path}, {cancelable: true})) {
-								   // @ts-ignore
-								   selected[action]();
-								   selected = null;
-								   $game = $game;
+									// @ts-ignore
+									selected[action]();
+									if (dispatch('uievent', {hovered: selected.path, selected: null}, {cancelable: true})) {
+										selected.usermode = UserMode.Hover;
+										hovered = selected;
+									 } else
+										selected.usermode = UserMode.None;
+									selected = null;
+									$game = $game;
 								}
 							}}>
 							{action}
@@ -145,8 +151,14 @@
 						on:click={(e) => {
 							let pos = canvas(e);
 							if (dispatch('gameevent', {action: 'draw', pos, args: [selected.path]}, {cancelable: true})) {
-							   let drew = $game.draw(selected);
+								let drew = $game.draw(selected);
 								drew.pos = pos;
+
+								if (dispatch('uievent', {hovered: selected.path, selected: null}, {cancelable: true})) {
+									selected.usermode = UserMode.Hover;
+									hovered = selected;
+								} else
+									selected.usermode = UserMode.None;
 								selected = null;
 								$game = $game;
 							}
@@ -170,7 +182,6 @@
 				<Token
 					on:pointerdown="{(e) => {
 						if (e.button === 0) {
-							/*div.setPointerCapture(e.pointerId);*/
 							let bounds = e.target.getBoundingClientRect();
 							let dragoffset = {x: (e.clientX - bounds.x) / camera.z, y: (e.clientY - bounds.y) / camera.z};
 							if (dispatch('uievent', {hovered: null, selected: component.path, dragoffset}, {cancelable: true})) {
@@ -184,7 +195,17 @@
 							e.stopPropagation();
 						}
 					}}"
-					on:contextmenu="{(e) => {component.menu = {x: e.clientX, y: e.clientY}; selected = component; e.preventDefault()}}"
+					on:contextmenu="{(e) => {
+						if (dispatch('uievent', {hovered: null, selected: component.path}, {cancelable: true})) {
+							component.usermode = UserMode.Menu;
+							component.usercolor = $user.color;
+							selected = component;
+							selected.menu = {x: e.clientX, y: e.clientY};
+							hovered = null;
+						}
+						e.preventDefault();
+						e.stopPropagation();
+					}}"
 					token="{component}"
 				/>
 			{/each}
