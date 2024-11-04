@@ -100,19 +100,20 @@
 	function onpointerup(e:MouseEvent) {
 		paning = false;
 		if (selected && selected.usermode == UserMode.Drag) {
-			if (dispatch('gameevent', {action: 'drop', pos: hovered ? null : selected.pos, args: [selected.path, hovered ? hovered.path : undefined]}, {cancelable: true})) {
-				selected.usermode = UserMode.None;
-				let newhovered = $game.drop(selected, hovered);
-				if (dispatch('uievent', {hovered: newhovered?.path, selected: null}, {cancelable: true})) {
-					hovered = newhovered;
-					if (hovered) {
-						hovered.usermode = UserMode.Hover;
-						hovered.usercolor = $user.color;
-					}
+			selected.usermode = UserMode.None;
+			let oldhovered = hovered;
+			let newhovered = $game.drop(selected, hovered);
+			if (dispatch('uievent', {hovered: newhovered?.path, selected: null}, {cancelable: true})) {
+				hovered = newhovered;
+				if (hovered) {
+					hovered.usermode = UserMode.Hover;
+					hovered.usercolor = $user.color;
 				}
-				selected = null;
-				$game = $game;
 			}
+
+			dispatch('gameevent', {action: 'drop', pos: oldhovered ? null : selected.pos, args: [selected.path, oldhovered?.path]});
+			selected = null;
+			$game = $game;
 		}
 	}
 
@@ -127,17 +128,16 @@
 						<button
 							class="w-full hover:bg-gray-200 p-1 rounded-lg"
 							on:click={(e) => {
-								if (dispatch('gameevent', {action, path: selected.path}, {cancelable: true})) {
-									// @ts-ignore
-									selected[action]();
-									if (dispatch('uievent', {hovered: selected.path, selected: null}, {cancelable: true})) {
-										selected.usermode = UserMode.Hover;
-										hovered = selected;
-									 } else
-										selected.usermode = UserMode.None;
-									selected = null;
-									$game = $game;
-								}
+								// @ts-ignore
+								selected[action]();
+								if (dispatch('uievent', {hovered: selected.path, selected: null}, {cancelable: true})) {
+									selected.usermode = UserMode.Hover;
+									hovered = selected;
+								} else
+									selected.usermode = UserMode.None;
+								dispatch('gameevent', {action, path: selected.path});
+								selected = null;
+								$game = $game;
 							}}>
 							{action}
 						</button>
@@ -150,18 +150,17 @@
 						class="w-full hover:bg-gray-200 p-1 rounded-lg"
 						on:click={(e) => {
 							let pos = canvas(e);
-							if (dispatch('gameevent', {action: 'draw', pos, args: [selected.path]}, {cancelable: true})) {
-								let drew = $game.draw(selected);
-								drew.pos = pos;
+							let drew = $game.draw(selected);
+							drew.pos = pos;
 
-								if (dispatch('uievent', {hovered: selected.path, selected: null}, {cancelable: true})) {
-									selected.usermode = UserMode.Hover;
-									hovered = selected;
-								} else
-									selected.usermode = UserMode.None;
-								selected = null;
-								$game = $game;
-							}
+							if (dispatch('uievent', {hovered: selected.path, selected: null}, {cancelable: true})) {
+								selected.usermode = UserMode.Hover;
+								hovered = selected;
+							} else
+								selected.usermode = UserMode.None;
+							dispatch('gameevent', {action: 'draw', pos, args: [selected.path]});
+							selected = null;
+							$game = $game;
 						}}>
 						draw
 					</button>

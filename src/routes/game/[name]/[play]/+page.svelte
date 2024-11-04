@@ -123,11 +123,7 @@ function onpointermove({clientX, clientY}) {
 function ongameevent(e) {
 	if (!space || !channel)
 		return;
-	let lock = space.locks.get(e.detail.path);
-	if (lock && lock.member.connectionId != $ably.connection.id)
-		e.preventDefault();
-	else
-		channel.publish(e.detail.action, e.detail);
+	channel.publish(e.detail.action, e.detail);
 }
 
 let mylocks = {};
