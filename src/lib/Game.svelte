@@ -111,7 +111,7 @@
 				}
 			}
 
-			dispatch('gameevent', {action: 'drop', pos: oldhovered ? null : selected.pos, args: [selected.path, oldhovered?.path]});
+			dispatch('gameevent', {action: 'drop', hash: $game.hash(), pos: oldhovered ? null : selected.pos, args: [selected.path, oldhovered?.path]});
 			selected = null;
 			$game = $game;
 		}
@@ -135,7 +135,7 @@
 									hovered = selected;
 								} else
 									selected.usermode = UserMode.None;
-								dispatch('gameevent', {action, path: selected.path});
+								dispatch('gameevent', {action, hash: $game.hash(), path: selected.path});
 								selected = null;
 								$game = $game;
 							}}>
@@ -158,7 +158,7 @@
 								hovered = selected;
 							} else
 								selected.usermode = UserMode.None;
-							dispatch('gameevent', {action: 'draw', pos, args: [selected.path]});
+							dispatch('gameevent', {action: 'draw', hash: $game.hash(), pos, args: [selected.path]});
 							selected = null;
 							$game = $game;
 						}}>

@@ -1,6 +1,7 @@
 import {Collection,Bag,Dice,Stack} from "./collections.js"
 import {Component,Token,Card} from "./components.js";
 import colors from 'tailwindcss/colors.js'
+import hash from 'object-hash';
 
 export default class Game {
 
@@ -243,5 +244,13 @@ export default class Game {
 		let drew = from.draw();
 		this.state.push(drew);
 		return drew;
+	}
+
+	hash() {
+		let excludeKeys = k => ['usermode', 'usercolor', 'dragoffset', 'menu'].includes(k);
+		let h = hash(this.state, {excludeKeys});
+		// for (let o of this.state)
+		// 	console.log(hash(o, {excludeKeys}), o);
+		return h;
 	}
 }

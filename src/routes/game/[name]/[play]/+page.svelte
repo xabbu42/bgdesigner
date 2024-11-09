@@ -48,6 +48,8 @@ function handle_message(msg) {
 		let res = obj[msg.data.action](...(msg.data.args || []).map(p => p ? $game.render(p) : p));
 		if (msg.data.pos)
 			res.pos = msg.data.pos;
+		if ($game.hash() != msg.data.hash)
+			console.log("divergent hash", msg.data);
 		$game = $game;
 	}
 }
