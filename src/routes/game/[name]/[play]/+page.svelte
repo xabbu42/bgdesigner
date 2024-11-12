@@ -90,7 +90,7 @@ ably.subscribe(async a => {
 					locations[ms.member.connectionId].usermode = UserMode.Hover;
 				locations[ms.member.connectionId] = ms.currentLocation.path ? $game.render(ms.currentLocation.path) : null;
 				if (locations[ms.member.connectionId]) {
-					locations[ms.member.connectionId].usermode = UserMode.Drag;
+					locations[ms.member.connectionId].usermode = ms.currentLocation.dragoffset ? UserMode.Drag : UserMode.Menu;
 					locations[ms.member.connectionId].usercolor = members[ms.member.connectionId].profileData.color;
 					locations[ms.member.connectionId].dragoffset = ms.currentLocation.dragoffset;
 				}
@@ -101,7 +101,7 @@ ably.subscribe(async a => {
 		space.cursors.subscribe(async (update) => {
 			cursors[update.connectionId] = update;
 			let selected = locations[update.connectionId];
-			if (selected && update.connectionId != $ably.connection.id) {
+			if (selected && selected.usermode == UserMode.Drag && update.connectionId != $ably.connection.id) {
 				selected.pos = {x: update.position.x - selected.dragoffset.x, y: update.position.y - selected.dragoffset.y};
 				$game = $game;
 			}
