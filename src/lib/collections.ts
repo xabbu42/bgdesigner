@@ -1,12 +1,15 @@
 import type {Point} from "./types.js";
 import {Component} from "./components.js";
+import seedrandom from "seedrandom";
 
 export abstract class Collection extends Component {
 	html: string;
 	protected _values:any[] = []
+	rng;
 
 	constructor(game: string, path: string, params: any) {
 		super(game, path, params);
+		this.rng = seedrandom(game + '|' + path);
 
 		let type = this.constructor.name;
 		this._values = Array.isArray(params[type]) ? params[type] : [params[type]];
@@ -32,7 +35,7 @@ export abstract class Collection extends Component {
 
 export class Bag extends Collection {
 	draw(value:any = null) {
-		let index = value == null ? Math.floor(Math.random() * this._values.length) : this._values.findIndex((v) => v == value);
+		let index = value == null ? Math.floor(this.rng() * this._values.length) : this._values.findIndex((v) => v == value);
 		let result = this._values.splice(index, 1)[0];
 		return result;
 	}
@@ -69,7 +72,7 @@ export class Stack extends Collection {
 
 	shuffle() {
 		for (let i = this._values.length - 1; i > 0; i--) {
-			const j = Math.floor(Math.random() * (i + 1));
+			const j = Math.floor(this.rng() * (i + 1));
 			[this._values[i], this._values[j]] = [this._values[j], this._values[i]]
 		}
 	}
@@ -83,7 +86,7 @@ export class Stack extends Collection {
 
 export class Dice extends Collection {
 	draw(value:any = null) {
-		let index = value == null ? Math.floor(Math.random() * this._values.length) : this._values.findIndex((v) => v == value);
+		let index = value == null ? Math.floor(this.rng() * this._values.length) : this._values.findIndex((v) => v == value);
 		let result = this._values.slice(index, index + 1)[0];
 		return result;
 	}
