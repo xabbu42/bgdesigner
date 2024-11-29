@@ -108,7 +108,7 @@ export default class Game {
 			for (let expr of str.matchAll(/{{(%[^:]+?)}}/g)) {
 				if (!collections[expr[1]] && !value[expr[1]]) {
 					let values = this.render(expr[1], data);
-					collections[expr[1]] = values instanceof Collection ? values : new Dice(expr[1], {Dice: values});
+					collections[expr[1]] = values instanceof Collection ? values : new Dice(this.name, expr[1], {Dice: values});
 				}
 			}
 		}
@@ -206,7 +206,7 @@ export default class Game {
 						subdata.type = typekeys[0];
 				}
 				let variantpath = path + (repls.length > 1 ? '.' + result.length : '');
-				let variant = subdata.type ? new this.types[subdata.type] (variantpath, subdata) : subdata;
+				let variant = subdata.type ? new this.types[subdata.type] (this.name, variantpath, subdata) : subdata;
 				result.push(variant);
 				if (repls.length > 1)
 					this.cache[variantpath] = variant;
@@ -231,7 +231,7 @@ export default class Game {
 				return dropitem;
 			} else if (!(selected instanceof Collection)) {
 				let internalpath = '__internal__.' + (this.stackcount++);
-				this.cache[internalpath] = new Stack(internalpath, {'Stack': [dropitem, selected], pos: dropitem.pos});
+				this.cache[internalpath] = new Stack(this.name, internalpath, {'Stack': [dropitem, selected], pos: dropitem.pos});
 				dropitem.pos = null;
 				selected.pos = null;
 				this.state = [...this.state.filter(v => v != dropitem && v != selected), this.cache[internalpath]];

@@ -5,8 +5,8 @@ export abstract class Collection extends Component {
 	html: string;
 	protected _values:any[] = []
 
-	constructor(path: string, params: any) {
-		super(path, params);
+	constructor(game: string, path: string, params: any) {
+		super(game, path, params);
 
 		let type = this.constructor.name;
 		this._values = Array.isArray(params[type]) ? params[type] : [params[type]];
@@ -44,8 +44,8 @@ export class Bag extends Collection {
 
 export class Stack extends Collection {
 
-	constructor(path: string, params: any) {
-		super(path, params);
+	constructor(game:string, path: string, params: any) {
+		super(game, path, params);
 		if (params.flip)
 			this.flip();
 		if (params.shuffle)
