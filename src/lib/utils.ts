@@ -1,3 +1,22 @@
+
+export function serialize(val:any, filter = v => false):string {
+	if (Array.isArray(val)) {
+		let subs = val.map(v => serialize(v, filter));
+		let result = '[ ' + subs.join(', ') + ' ]';
+		if (result.length > 160)
+			result = "[\n    " + subs.join(",\n").replaceAll("\n", "\n    ") + "\n]" ;
+		return result;
+	} else if (val !== null && typeof(val)== "object") {
+		let subs = Object.entries(val).map(v => filter(v[0]) ? false : (v[0].toString() + ':' + serialize(v[1], filter))).filter(Boolean);
+		let result = '{ ' + subs.join(', ') + ' }';
+		if (result.length > 160)
+			result = "{\n    " + subs.join(",\n").replaceAll("\n", "\n    ") + "\n}";
+		return result;
+	} else {
+		return val === undefined ? 'undefined' : (val === null ? 'null' : val.toString());
+	}
+};
+
 export function hash(str:string) {
 	let hash = 0;
 	for (let i = 0; i < str.length; i++) {
