@@ -10,7 +10,8 @@
 		token.width = div.offsetWidth;
 		token.height = div.offsetHeight;
 		await tick();
-		token.pos = initialpos;
+		if (!token.pos)
+			token.pos = initialpos;
 	});
 </script>
 
