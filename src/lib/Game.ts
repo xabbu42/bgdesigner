@@ -250,7 +250,7 @@ export default class Game {
 	}
 
 	hash() {
-		let s = serialize(this.state, v => ['front', 'back', 'html', 'usercolor', 'usermode', 'menu', 'dragoffset', 'width', 'height'].includes(v));
+		let s = serialize(this.state, v => ['front', 'back', 'html', 'usercolor', 'usermode', 'menu', 'dragoffset', 'width', 'height', 'game', 'rng'].includes(v));
 		let h = hash(s);
 		//console.log(h, s);
 		return h;
