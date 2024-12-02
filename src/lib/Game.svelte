@@ -8,7 +8,7 @@
 	import { Collection,Stack } from "./collections.js";
 	import type { Game } from "./Game.js";
 
-	export let game:Writable<Game>;
+	export let game:Game;
 	export let user;
 
 	const dispatch = createEventDispatcher();
@@ -70,7 +70,7 @@
 		else if (!selected || selected.usermode != UserMode.Menu) {
 			let p = canvas(e);
 			let newhovered;
-			for (let component of $game.state.toReversed()) {
+			for (let component of game.state.toReversed()) {
 				if (component != selected && component.pos && component.width && component.height && p.x > component.pos.x && p.x < component.pos.x + component.width && p.y > component.pos.y && p.y < component.pos.y + component.height) {
 					newhovered = component;
 					break;
@@ -92,7 +92,7 @@
 			}
 			if (selected && selected.usermode == UserMode.Drag)
 				selected.pos = {x: p.x - selected.dragoffset.x, y: p.y - selected.dragoffset.y};
-			$game = $game;
+			game = game;
 		}
 	}
 
@@ -102,7 +102,7 @@
 		if (selected && selected.usermode == UserMode.Drag) {
 			selected.usermode = UserMode.None;
 			let oldhovered = hovered;
-			let newhovered = $game.drop(selected, hovered);
+			let newhovered = game.drop(selected, hovered);
 			if (dispatch('uievent', {hovered: newhovered?.path, selected: null}, {cancelable: true})) {
 				hovered = newhovered;
 				if (hovered) {
@@ -111,9 +111,9 @@
 				}
 			}
 
-			dispatch('gameevent', {action: 'drop', hash: $game.hash(), pos: oldhovered ? null : selected.pos, args: [selected.path, oldhovered?.path]});
+			dispatch('gameevent', {action: 'drop', hash: game.hash(), pos: oldhovered ? null : selected.pos, args: [selected.path, oldhovered?.path]});
 			selected = null;
-			$game = $game;
+			game = game;
 		}
 	}
 
@@ -135,9 +135,9 @@
 									hovered = selected;
 								} else
 									selected.usermode = UserMode.None;
-								dispatch('gameevent', {action, hash: $game.hash(), path: selected.path});
+								dispatch('gameevent', {action, hash: game.hash(), path: selected.path});
 								selected = null;
-								$game = $game;
+								game = game;
 							}}>
 							{action}
 						</button>
@@ -150,7 +150,7 @@
 						class="w-full hover:bg-gray-200 p-1 rounded-lg"
 						on:click={(e) => {
 							let pos = canvas(e);
-							let drew = $game.draw(selected);
+							let drew = game.draw(selected);
 							drew.pos = pos;
 
 							if (dispatch('uievent', {hovered: selected.path, selected: null}, {cancelable: true})) {
@@ -158,9 +158,9 @@
 								hovered = selected;
 							} else
 								selected.usermode = UserMode.None;
-							dispatch('gameevent', {action: 'draw', hash: $game.hash(), pos, args: [selected.path]});
+							dispatch('gameevent', {action: 'draw', hash: game.hash(), pos, args: [selected.path]});
 							selected = null;
-							$game = $game;
+							game = game;
 						}}>
 						draw
 					</button>
@@ -177,7 +177,7 @@
 >
 	<div class="canvas absolute origin-top-left" style="transform: scale({camera.z}) translate({camera.x}px,{camera.y}px)" use:apply_textfit>
 		<div class="flex flex-wrap gap-1" style="width:96rem">
-			{#each $game.state as component(component.path)}
+			{#each game.state as component(component.path)}
 				<Token
 					on:pointerdown="{(e) => {
 						if (e.button === 0) {

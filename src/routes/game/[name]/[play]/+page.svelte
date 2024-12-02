@@ -12,7 +12,7 @@ let channel;
 if (!$games[$page.params.name])
 	$games[$page.params.name] = {};
 if (!$games[$page.params.name][$page.params.play]) {
-	$games[$page.params.name][$page.params.play] = writable(new Game($page.params.play, data.gamedef));
+	$games[$page.params.name][$page.params.play] = new Game($page.params.play, data.gamedef);
 }
 let game = $games[$page.params.name][$page.params.play];
 let ably = getContext('ably');
@@ -27,7 +27,7 @@ let locks = {};
 
 function handle_lock(lock) {
 	if (lock.member.connectionId != $ably.connection.id) {
-		let obj = $game.render(lock.id);
+		let obj = game.render(lock.id);
 		if (!locks[lock.member.connectionId])
 			locks[lock.member.connectionId] = {};
 		if (lock.status == 'unlocked') {
@@ -38,19 +38,19 @@ function handle_lock(lock) {
 			obj.usercolor = members[lock.member.connectionId].profileData.color;
 			locks[lock.member.connectionId][obj.usermode] = obj;
 		}
-		$game = $game;
+		game = game;
 	}
 }
 
 function handle_message(msg) {
 	if (msg.connectionId != $ably.connection.id) {
-		let obj = msg.data.path ? $game.render(msg.data.path) : $game;
-		let res = obj[msg.data.action](...(msg.data.args || []).map(p => p ? $game.render(p) : p));
+		let obj = msg.data.path ? game.render(msg.data.path) : game;
+		let res = obj[msg.data.action](...(msg.data.args || []).map(p => p ? game.render(p) : p));
 		if (msg.data.pos)
 			res.pos = msg.data.pos;
-		if ($game.hash() != msg.data.hash)
+		if (game.hash() != msg.data.hash)
 			console.log("divergent hash", msg.data);
-		$game = $game;
+		game = game;
 	}
 }
 
@@ -88,13 +88,13 @@ ably.subscribe(async a => {
 			if (ms.member.connectionId != $ably.connection.id) {
 				if (locations[ms.member.connectionId])
 					locations[ms.member.connectionId].usermode = UserMode.Hover;
-				locations[ms.member.connectionId] = ms.currentLocation.path ? $game.render(ms.currentLocation.path) : null;
+				locations[ms.member.connectionId] = ms.currentLocation.path ? game.render(ms.currentLocation.path) : null;
 				if (locations[ms.member.connectionId]) {
 					locations[ms.member.connectionId].usermode = ms.currentLocation.dragoffset ? UserMode.Drag : UserMode.Menu;
 					locations[ms.member.connectionId].usercolor = members[ms.member.connectionId].profileData.color;
 					locations[ms.member.connectionId].dragoffset = ms.currentLocation.dragoffset;
 				}
-				$game = $game;
+				game = game;
 			}
 		});
 		entered = true;
@@ -103,7 +103,7 @@ ably.subscribe(async a => {
 			let selected = locations[update.connectionId];
 			if (selected && selected.usermode == UserMode.Drag && update.connectionId != $ably.connection.id) {
 				selected.pos = {x: update.position.x - selected.dragoffset.x, y: update.position.y - selected.dragoffset.y};
-				$game = $game;
+				game = game;
 			}
 			cursors = cursors;
 		});
