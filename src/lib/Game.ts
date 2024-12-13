@@ -33,8 +33,8 @@ export default class Game {
 		}
 	}
 
-	constructor(name:string, data:any, setup:string = 'setup') {
-		this.name = name;
+	constructor(data:any, name:string = '', setup:string = 'setup') {
+		this.name = name || Math.random().toString(16).substr(2, 8);
 		// this only handles . special in the first level of data
 		// TODO do we want that everywhere? => implement it
 		for (let path in data)

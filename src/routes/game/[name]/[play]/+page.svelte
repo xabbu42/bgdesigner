@@ -12,7 +12,7 @@ let channel;
 if (!$games[$page.params.name])
 	$games[$page.params.name] = {};
 if (!$games[$page.params.name][$page.params.play]) {
-	$games[$page.params.name][$page.params.play] = new Game($page.params.play, data.gamedef);
+	$games[$page.params.name][$page.params.play] = new Game(data.gamedef, $page.params.play);
 }
 let game = $games[$page.params.name][$page.params.play];
 let ably = getContext('ably');
