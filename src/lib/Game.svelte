@@ -9,7 +9,7 @@
 	import type { Game } from "./Game.js";
 
 	export let game:Game;
-	export let user;
+	export let usercolor:string = "hsl(240, 70%, 70%)"
 
 	const dispatch = createEventDispatcher();
 
@@ -86,7 +86,7 @@
 					hovered = newhovered;
 					if (hovered) {
 						hovered.usermode = UserMode.Hover;
-						hovered.usercolor = $user.color;
+						hovered.usercolor = usercolor;
 					}
 				}
 			}
@@ -107,7 +107,7 @@
 				hovered = newhovered;
 				if (hovered) {
 					hovered.usermode = UserMode.Hover;
-					hovered.usercolor = $user.color;
+					hovered.usercolor = usercolor;
 				}
 			}
 
@@ -185,7 +185,7 @@
 							let dragoffset = {x: (e.clientX - bounds.x) / camera.z, y: (e.clientY - bounds.y) / camera.z};
 							if (dispatch('uievent', {hovered: null, selected: component.path, dragoffset}, {cancelable: true})) {
 								component.usermode = UserMode.Drag;
-								component.usercolor = $user.color;
+								component.usercolor = usercolor;
 								selected = component;
 								selected.dragoffset = dragoffset;
 								hovered = null;
@@ -197,7 +197,7 @@
 					on:contextmenu="{(e) => {
 						if (dispatch('uievent', {hovered: null, selected: component.path}, {cancelable: true})) {
 							component.usermode = UserMode.Menu;
-							component.usercolor = $user.color;
+							component.usercolor = usercolor;
 							selected = component;
 							selected.menu = {x: e.clientX, y: e.clientY};
 							hovered = null;
