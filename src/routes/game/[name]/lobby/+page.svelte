@@ -1,13 +1,15 @@
 <script lang="ts">
+import { onMount } from 'svelte';
 import { getContext } from 'svelte';
 import { page } from '$app/stores';
+import { members } from '$lib/../hooks.client.js'
 import randomWords from 'random-words'
 
-let members = getContext('members');
-
 let plays = {}
-members.subscribe(vs => {
-	plays = vs.filter(v => v.data && v.data.params.name == $page.params.name && v.data.params.play).reduce((acc, v) => { (acc[v.data.params.play] = acc[v.data.params.play] || []).push(v); return acc }, {});
+onMount(() => {
+	members.subscribe(vs => {
+		plays = vs.filter(v => v.data && v.data.params && v.data.params.name == $page.params.name && v.data.params.play).reduce((acc, v) => { (acc[v.data.params.play] = acc[v.data.params.play] || []).push(v); return acc }, {});
+	});
 });
 
 </script>
@@ -23,7 +25,7 @@ members.subscribe(vs => {
 				<a href="/game/{$page.params.name}/{play}">
 					{play}
 					{#each members as member(member.connectionId)}
-						<span class="m-1 p-1 rounded-xl" style="background-color: {member.data.user.color}">{member.data.user.name}</span>
+						<span class="m-1 p-1 rounded-xl" style="background-color: {member.data.color}">{member.data.name}</span>
 					{/each}
 				</a>
 			</li>

@@ -1,56 +1,20 @@
 <script lang="ts">
-import { onMount, onDestroy, setContext } from 'svelte';
-import { writable } from 'svelte/store';
 import "../app.css";
 import { page } from '$app/stores';
-import { hashcolor } from '$lib/utils';
-import * as env from '$env/static/public';
-
+import { ably, spaces, user } from '$lib/../hooks.client.js'
 
 const obj = import.meta.glob('../../static/games/*');
 const games = Object.keys(obj).map((v) => v.match(/([^\/]*)$/)![0]);
 
-import rug from 'random-username-generator';
+let name;
 
-import Ably from 'ably';
-import Spaces from '@ably/spaces';
-
-let name = rug.generate();
-let user = writable({name, color: hashcolor(name)});
-let members = writable([]);
-let ably = writable();
-let spaces = writable();
-setContext('user', user);
-setContext('members', members);
-setContext('ably', ably);
-setContext('spaces', spaces);
-
-let channel;
 function change_username(newusername) {
 	sessionStorage.setItem('username', newusername);
-	$user = {name: newusername, color: hashcolor(newusername)};
+	$user = {name: newusername, color: hashcolor(newusername), params: $page.params};
 }
 
-if ('PUBLIC_ABLY_KEY' in env) {
-	onMount(async () => {
-		name = sessionStorage.getItem('username') || name;
-		$user = {name, color: hashcolor(name)};
-		$ably = new Ably.Realtime({key: env.PUBLIC_ABLY_KEY, clientId: $user.name});
-		$spaces = new Spaces($ably);
-		channel = $ably.channels.get('bgdesigner');
-		channel.presence.enter({user:$user,params: $page.params});
-		page.subscribe((v) => channel.presence.update({user:$user, params: v.params}));
-		user.subscribe((v) => channel.presence.update({user:v, params: $page.params}));
-		channel.presence.subscribe(async (m) => $members = await channel.presence.get());
-	});
+page.subscribe((v) => $user.params = $page.params);
 
-	onDestroy(() => {
-		if (channel)
-			channel.detach();
-		if ($ably)
-			$ably.close();
-	});
-}
 </script>
 
 <div class="p-1 antialiased text-gray-900 h-screen w-screen flex flex-col">

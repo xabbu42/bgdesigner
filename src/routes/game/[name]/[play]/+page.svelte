@@ -5,19 +5,12 @@ import { writable } from 'svelte/store';
 import Game from "$lib/Game.js"
 import GameComp from "$lib/Game.svelte"
 import {UserMode} from "$lib/types.js";
+import { ably, spaces, user } from '$lib/../hooks.client.js'
 
 export let data;
-let games = getContext('games');
+let game = new Game(data.gamedef, $page.params.play);
+
 let channel;
-if (!$games[$page.params.name])
-	$games[$page.params.name] = {};
-if (!$games[$page.params.name][$page.params.play]) {
-	$games[$page.params.name][$page.params.play] = new Game(data.gamedef, $page.params.play);
-}
-let game = $games[$page.params.name][$page.params.play];
-let ably = getContext('ably');
-let spaces = getContext('spaces');
-let user = getContext('user');
 let space;
 let entered = false;
 let members = {};
@@ -54,60 +47,59 @@ function handle_message(msg) {
 	}
 }
 
-ably.subscribe(async a => {
-	if (a) {
-		let key = 'games:' + $page.params.name + '_' + $page.params.play;
-		channel = $ably.channels.get(key);
-		await channel.attach();
-		let history = await channel.history({'direction': 'forwards'});
-		for (let msg of history.items)
-			handle_message(msg);
-		channel.subscribe(handle_message);
+onMount(async () => {
+	let key = 'games:' + $page.params.name + '_' + $page.params.play;
+	console.log("init play " + key);
+	channel = $ably.channels.get(key);
+	await channel.attach();
+	let history = await channel.history({'direction': 'forwards'});
+	for (let msg of history.items)
+		handle_message(msg);
+	channel.subscribe(handle_message);
 
-		space = await $spaces.get(key);
-		await space.enter($user);
-		user.subscribe(u => space.updateProfileData(u));
-		members   = Object.fromEntries((await space.getState()).members.map(v => [v.connectionId, v]));
-		locations = await space.locations.getOthers();
-		cursors   = Object.fromEntries(Object.entries(await space.cursors.getAll()).filter(v => v[1] != undefined));
-		(await space.locks.getOthers()).map(l => handle_lock(l));
-		space.locks.subscribe(handle_lock);
-		space.members.subscribe(['leave', 'remove'], (ms) => {
-			delete cursors[ms.connectionId];
-			delete members[ms.connectionId];
-			delete locations[ms.connectionId];
-			delete locks[ms.connectionId];
-			cursors = cursors;
-			members = members;
-		});
-		space.members.subscribe(['enter', 'updateProfile'], (ms) => {
-			members[ms.connectionId] = ms;
-			members = members;
-		});
-		space.locations.subscribe('update', (ms) => {
-			if (ms.member.connectionId != $ably.connection.id) {
-				if (locations[ms.member.connectionId])
-					locations[ms.member.connectionId].usermode = UserMode.Hover;
-				locations[ms.member.connectionId] = ms.currentLocation.path ? game.render(ms.currentLocation.path) : null;
-				if (locations[ms.member.connectionId]) {
-					locations[ms.member.connectionId].usermode = ms.currentLocation.dragoffset ? UserMode.Drag : UserMode.Menu;
-					locations[ms.member.connectionId].usercolor = members[ms.member.connectionId].profileData.color;
-					locations[ms.member.connectionId].dragoffset = ms.currentLocation.dragoffset;
-				}
-				game = game;
+	space = await $spaces.get(key);
+	await space.enter($user);
+	user.subscribe(u => space.updateProfileData(u));
+	members   = Object.fromEntries((await space.getState()).members.map(v => [v.connectionId, v]));
+	locations = await space.locations.getOthers();
+	cursors   = Object.fromEntries(Object.entries(await space.cursors.getAll()).filter(v => v[1] != undefined));
+	(await space.locks.getOthers()).map(l => handle_lock(l));
+	space.locks.subscribe(handle_lock);
+	space.members.subscribe(['leave', 'remove'], (ms) => {
+		delete cursors[ms.connectionId];
+		delete members[ms.connectionId];
+		delete locations[ms.connectionId];
+		delete locks[ms.connectionId];
+		cursors = cursors;
+		members = members;
+	});
+	space.members.subscribe(['enter', 'updateProfile'], (ms) => {
+		members[ms.connectionId] = ms;
+		members = members;
+	});
+	space.locations.subscribe('update', (ms) => {
+		if (ms.member.connectionId != $ably.connection.id) {
+			if (locations[ms.member.connectionId])
+				locations[ms.member.connectionId].usermode = UserMode.Hover;
+			locations[ms.member.connectionId] = ms.currentLocation.path ? game.render(ms.currentLocation.path) : null;
+			if (locations[ms.member.connectionId]) {
+				locations[ms.member.connectionId].usermode = ms.currentLocation.dragoffset ? UserMode.Drag : UserMode.Menu;
+				locations[ms.member.connectionId].usercolor = members[ms.member.connectionId].profileData.color;
+				locations[ms.member.connectionId].dragoffset = ms.currentLocation.dragoffset;
 			}
-		});
-		entered = true;
-		space.cursors.subscribe(async (update) => {
-			cursors[update.connectionId] = update;
-			let selected = locations[update.connectionId];
-			if (selected && selected.usermode == UserMode.Drag && update.connectionId != $ably.connection.id) {
-				selected.pos = {x: update.position.x - selected.dragoffset.x, y: update.position.y - selected.dragoffset.y};
-				game = game;
-			}
-			cursors = cursors;
-		});
-	}
+			game = game;
+		}
+	});
+	entered = true;
+	space.cursors.subscribe(async (update) => {
+		cursors[update.connectionId] = update;
+		let selected = locations[update.connectionId];
+		if (selected && selected.usermode == UserMode.Drag && update.connectionId != $ably.connection.id) {
+			selected.pos = {x: update.position.x - selected.dragoffset.x, y: update.position.y - selected.dragoffset.y};
+			game = game;
+		}
+		cursors = cursors;
+	});
 });
 
 onDestroy(() => {
