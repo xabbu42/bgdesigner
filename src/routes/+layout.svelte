@@ -1,7 +1,7 @@
 <script lang="ts">
 import "../app.css";
 import { page } from '$app/stores';
-import { ably, spaces, user } from '$lib/../hooks.client.js'
+import { user } from '$lib/../hooks.client.js'
 
 const obj = import.meta.glob('../../static/games/*');
 const games = Object.keys(obj).map((v) => v.match(/([^\/]*)$/)![0]);

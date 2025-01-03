@@ -19,7 +19,7 @@ let locations = {};
 let locks = {};
 
 function handle_lock(lock) {
-	if (lock.member.connectionId != $ably.connection.id) {
+	if (lock.member.connectionId != ably.connection.id) {
 		let obj = game.render(lock.id);
 		if (!locks[lock.member.connectionId])
 			locks[lock.member.connectionId] = {};
@@ -36,7 +36,7 @@ function handle_lock(lock) {
 }
 
 function handle_message(msg) {
-	if (msg.connectionId != $ably.connection.id) {
+	if (msg.connectionId != ably.connection.id) {
 		let obj = msg.data.path ? game.render(msg.data.path) : game;
 		let res = obj[msg.data.action](...(msg.data.args || []).map(p => p ? game.render(p) : p));
 		if (msg.data.pos)
@@ -50,14 +50,14 @@ function handle_message(msg) {
 onMount(async () => {
 	let key = 'games:' + $page.params.name + '_' + $page.params.play;
 	console.log("init play " + key);
-	channel = $ably.channels.get(key);
+	channel = ably.channels.get(key);
 	await channel.attach();
 	let history = await channel.history({'direction': 'forwards'});
 	for (let msg of history.items)
 		handle_message(msg);
 	channel.subscribe(handle_message);
 
-	space = await $spaces.get(key);
+	space = await spaces.get(key);
 	await space.enter($user);
 	user.subscribe(u => space.updateProfileData(u));
 	members   = Object.fromEntries((await space.getState()).members.map(v => [v.connectionId, v]));
@@ -78,7 +78,7 @@ onMount(async () => {
 		members = members;
 	});
 	space.locations.subscribe('update', (ms) => {
-		if (ms.member.connectionId != $ably.connection.id) {
+		if (ms.member.connectionId != ably.connection.id) {
 			if (locations[ms.member.connectionId])
 				locations[ms.member.connectionId].usermode = UserMode.Hover;
 			locations[ms.member.connectionId] = ms.currentLocation.path ? game.render(ms.currentLocation.path) : null;
@@ -94,7 +94,7 @@ onMount(async () => {
 	space.cursors.subscribe(async (update) => {
 		cursors[update.connectionId] = update;
 		let selected = locations[update.connectionId];
-		if (selected && selected.usermode == UserMode.Drag && update.connectionId != $ably.connection.id) {
+		if (selected && selected.usermode == UserMode.Drag && update.connectionId != ably.connection.id) {
 			selected.pos = {x: update.position.x - selected.dragoffset.x, y: update.position.y - selected.dragoffset.y};
 			game = game;
 		}
@@ -127,8 +127,8 @@ function onuievent(e) {
 
 	let lock;
 	if (
-		e.detail.hovered && (lock = space.locks.get(e.detail.hovered)) && lock.member.connectionId != $ably.connection.id
-		|| e.detail.selected && (lock = space.locks.get(e.detail.selected)) && lock.member.connectionId != $ably.connection.id
+		e.detail.hovered && (lock = space.locks.get(e.detail.hovered)) && lock.member.connectionId != ably.connection.id
+		|| e.detail.selected && (lock = space.locks.get(e.detail.selected)) && lock.member.connectionId != ably.connection.id
 	) {
 		e.preventDefault();
 		return;
