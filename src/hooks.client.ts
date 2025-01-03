@@ -2,7 +2,6 @@ import type { ClientInit } from '@sveltejs/kit';
 import { writable } from 'svelte/store';
 
 import Ably from 'ably';
-import Spaces from '@ably/spaces';
 import rug from 'random-username-generator';
 
 import { hashcolor } from '$lib/utils';
@@ -12,7 +11,6 @@ let name = rug.generate();
 export const user = writable({name, color: hashcolor(name)});
 export const members = writable([]);
 export let ably;
-export let spaces;
 
 export const init: ClientInit = async () => {
 	name = sessionStorage.getItem('username') || name;
@@ -22,7 +20,6 @@ export const init: ClientInit = async () => {
 	if ('PUBLIC_ABLY_KEY' in env) {
 		console.log('init ably');
 		ably = new Ably.Realtime({key: env.PUBLIC_ABLY_KEY, clientId: u.name});
-		spaces = new Spaces(ably)
 		const channel = ably.channels.get('bgdesigner');
 		channel.presence.enter({user:u});
 		user.subscribe((v) => channel.presence.update(v));

@@ -5,7 +5,8 @@ import { writable } from 'svelte/store';
 import Game from "$lib/Game.js"
 import GameComp from "$lib/Game.svelte"
 import {UserMode} from "$lib/types.js";
-import { ably, spaces, user } from '$lib/../hooks.client.js'
+import { ably, user } from '$lib/../hooks.client.js'
+import Spaces from '@ably/spaces';
 
 export let data;
 let game = new Game(data.gamedef, $page.params.play);
@@ -57,6 +58,7 @@ onMount(async () => {
 		handle_message(msg);
 	channel.subscribe(handle_message);
 
+	const spaces = new Spaces(ably)
 	space = await spaces.get(key);
 	await space.enter($user);
 	user.subscribe(u => space.updateProfileData(u));
