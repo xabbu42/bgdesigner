@@ -5,7 +5,7 @@ import { writable } from 'svelte/store';
 import Game from "$lib/Game.js"
 import GameComp from "$lib/Game.svelte"
 import {UserMode} from "$lib/types.js";
-import { ably, user } from '$lib/../hooks.client.js'
+import { ably, user } from '$lib/globals';
 import Spaces from '@ably/spaces';
 
 export let data;
@@ -162,7 +162,7 @@ function onuievent(e) {
 </svelte:head>
 <svelte:window on:pointermove|passive="{onpointermove}" on:pointerup|passive="{onpointerup}" />
 
-<GameComp on:uievent="{onuievent}" on:gameevent="{ongameevent}" bind:this="{gamecomp}" {game} usercolor="{$user.color}" />
+<GameComp on:uievent="{onuievent}" on:gameevent="{ongameevent}" bind:this="{gamecomp}" {game} />
 {#each Object.values(cursors) as cursor(cursor.connectionId)}
 	<div class="absolute pointer-events-none" style="left: {gamecomp.screen(cursor.position).x - 10}px; top: {gamecomp.screen(cursor.position).y - 10}px;">
 		<div class="rounded-full border-solid border-2 inline-block" style="width: 21px; height: 21px; border-color: {members[cursor.connectionId].profileData.color}"></div>

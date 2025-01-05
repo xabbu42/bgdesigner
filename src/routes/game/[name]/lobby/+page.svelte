@@ -1,16 +1,13 @@
 <script lang="ts">
-import { onMount } from 'svelte';
-import { getContext } from 'svelte';
 import { page } from '$app/stores';
-import { members } from '$lib/../hooks.client.js'
-import randomWords from 'random-words'
+import { members } from '$lib/globals';
+import randomWords from 'random-words';
 
-let plays = {}
-onMount(() => {
-	members.subscribe(vs => {
-		plays = vs.filter(v => v.data && v.data.params && v.data.params.name == $page.params.name && v.data.params.play).reduce((acc, v) => { (acc[v.data.params.play] = acc[v.data.params.play] || []).push(v); return acc }, {});
-	});
-});
+let plays = $members.filter(
+	v => v.data && v.data.params && v.data.params.name == $page.params.name && v.data.params.play).reduce(
+		(acc, v) => { (acc[v.data.params.play] = acc[v.data.params.play] || []).push(v); return acc },
+		{}
+	);
 
 </script>
 
