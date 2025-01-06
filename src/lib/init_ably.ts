@@ -1,8 +1,7 @@
-import { writable, get } from 'svelte/store';
 import Ably from 'ably';
+import { get } from 'svelte/store';
+import { user, members } from '$lib/stores';
 
-export const user    = writable({name: 'SinglePlayer', color: "hsl(240, 70%, 70%)"});
-export const members = writable([]);
 export let ably;
 export function init_ably(key) {
 	console.log("init ably");

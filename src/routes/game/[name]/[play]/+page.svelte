@@ -5,7 +5,8 @@ import { writable } from 'svelte/store';
 import Game from "$lib/Game.js"
 import GameComp from "$lib/Game.svelte"
 import {UserMode} from "$lib/types.js";
-import { ably, user } from '$lib/globals';
+import { user } from '$lib/stores';
+import { ably } from '$lib/init_ably';
 import Spaces from '@ably/spaces';
 
 export let data;

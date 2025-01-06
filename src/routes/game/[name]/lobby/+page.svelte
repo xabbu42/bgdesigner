@@ -1,6 +1,6 @@
 <script lang="ts">
 import { page } from '$app/stores';
-import { members } from '$lib/globals';
+import { members } from '$lib/stores';
 import randomWords from 'random-words';
 
 let plays = $members.filter(

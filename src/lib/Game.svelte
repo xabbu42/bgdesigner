@@ -6,7 +6,7 @@
 	import Token from "./Token.svelte";
 	import { textfit } from "./utils.js";
 	import { Collection,Stack } from "./collections.js";
-	import { user } from "./globals.js";
+	import { user } from "./stores.js";
 	import type { Game } from "./Game.js";
 
 	export let game:Game;

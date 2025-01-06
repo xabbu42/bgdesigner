@@ -3,7 +3,8 @@ import type { ClientInit } from '@sveltejs/kit';
 import rug from 'random-username-generator';
 
 import { hashcolor } from '$lib/utils';
-import { user, init_ably } from '$lib/globals';
+import { user } from '$lib/stores';
+import { init_ably } from '$lib/init_ably';
 import * as env from '$env/static/public';
 
 export const init: ClientInit = async () => {

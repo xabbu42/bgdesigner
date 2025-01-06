@@ -1,7 +1,7 @@
 <script lang="ts">
 import "../app.css";
 import { page } from '$app/stores';
-import { user } from '$lib/globals';
+import { user } from '$lib/stores';
 
 const obj = import.meta.glob('../../static/games/*');
 const games = Object.keys(obj).map((v) => v.match(/([^\/]*)$/)![0]);
