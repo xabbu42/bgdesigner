@@ -16,10 +16,19 @@
 			"types": "./dist/index.d.ts",
 			"default": "./dist/index.js"
 		},
+		"./init_ably.js": {
+			"types": "./dist/init_ably.d.ts",
+			"default": "./dist/init_ably.js"
+		},
 		"./Game.svelte": {
 			"types": "./dist/Game.svelte.d.ts",
 			"svelte": "./dist/Game.svelte",
 			"default": "./dist/Game.svelte"
+		},
+		"./MultiplayerGame.svelte": {
+			"types": "./dist/MultiplayerGame.svelte.d.ts",
+			"svelte": "./dist/MultiplayerGame.svelte",
+			"default": "./dist/MultiplayerGame.svelte"
 		},
 		"./styles.css": {
 			"default": "./dist/styles.css"
