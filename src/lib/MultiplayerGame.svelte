@@ -1,5 +1,5 @@
 <script lang="ts">
-import { onMount, onDestroy, getContext } from 'svelte';
+import { onMount, onDestroy } from 'svelte';
 import { writable } from 'svelte/store';
 import Game from "$lib/Game.js"
 import GameComp from "$lib/Game.svelte"
