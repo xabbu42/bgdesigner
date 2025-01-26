@@ -10,10 +10,8 @@ let name;
 
 function change_username(newusername) {
 	sessionStorage.setItem('username', newusername);
-	$user = {name: newusername, color: hashcolor(newusername), params: $page.params};
+	$user = {name: newusername, color: hashcolor(newusername)};
 }
-
-page.subscribe((v) => $user.params = $page.params);
 
 </script>
 

@@ -8,6 +8,7 @@ import { user } from '$lib/stores';
 import { ably } from '$lib/init_ably';
 import Spaces from '@ably/spaces';
 
+export let ably_namespace = 'bgdesigner';
 export let game;
 
 let channel;
@@ -48,7 +49,10 @@ function handle_message(msg) {
 }
 
 onMount(async () => {
-	let key = 'games:' + game.name + '_' + (game.play || '');
+	let lobby = ably.channels.get(ably_namespace + ':lobby');
+	await lobby.attach();
+	lobby.presence.enter({user: $user, play: game.name});
+	let key = ably_namespace + ':' + game.play;
 	console.log("init play " + key);
 	channel = ably.channels.get(key);
 	await channel.attach();

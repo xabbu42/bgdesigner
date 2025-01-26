@@ -11,4 +11,4 @@ let game = new Game(data.gamedef, $page.params.play);
 	<title>{$page.params.name} - {$page.params.play}</title>
 </svelte:head>
 
-<GameComp {game} />
+<GameComp ably_namespace={$page.params.name} {game} />
