@@ -20,6 +20,11 @@
 			"types": "./dist/init_ably.d.ts",
 			"default": "./dist/init_ably.js"
 		},
+		"./Lobby.svelte": {
+			"types": "./dist/Lobby.svelte.d.ts",
+			"svelte": "./dist/Lobby.svelte",
+			"default": "./dist/Lobby.svelte"
+		},
 		"./Game.svelte": {
 			"types": "./dist/Game.svelte.d.ts",
 			"svelte": "./dist/Game.svelte",
