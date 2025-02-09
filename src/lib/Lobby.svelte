@@ -50,20 +50,18 @@ onDestroy(() => {
 {#if game}
 	<GameComp {game} />
 {:else}
-	<div>
-		<ul class="max-w-md divide-y m-2 border-solid border-2">
-			{#each Object.entries(allplays) as [play, members]}
-				<li class="p-1">
-					<button on:click={(e) => new_play(play)}>
-						{play}
-						{#each members as member(member.connectionId)}
-							<span class="m-1 p-1 rounded-xl" style="background-color: {member.data.user.color}">{member.data.user.name}</span>
-						{/each}
-					</button>
-				</li>
-			{/each}
-		</ul>
-		<button class="m-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" on:click={(e) => new_play(randomWords())}>
+	<div class="p-2 grid gap-2">
+		{#each Object.entries(allplays) as [play, members]}
+			<button class="border border-slate-200 rounded-lg" on:click={(e) => new_play(play)}>
+				<h2 class="m-1 p-1 font-bold">{play}</h2>
+				<ul class="flex flex-row flex-wrap items-start">
+					{#each members as member(member.connectionId)}
+						<li class="m-1 p-1 rounded-xl text-nowrap" style="background-color: {member.data.user.color}">{member.data.user.name}</li>
+					{/each}
+				</ul>
+			</button>
+		{/each}
+		<button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" on:click={(e) => new_play(randomWords())}>
 			New
 		</button>
 	</div>
