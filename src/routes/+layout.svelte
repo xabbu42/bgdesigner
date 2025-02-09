@@ -2,11 +2,12 @@
 import "../app.css";
 import { page } from '$app/stores';
 import { user } from '$lib/stores';
+import { hashcolor } from '$lib/utils';
 
 const obj = import.meta.glob('../../static/games/*');
 const games = Object.keys(obj).map((v) => v.match(/([^\/]*)$/)![0]);
 
-let name;
+let name = $user.name;
 
 function change_username(newusername) {
 	sessionStorage.setItem('username', newusername);
