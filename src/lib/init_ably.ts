@@ -11,5 +11,6 @@ export function init_ably(key) {
 	let name = sessionStorage.getItem('username') || rug.generate();
 	let u = {name, color: hashcolor(name)};
 	user.set(u);
+	user.subscribe((v) => sessionStorage.setItem('username', v.name));
 	ably = new Ably.Realtime({key, clientId: u.name});
 }
