@@ -52,9 +52,7 @@ onDestroy(() => {
 
 </script>
 
-<dialog id="changeusername" bind:this={changeusername}
-			class="p-4 rounded-lg bg-white shadow-sm"
->
+<dialog bind:this={changeusername} class="p-4 rounded-lg bg-white shadow-sm" >
 	<form class="" on:submit={(ev) => { $user.name = usernameinput; changeusername.close() }}>
 		<label for="username" class="block mb-2 font-medium text-gray-900">Change Name</label>
 		<input type="text" id="username" bind:value={usernameinput}
