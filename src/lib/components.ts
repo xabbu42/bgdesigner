@@ -1,4 +1,4 @@
-import {type Point, UserMode} from "./types.js";
+import {type Point, Lock} from "./types.js";
 
 function render_string(value:string, params:any) {
 	return value.replaceAll(/{{(.+?)}}/g, (_,expr) => params[expr] ?? '');
@@ -14,7 +14,7 @@ export abstract class Component {
 	width?: number;
 	height?: number;
 	usercolor?: string;
-	usermode: UserMode = UserMode.None;
+	lock: Lock = Lock.None;
 
 	constructor(game: string, path: string, params:any) {
 		this.game = game;

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import {type Point, UserMode} from "./types.js";
+	import { type Point, Lock } from "./types.js";
 	import { type Writable, writable } from 'svelte/store';
 	import { createEventDispatcher } from 'svelte';
 
@@ -60,14 +60,16 @@
 		}
 	}
 
-	let paning = false;
 	let selected: Component | null = null;
 	let hovered: Component | null = null;
+	enum UiMode { None = 0, Drag, Menu, Pan };
+	let uimode = UiMode.None;
+
 
 	function onpointermove (e:MouseEvent) {
-		if (paning)
+		if (uimode == UiMode.Pan)
 			pan({x: -e.movementX, y: -e.movementY});
-		else if (!selected || selected.usermode != UserMode.Menu) {
+		else if (!selected || uimode != UiMode.Menu) {
 			let p = canvas(e);
 			let newhovered;
 			for (let component of game.state.toReversed()) {
@@ -79,18 +81,18 @@
 
 			if (hovered != newhovered) {
 				if (hovered) {
-					hovered.usermode = UserMode.None;
+					hovered.lock = Lock.None;
 					hovered = null;
 				}
 				if (dispatch('uievent', {hovered: newhovered?.path, selected: selected?.path, dragoffset: selected?.dragoffset}, {cancelable: true})) {
 					hovered = newhovered;
 					if (hovered) {
-						hovered.usermode = UserMode.Hover;
+						hovered.lock = Lock.Hover;
 						hovered.usercolor = $user.color;
 					}
 				}
 			}
-			if (selected && selected.usermode == UserMode.Drag)
+			if (selected && uimode == UiMode.Drag)
 				selected.pos = {x: p.x - selected.dragoffset.x, y: p.y - selected.dragoffset.y};
 			game = game;
 		}
@@ -98,28 +100,30 @@
 
 	let stackcount = 0;
 	function onpointerup(e:MouseEvent) {
-		paning = false;
-		if (selected && selected.usermode == UserMode.Drag) {
-			selected.usermode = UserMode.None;
+		if (uimode == UiMode.Pan)
+			uimode = UiMode.None;
+		else if (selected && uimode == UiMode.Drag) {
+			selected.lock = Lock.None;
 			let oldhovered = hovered;
 			let newhovered = game.drop(selected, hovered);
 			if (dispatch('uievent', {hovered: newhovered?.path, selected: null}, {cancelable: true})) {
 				hovered = newhovered;
 				if (hovered) {
-					hovered.usermode = UserMode.Hover;
+					hovered.lock = Lock.Hover;
 					hovered.usercolor = $user.color;
 				}
 			}
 
 			dispatch('gameevent', {action: 'drop', hash: game.hash(), pos: oldhovered ? null : selected.pos, args: [selected.path, oldhovered?.path]});
 			selected = null;
+			uimode = UiMode.None;
 			game = game;
 		}
 	}
 
 </script>
 
-{#if selected && selected.usermode == UserMode.Menu}
+{#if selected && uimode == UiMode.Menu}
 	<nav class="border-2 p-1 border-gray-700 rounded-lg bg-white z-50" style="position: absolute; top:{selected.menu.y - 10}px; left:{selected.menu.x - 10}px" on:pointerleave="{e => selected = null}">
 		<ul>
 			{#each ['flip', 'shuffle'] as action}
@@ -131,12 +135,13 @@
 								// @ts-ignore
 								selected[action]();
 								if (dispatch('uievent', {hovered: selected.path, selected: null}, {cancelable: true})) {
-									selected.usermode = UserMode.Hover;
+									selected.lock = Lock.Hover;
 									hovered = selected;
 								} else
-									selected.usermode = UserMode.None;
+									selected.lock = Lock.None;
 								dispatch('gameevent', {action, hash: game.hash(), path: selected.path});
 								selected = null;
+								uimode = UiMode.None;
 								game = game;
 							}}>
 							{action}
@@ -154,12 +159,13 @@
 							drew.pos = pos;
 
 							if (dispatch('uievent', {hovered: selected.path, selected: null}, {cancelable: true})) {
-								selected.usermode = UserMode.Hover;
+								selected.lock = Lock.Hover;
 								hovered = selected;
 							} else
-								selected.usermode = UserMode.None;
+								selected.lock = Lock.None;
 							dispatch('gameevent', {action: 'draw', hash: game.hash(), pos, args: [selected.path]});
 							selected = null;
+							uimode = UiMode.None;
 							game = game;
 						}}>
 						draw
@@ -173,7 +179,7 @@
 <div class="viewport relative overflow-hidden w-full h-full"
 	bind:this="{viewport}"
 	on:wheel|preventDefault="{(e) => zoom(e, e.deltaY / 1000)}"
-	on:pointerdown|preventDefault="{(e) => paning = true}"
+	on:pointerdown|preventDefault="{(e) => uimode = UiMode.Pan}"
 >
 	<div class="canvas absolute origin-top-left" style="transform: scale({camera.z}) translate({camera.x}px,{camera.y}px)" use:apply_textfit>
 		<div class="flex flex-wrap gap-1" style="width:96rem">
@@ -184,8 +190,9 @@
 							let bounds = e.target.getBoundingClientRect();
 							let dragoffset = {x: (e.clientX - bounds.x) / camera.z, y: (e.clientY - bounds.y) / camera.z};
 							if (dispatch('uievent', {hovered: null, selected: component.path, dragoffset}, {cancelable: true})) {
-								component.usermode = UserMode.Drag;
+								component.lock = Lock.Select;
 								component.usercolor = $user.color;
+								uimode = UiMode.Drag;
 								selected = component;
 								selected.dragoffset = dragoffset;
 								hovered = null;
@@ -196,8 +203,9 @@
 					}}"
 					on:contextmenu="{(e) => {
 						if (dispatch('uievent', {hovered: null, selected: component.path}, {cancelable: true})) {
-							component.usermode = UserMode.Menu;
+							component.lock = Lock.Select;
 							component.usercolor = $user.color;
+							uimode = UiMode.Menu;
 							selected = component;
 							selected.menu = {x: e.clientX, y: e.clientY};
 							hovered = null;

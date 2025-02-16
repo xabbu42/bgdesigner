@@ -3,7 +3,7 @@ import { onMount, onDestroy } from 'svelte';
 import { writable } from 'svelte/store';
 import Game from "$lib/Game.js"
 import GameComp from "$lib/Game.svelte"
-import {UserMode} from "$lib/types.js";
+import {Lock} from "$lib/types.js";
 import { user } from '$lib/stores';
 import { ably } from '$lib/init_ably';
 import Spaces from '@ably/spaces';
@@ -25,12 +25,12 @@ function handle_lock(lock) {
 		if (!locks[lock.member.connectionId])
 			locks[lock.member.connectionId] = {};
 		if (lock.status == 'unlocked') {
-			delete locks[lock.member.connectionId][obj.usermode];
-			obj.usermode = UserMode.None;
+			delete locks[lock.member.connectionId][obj.lock];
+			obj.lock = Lock.None;
 		} else if (lock.status == 'locked') {
-			obj.usermode = locations[lock.member.connectionId] && locations[lock.member.connectionId].path == lock.id ? UserMode.Drag : UserMode.Hover;
+			obj.lock = locations[lock.member.connectionId] && locations[lock.member.connectionId].path == lock.id ? Lock.Select : Lock.Hover;
 			obj.usercolor = members[lock.member.connectionId].profileData.color;
-			locks[lock.member.connectionId][obj.usermode] = obj;
+			locks[lock.member.connectionId][obj.lock] = obj;
 		}
 		game = game;
 	}
@@ -85,10 +85,10 @@ onMount(async () => {
 	space.locations.subscribe('update', (ms) => {
 		if (ms.member.connectionId != ably.connection.id) {
 			if (locations[ms.member.connectionId])
-				locations[ms.member.connectionId].usermode = UserMode.Hover;
+				locations[ms.member.connectionId].lock = Lock.Hover;
 			locations[ms.member.connectionId] = ms.currentLocation.path ? game.render(ms.currentLocation.path) : null;
 			if (locations[ms.member.connectionId]) {
-				locations[ms.member.connectionId].usermode = ms.currentLocation.dragoffset ? UserMode.Drag : UserMode.Menu;
+				locations[ms.member.connectionId].lock = Lock.Select;
 				locations[ms.member.connectionId].usercolor = members[ms.member.connectionId].profileData.color;
 				locations[ms.member.connectionId].dragoffset = ms.currentLocation.dragoffset;
 			}
@@ -99,7 +99,7 @@ onMount(async () => {
 	space.cursors.subscribe(async (update) => {
 		cursors[update.connectionId] = update;
 		let selected = locations[update.connectionId];
-		if (selected && selected.usermode == UserMode.Drag && update.connectionId != ably.connection.id) {
+		if (selected && selected.dragoffset && update.connectionId != ably.connection.id) {
 			selected.pos = {x: update.position.x - selected.dragoffset.x, y: update.position.y - selected.dragoffset.y};
 			game = game;
 		}
