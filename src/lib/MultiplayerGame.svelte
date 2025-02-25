@@ -3,23 +3,24 @@ import { onMount, onDestroy } from 'svelte';
 import { writable } from 'svelte/store';
 import Game from "$lib/Game.js"
 import GameComp from "$lib/Game.svelte"
-import {Lock} from "$lib/types.js";
-import { user } from '$lib/stores';
-import { ably } from '$lib/init_ably';
-import Spaces from '@ably/spaces';
+import { Lock } from "$lib/types.js";
+import { user } from '$lib/stores.js';
+import { ably } from '$lib/init_ably.js';
+import Spaces, { type Space, type Lock as AblyLock, type SpaceMember, type CursorUpdate } from '@ably/spaces';
+import Ably, { type RealtimeChannel, type InboundMessage } from 'ably';
 
 export let ably_namespace = 'bgdesigner';
-export let game;
+export let game:Game;
 
-let channel;
-let space;
+let channel:RealtimeChannel;
+let space:Space;
 let entered = false;
-let members = {};
-let cursors = {};
-let locations = {};
-let locks = {};
+let members:Record<string, SpaceMember> = {};
+let cursors:Record<string, CursorUpdate> = {};
+let locations:Record<string, any> = {};
+let locks:Record<string, Record<string, any>> = {};
 
-function handle_lock(lock) {
+function handle_lock(lock:AblyLock) {
 	if (lock.member.connectionId != ably.connection.id) {
 		let obj = game.render(lock.id);
 		if (!locks[lock.member.connectionId])
@@ -29,17 +30,17 @@ function handle_lock(lock) {
 			obj.lock = Lock.None;
 		} else if (lock.status == 'locked') {
 			obj.lock = locations[lock.member.connectionId] && locations[lock.member.connectionId].path == lock.id ? Lock.Select : Lock.Hover;
-			obj.usercolor = members[lock.member.connectionId].profileData.color;
+			obj.usercolor = members[lock.member.connectionId].profileData?.color;
 			locks[lock.member.connectionId][obj.lock] = obj;
 		}
 		game = game;
 	}
 }
 
-function handle_message(msg) {
+function handle_message(msg:InboundMessage) {
 	if (msg.connectionId != ably.connection.id) {
 		let obj = msg.data.path ? game.render(msg.data.path) : game;
-		let res = obj[msg.data.action](...(msg.data.args || []).map(p => p ? game.render(p) : p));
+		let res = obj[msg.data.action](...(msg.data.args || []).map((p:string) => p ? game.render(p) : p));
 		if (msg.data.pos)
 			res.pos = msg.data.pos;
 		if (game.hash() != msg.data.hash)
@@ -52,7 +53,7 @@ onMount(async () => {
 	let lobby = ably.channels.get(ably_namespace + ':lobby');
 	await lobby.attach();
 	lobby.presence.enter({user: $user, play: game.name});
-	let key = ably_namespace + ':' + game.play;
+	let key = ably_namespace + ':' + game.name;
 	console.log("init play " + key);
 	channel = ably.channels.get(key);
 	await channel.attach();
@@ -67,7 +68,7 @@ onMount(async () => {
 	user.subscribe(u => space.updateProfileData(u));
 	members   = Object.fromEntries((await space.getState()).members.map(v => [v.connectionId, v]));
 	locations = await space.locations.getOthers();
-	cursors   = Object.fromEntries(Object.entries(await space.cursors.getAll()).filter(v => v[1] != undefined));
+	cursors   = Object.fromEntries(Object.entries(await space.cursors.getAll()).filter((v): v is [string, CursorUpdate] => v[1] !== null));
 	(await space.locks.getOthers()).map(l => handle_lock(l));
 	space.locks.subscribe(handle_lock);
 	space.members.subscribe(['leave', 'remove'], (ms) => {
@@ -86,11 +87,12 @@ onMount(async () => {
 		if (ms.member.connectionId != ably.connection.id) {
 			if (locations[ms.member.connectionId])
 				locations[ms.member.connectionId].lock = Lock.Hover;
-			locations[ms.member.connectionId] = ms.currentLocation.path ? game.render(ms.currentLocation.path) : null;
+			let currentLocation = (ms.currentLocation as any);
+			locations[ms.member.connectionId] = currentLocation.path ? game.render(currentLocation.path) : null;
 			if (locations[ms.member.connectionId]) {
 				locations[ms.member.connectionId].lock = Lock.Select;
-				locations[ms.member.connectionId].usercolor = members[ms.member.connectionId].profileData.color;
-				locations[ms.member.connectionId].dragoffset = ms.currentLocation.dragoffset;
+				locations[ms.member.connectionId].usercolor = members[ms.member.connectionId].profileData?.color;
+				locations[ms.member.connectionId].dragoffset = currentLocation.dragoffset;
 			}
 			game = game;
 		}
@@ -112,21 +114,21 @@ onDestroy(() => {
 		space.leave();
 });
 
-let gamecomp;
+let gamecomp:GameComp;
 
-function onpointermove({clientX, clientY}) {
+function onpointermove({clientX, clientY}:MouseEvent) {
 	if (entered)
 		space.cursors.set({position: gamecomp.canvas({x: clientX, y: clientY})});
 }
 
-function ongameevent(e) {
+function ongameevent(e:any) {
 	if (!space || !channel)
 		return;
 	channel.publish(e.detail.action, e.detail);
 }
 
-let mylocks = {};
-function onuievent(e) {
+let mylocks:Record<string,true> = {};
+function onuievent(e:any) {
 	if (!space)
 		return;
 
@@ -165,7 +167,7 @@ function onuievent(e) {
 <GameComp on:uievent="{onuievent}" on:gameevent="{ongameevent}" bind:this="{gamecomp}" {game} />
 {#each Object.values(cursors) as cursor(cursor.connectionId)}
 	<div class="absolute pointer-events-none" style="left: {gamecomp.screen(cursor.position).x - 10}px; top: {gamecomp.screen(cursor.position).y - 10}px;">
-		<div class="rounded-full border-solid border-2 inline-block" style="width: 21px; height: 21px; border-color: {members[cursor.connectionId].profileData.color}"></div>
-		<span class="rounded-xl m-1 p-1" style="background-color: {members[cursor.connectionId].profileData.color}">{members[cursor.connectionId].profileData.name}</span>
+		<div class="rounded-full border-solid border-2 inline-block" style="width: 21px; height: 21px; border-color: {members[cursor.connectionId].profileData?.color}"></div>
+		<span class="rounded-xl m-1 p-1" style="background-color: {members[cursor.connectionId].profileData?.color}">{members[cursor.connectionId].profileData?.name}</span>
 	</div>
 {/each}

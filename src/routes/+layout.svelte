@@ -2,8 +2,8 @@
 import { onMount } from 'svelte';
 import "../app.css";
 import { page } from '$app/stores';
-import { user } from '$lib/stores';
-import { hashcolor } from '$lib/utils';
+import { user } from '$lib/stores.js';
+import { hashcolor } from '$lib/utils.js';
 
 const obj = import.meta.glob('../../static/games/*');
 const games = Object.keys(obj).map((v) => v.match(/([^\/]*)$/)![0]);

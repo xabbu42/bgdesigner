@@ -1,36 +1,40 @@
 <script lang="ts">
 import { onMount, onDestroy } from 'svelte';
+import { type Unsubscriber } from 'svelte/store'
 
 import randomWords from 'random-words';
-import { user } from '$lib/stores';
-import { ably } from '$lib/init_ably';
-import { hashcolor } from '$lib/utils';
+import { user } from '$lib/stores.js';
+import { ably } from '$lib/init_ably.js';
+import { hashcolor } from '$lib/utils.js';
+
+import { type SpaceMember } from '@ably/spaces';
+import { type RealtimeChannel, type PresenceMessage } from 'ably';
 
 import Game from "$lib/Game.js"
 import GameComp from "$lib/MultiplayerGame.svelte";
 
-let game;
+let game:Game;
 
 export let gamedef;
 export let ably_namespace = 'bgdesigner';
-export let new_play = (play) => {
+export let new_play = (play:string) => {
 	game = new Game(gamedef, play);
 };
 
-const members = {};
-let allplays = [];
-let channel;
-let unsub;
-let changeusername;
+const members:Record<string, PresenceMessage> = {};
+let allplays:Record<string, PresenceMessage[]> = {};
+let channel:RealtimeChannel;
+let unsub:Unsubscriber;
+let changeusername:HTMLDialogElement;
 let usernameinput = $user.name;
 let name = $user.name;
 
-function handle_member(m) {
+function handle_member(m:PresenceMessage) {
 	if (m.action == 'leave')
 		delete members[m.connectionId];
 	else
 		members[m.connectionId] = m;
-	allplays = Object.values(members).filter(v => v.data.play).reduce((acc, v) => { acc[v.data.play] = (acc[v.data.play] || []).concat(v); return acc }, {});
+	allplays = Object.values(members).filter(v => v.data.play).reduce((acc:Record<string, PresenceMessage[]>, v) => { acc[v.data.play as string] = (acc[v.data.play as string] || []).concat(v); return acc }, {});
 }
 
 onMount(async () => {
@@ -38,7 +42,7 @@ onMount(async () => {
 	console.log(key);
 	channel = await ably.channels.get(key);
 	channel.presence.enter({user: $user});
-	let unsub = user.subscribe((v) => {name = v.name; usernameinput = v.name; channel.presence.update({user: v})});
+	unsub = user.subscribe((v) => {name = v.name; usernameinput = v.name; channel.presence.update({user: v})});
 	channel.presence.subscribe(handle_member);
 	(await channel.presence.get()).map(handle_member);
 });
@@ -46,7 +50,7 @@ onMount(async () => {
 onDestroy(() => {
 	if (channel)
 		channel.presence.unsubscribe();
-	if (unsub)
+	if (unsub !== undefined)
 		unsub();
 });
 
@@ -91,7 +95,7 @@ onDestroy(() => {
 			</button>
 		{/each}
 		<div>
-			<button class="align-middle bg-blue-500 hover:bg-blue-700 text-white font-bold p-1 rounded" on:click={(e) => new_play(randomWords())}>
+			<button class="align-middle bg-blue-500 hover:bg-blue-700 text-white font-bold p-1 rounded" on:click={(e) => new_play(randomWords(1)[0])}>
 				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M20 14h-6v6h-4v-6H4v-4h6V4h4v6h6z"/></svg>
 			</button>
 		</div>

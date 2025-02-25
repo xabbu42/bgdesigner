@@ -6,8 +6,9 @@
 	import Token from "./Token.svelte";
 	import { textfit } from "./utils.js";
 	import { Collection,Stack } from "./collections.js";
+	import { type Component } from "./components.js";
 	import { user } from "./stores.js";
-	import type { Game } from "./Game.js";
+	import type Game from "./Game.js";
 
 	export let game:Game;
 
@@ -60,8 +61,8 @@
 		}
 	}
 
-	let selected: Component | null = null;
-	let hovered: Component | null = null;
+	let selected: Component | undefined = undefined;
+	let hovered: Component | undefined = undefined;
 	enum UiMode { None = 0, Drag, Menu, Pan };
 	let uimode = UiMode.None;
 
@@ -82,7 +83,7 @@
 			if (hovered != newhovered) {
 				if (hovered) {
 					hovered.lock = Lock.None;
-					hovered = null;
+					hovered = undefined;
 				}
 				if (dispatch('uievent', {hovered: newhovered?.path, selected: selected?.path, dragoffset: selected?.dragoffset}, {cancelable: true})) {
 					hovered = newhovered;
@@ -92,7 +93,7 @@
 					}
 				}
 			}
-			if (selected && uimode == UiMode.Drag)
+			if (selected && uimode == UiMode.Drag && selected.dragoffset)
 				selected.pos = {x: p.x - selected.dragoffset.x, y: p.y - selected.dragoffset.y};
 			game = game;
 		}
@@ -106,7 +107,7 @@
 			selected.lock = Lock.None;
 			let oldhovered = hovered;
 			let newhovered = game.drop(selected, hovered);
-			if (dispatch('uievent', {hovered: newhovered?.path, selected: null}, {cancelable: true})) {
+			if (dispatch('uievent', {hovered: newhovered?.path, selected: undefined}, {cancelable: true})) {
 				hovered = newhovered;
 				if (hovered) {
 					hovered.lock = Lock.Hover;
@@ -114,8 +115,8 @@
 				}
 			}
 
-			dispatch('gameevent', {action: 'drop', hash: game.hash(), pos: oldhovered ? null : selected.pos, args: [selected.path, oldhovered?.path]});
-			selected = null;
+			dispatch('gameevent', {action: 'drop', hash: game.hash(), pos: oldhovered ? undefined : selected.pos, args: [selected.path, oldhovered?.path]});
+			selected = undefined;
 			uimode = UiMode.None;
 			game = game;
 		}
@@ -123,8 +124,8 @@
 
 </script>
 
-{#if selected && uimode == UiMode.Menu}
-	<nav class="border-2 p-1 border-gray-700 rounded-lg bg-white z-50" style="position: absolute; top:{selected.menu.y - 10}px; left:{selected.menu.x - 10}px" on:pointerleave="{e => selected = null}">
+{#if selected && selected.menu && uimode == UiMode.Menu}
+	<nav class="border-2 p-1 border-gray-700 rounded-lg bg-white z-50" style="position: absolute; top:{selected.menu.y - 10}px; left:{selected.menu.x - 10}px" on:pointerleave="{e => selected = undefined}">
 		<ul>
 			{#each ['flip', 'shuffle'] as action}
 				{#if selected && action in selected}
@@ -132,17 +133,19 @@
 						<button
 							class="w-full hover:bg-gray-200 p-1 rounded-lg"
 							on:click={(e) => {
-								// @ts-ignore
-								selected[action]();
-								if (dispatch('uievent', {hovered: selected.path, selected: null}, {cancelable: true})) {
-									selected.lock = Lock.Hover;
-									hovered = selected;
-								} else
-									selected.lock = Lock.None;
-								dispatch('gameevent', {action, hash: game.hash(), path: selected.path});
-								selected = null;
-								uimode = UiMode.None;
-								game = game;
+								if (selected) {
+									// @ts-ignore
+									selected[action]();
+									if (dispatch('uievent', {hovered: selected.path, selected: undefined}, {cancelable: true})) {
+										selected.lock = Lock.Hover;
+										hovered = selected;
+									} else
+										selected.lock = Lock.None;
+									dispatch('gameevent', {action, hash: game.hash(), path: selected.path});
+									selected = undefined;
+									uimode = UiMode.None;
+									game = game;
+								}
 							}}>
 							{action}
 						</button>
@@ -154,19 +157,21 @@
 					<button
 						class="w-full hover:bg-gray-200 p-1 rounded-lg"
 						on:click={(e) => {
-							let pos = canvas(e);
-							let drew = game.draw(selected);
-							drew.pos = pos;
+							if (selected instanceof Collection) {
+								let pos = canvas(e);
+								let drew = game.draw(selected);
+								drew.pos = pos;
 
-							if (dispatch('uievent', {hovered: selected.path, selected: null}, {cancelable: true})) {
-								selected.lock = Lock.Hover;
-								hovered = selected;
-							} else
-								selected.lock = Lock.None;
-							dispatch('gameevent', {action: 'draw', hash: game.hash(), pos, args: [selected.path]});
-							selected = null;
-							uimode = UiMode.None;
-							game = game;
+								if (dispatch('uievent', {hovered: selected.path, selected: undefined}, {cancelable: true})) {
+									selected.lock = Lock.Hover;
+									hovered = selected;
+								} else
+									selected.lock = Lock.None;
+								dispatch('gameevent', {action: 'draw', hash: game.hash(), pos, args: [selected.path]});
+								selected = undefined;
+								uimode = UiMode.None;
+								game = game;
+							}
 						}}>
 						draw
 					</button>
@@ -189,26 +194,26 @@
 						if (e.button === 0) {
 							let bounds = e.target.getBoundingClientRect();
 							let dragoffset = {x: (e.clientX - bounds.x) / camera.z, y: (e.clientY - bounds.y) / camera.z};
-							if (dispatch('uievent', {hovered: null, selected: component.path, dragoffset}, {cancelable: true})) {
+							if (dispatch('uievent', {hovered: undefined, selected: component.path, dragoffset}, {cancelable: true})) {
 								component.lock = Lock.Select;
 								component.usercolor = $user.color;
 								uimode = UiMode.Drag;
 								selected = component;
 								selected.dragoffset = dragoffset;
-								hovered = null;
+								hovered = undefined;
 							}
 							e.preventDefault();
 							e.stopPropagation();
 						}
 					}}"
 					on:contextmenu="{(e) => {
-						if (dispatch('uievent', {hovered: null, selected: component.path}, {cancelable: true})) {
+						if (dispatch('uievent', {hovered: undefined, selected: component.path}, {cancelable: true})) {
 							component.lock = Lock.Select;
 							component.usercolor = $user.color;
 							uimode = UiMode.Menu;
 							selected = component;
 							selected.menu = {x: e.clientX, y: e.clientY};
-							hovered = null;
+							hovered = undefined;
 						}
 						e.preventDefault();
 						e.stopPropagation();

@@ -11,6 +11,7 @@ export abstract class Component {
 	//TODO this is for interactive Game.svelte and does not really belong here
 	pos?: Point;
 	menu?: Point;
+	dragoffset?: Point;
 	width?: number;
 	height?: number;
 	usercolor?: string;

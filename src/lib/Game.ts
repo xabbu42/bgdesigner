@@ -15,7 +15,7 @@ export default class Game {
 
 	name:string = ''
 	game:any = {}
-	state:Components[] = [];
+	state:Component[] = [];
 
 	registry:any = {
 		range: (g:Game, d:object, a:number, b:number) => [...Array(b ? b - a + 1 : +a).keys()].map(i => i + (b ? +a : 1)),
@@ -205,7 +205,7 @@ export default class Game {
 					if (typekeys.length == 1)
 						subdata.type = typekeys[0];
 				}
-				let variantpath = path + (repls.length > 1 ? '.' + result.length : '');
+				let variantpath:string = path + (repls.length > 1 ? '.' + result.length : '');
 				let variant = subdata.type ? new this.types[subdata.type] (this.name, variantpath, subdata) : subdata;
 				result.push(variant);
 				if (repls.length > 1)
@@ -222,18 +222,18 @@ export default class Game {
 	}
 
 	stackcount: number = 0;
-	drop(selected:Component, dropitem:Component) {
+	drop(selected:Component, dropitem?:Component) {
 		if (dropitem) {
 			if (dropitem instanceof Collection) {
 				this.state = this.state.filter(v => v != selected);
-				selected.pos = null;
+				selected.pos = undefined;
 				dropitem.add(...(selected instanceof Collection ? selected.values() : [selected]));
 				return dropitem;
 			} else if (!(selected instanceof Collection)) {
 				let internalpath = '__internal__.' + (this.stackcount++);
 				this.cache[internalpath] = new Stack(this.name, internalpath, {'Stack': [dropitem, selected], pos: dropitem.pos});
-				dropitem.pos = null;
-				selected.pos = null;
+				dropitem.pos = undefined;
+				selected.pos = undefined;
 				this.state = [...this.state.filter(v => v != dropitem && v != selected), this.cache[internalpath]];
 				return this.cache[internalpath];
 			}

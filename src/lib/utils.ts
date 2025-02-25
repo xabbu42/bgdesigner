@@ -1,5 +1,5 @@
 
-export function serialize(val:any, filter = v => false):string {
+export function serialize(val:any, filter:(v:any) => boolean = v => false):string {
 	if (Array.isArray(val)) {
 		let subs = val.map(v => serialize(v, filter));
 		let result = '[ ' + subs.join(', ') + ' ]';

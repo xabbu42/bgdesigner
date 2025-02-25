@@ -1,5 +1,5 @@
 import type { ClientInit } from '@sveltejs/kit';
-import { init_ably } from '$lib/init_ably';
+import { init_ably } from '$lib/init_ably.js';
 import * as env from '$env/static/public';
 
 export const init: ClientInit = async () => {
