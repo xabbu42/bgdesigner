@@ -98,7 +98,7 @@ onMount(async () => {
 		}
 	});
 	entered = true;
-	space.cursors.subscribe(async (update) => {
+	space.cursors.subscribe((update) => {
 		cursors[update.connectionId] = update;
 		let selected = locations[update.connectionId];
 		if (selected && selected.dragoffset && update.connectionId != ably.connection.id) {
@@ -167,7 +167,7 @@ function onuievent(e:any) {
 <GameComp on:uievent="{onuievent}" on:gameevent="{ongameevent}" bind:this="{gamecomp}" {game} />
 {#each Object.values(cursors) as cursor(cursor.connectionId)}
 	<div class="absolute pointer-events-none" style="left: {gamecomp.screen(cursor.position).x - 10}px; top: {gamecomp.screen(cursor.position).y - 10}px;">
-		<div class="rounded-full border-solid border-2 inline-block" style="width: 21px; height: 21px; border-color: {members[cursor.connectionId].profileData?.color}"></div>
-		<span class="rounded-xl m-1 p-1" style="background-color: {members[cursor.connectionId].profileData?.color}">{members[cursor.connectionId].profileData?.name}</span>
+		<div class="rounded-full border-solid border-2 inline-block" style="width: 21px; height: 21px; border-color: {members[cursor.connectionId]?.profileData?.color}"></div>
+		<span class="rounded-xl m-1 p-1" style="background-color: {members[cursor.connectionId]?.profileData?.color}">{members[cursor.connectionId]?.profileData?.name}</span>
 	</div>
 {/each}

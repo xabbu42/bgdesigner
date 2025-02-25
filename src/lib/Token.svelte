@@ -18,7 +18,7 @@
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div
 	bind:this="{div}"
-	style="{token.pos ? `position: absolute; left: ${token.pos.x}px; top: ${token.pos.y}px;` : ''}; z-index: {token.lock == Lock.Hover ? 50 : 0}; outline-width: 4px; outline-style:{token.lock == Lock.None ? 'none' : token.lock == Lock.Hover ? 'dotted' : 'solid'}; outline-color:{token.usercolor}"
+	style="{token.pos ? `position: absolute; left: ${token.pos.x}px; top: ${token.pos.y}px;` : ''}; z-index: {token.lock == Lock.Select ? 50 : 0}; outline-width: 4px; outline-style:{token.lock == Lock.None ? 'none' : token.lock == Lock.Hover ? 'dotted' : 'solid'}; outline-color:{token.usercolor}"
 	on:pointerdown
 	on:contextmenu
 >
