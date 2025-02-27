@@ -85,7 +85,7 @@ onDestroy(() => {
 			<span class="text-gray-700 font-bold mb-2 text-gray-900">Games:</span>
 		</div>
 		{#each Object.entries(allplays) as [play, members]}
-			<button class="border border-slate-200 rounded-lg" on:click={(e) => new_play(play)}>
+			<button class="border border-slate-200 rounded-lg hover:bg-slate-50" on:click={(e) => new_play(play)}>
 				<h3 class="m-1 p-1 font-bold">{play}</h3>
 				<ul class="flex flex-row flex-wrap items-start">
 					{#each members as member(member.connectionId)}
