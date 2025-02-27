@@ -16,11 +16,11 @@ onMount(() => {
 </script>
 
 <div class="p-1 antialiased text-gray-900 h-screen w-screen flex flex-col">
-	<nav class="font-sans border-b-2 p-1 mb-1">
+	<nav class="font-sans border-b-2 p-1 mb-2">
 		<div>
 			<a href="/" class="text-2xl">BGDesigner</a>
 			{#each games as game}
-				<a href="/game/{game}" class:active={$page.params.name === game}>{game}</a>
+				<a href="/game/{game}" class:bg-gray-200={$page.params.name === game} class="text-lg">{game}</a>
 			{/each}
 			<form class="inline float-end" on:submit="{(e) => $user = {name, color: hashcolor(name)}}"><input class="m-1 select-all" id="seed" type="text" bind:value={name} /></form>
 		</div>
@@ -30,6 +30,5 @@ onMount(() => {
 	</div>
 </div>
 <style lang="postcss">
-	nav a { @apply text-lg no-underline hover:text-blue-800 p-2 ml-2 rounded-t-lg font-semibold }
-	.active { @apply bg-gray-200 }
+	nav a { @apply no-underline hover:text-blue-800 p-2 ml-2 mt-2 rounded-t-lg font-semibold }
 </style>
