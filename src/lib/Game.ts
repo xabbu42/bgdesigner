@@ -243,8 +243,8 @@ export default class Game {
 		}
 	}
 
-	draw(from:Collection) {
-		let drew = from.draw();
+	draw(from:Collection, what:any = null) {
+		let drew = from.draw(what);
 		this.state.push(drew);
 		return drew;
 	}

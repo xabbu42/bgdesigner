@@ -63,7 +63,7 @@
 
 	let selected: Component | undefined = undefined;
 	let hovered: Component | undefined = undefined;
-	enum UiMode { None = 0, Drag, Menu, Pan };
+	enum UiMode { None = 0, Drag, Menu, Pan, Choose };
 	let uimode = UiMode.None;
 
 
@@ -122,7 +122,56 @@
 		}
 	}
 
+	function draw_event(e:MouseEvent, what:any = null) {
+		let pos = canvas(e);
+		let drew = game.draw(selected, what);
+		drew.pos = pos;
+		selected.lock = Lock.Hover;
+		hovered = selected;
+		dispatch('gameevent', {action: 'draw', hash: game.hash(), pos, args: [selected.path, what?.path]});
+		selected = undefined;
+		uimode = UiMode.None;
+		game = game;
+	}
+
+	function drag_event(e:MouseEvent, component:Component) {
+		component.lock = Lock.Select;
+		component.usercolor = $user.color;
+		uimode = UiMode.Drag;
+		selected = component;
+		hovered = undefined;
+	}
+
+	let choosedialog;
 </script>
+
+<dialog bind:this={choosedialog} on:click="{(e) => choosedialog.close()}" class="p-4 rounded-lg bg-white shadow-sm" >
+	<!-- Modal content -->
+	<div class="relative bg-white rounded-lg shadow-sm dark:bg-gray-700 flex flex-wrap gap-1">
+		{#if selected && selected instanceof Collection && uimode == UiMode.Choose}
+			{#each selected.values() as component(component.path)}
+				<div on:pointerdown="{(e) => {
+					if (e.button === 0) {
+						let bounds = e.target.getBoundingClientRect();
+						let dragoffset = {x: (e.clientX - bounds.x) / camera.z, y: (e.clientY - bounds.y) / camera.z};
+						if (dispatch('uievent', {hovered: selected.path, selected: component.path, dragoffset}, {cancelable: true})) {
+							draw_event(e, component);
+							component.dragoffset = dragoffset;
+							let p = canvas(e);
+							component.pos = {x: p.x - component.dragoffset.x, y: p.y - component.dragoffset.y};
+							drag_event(e, component);
+							choosedialog.close();
+						}
+						e.preventDefault();
+						e.stopPropagation();
+					}
+				}}">
+					{@html component}
+				</div>
+			{/each}
+		{/if}
+	</div>
+</dialog>
 
 {#if selected && selected.menu && uimode == UiMode.Menu}
 	<nav class="border-2 p-1 border-gray-700 rounded-lg bg-white z-50" style="position: absolute; top:{selected.menu.y - 10}px; left:{selected.menu.x - 10}px" on:pointerleave="{e => selected = undefined}">
@@ -157,23 +206,22 @@
 					<button
 						class="w-full hover:bg-gray-200 p-1 rounded-lg"
 						on:click={(e) => {
-							if (selected instanceof Collection) {
-								let pos = canvas(e);
-								let drew = game.draw(selected);
-								drew.pos = pos;
-
-								if (dispatch('uievent', {hovered: selected.path, selected: undefined}, {cancelable: true})) {
-									selected.lock = Lock.Hover;
-									hovered = selected;
-								} else
-									selected.lock = Lock.None;
-								dispatch('gameevent', {action: 'draw', hash: game.hash(), pos, args: [selected.path]});
-								selected = undefined;
-								uimode = UiMode.None;
-								game = game;
-							}
+							if (dispatch('uievent', {hovered: selected.path, selected: undefined}, {cancelable: true}))
+								draw_event(e);
+							e.preventDefault();
+							e.stopPropagation();
 						}}>
 						draw
+					</button>
+				</li>
+				<li class="w-full">
+					<button
+						class="w-full hover:bg-gray-200 p-1 rounded-lg"
+						on:click={(e) => {
+							uimode = UiMode.Choose;
+							choosedialog.showModal();
+						}}>
+						choose
 					</button>
 				</li>
 			{/if}
@@ -195,12 +243,8 @@
 							let bounds = e.target.getBoundingClientRect();
 							let dragoffset = {x: (e.clientX - bounds.x) / camera.z, y: (e.clientY - bounds.y) / camera.z};
 							if (dispatch('uievent', {hovered: undefined, selected: component.path, dragoffset}, {cancelable: true})) {
-								component.lock = Lock.Select;
-								component.usercolor = $user.color;
-								uimode = UiMode.Drag;
-								selected = component;
-								selected.dragoffset = dragoffset;
-								hovered = undefined;
+								component.dragoffset = dragoffset;
+								drag_event(e, component);
 							}
 							e.preventDefault();
 							e.stopPropagation();
