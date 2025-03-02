@@ -229,10 +229,11 @@
 	</nav>
 {/if}
 
-<div class="viewport relative overflow-hidden w-full h-full"
+<div class="viewport relative overflow-hidden w-full h-full select-none"
 	bind:this="{viewport}"
 	on:wheel|preventDefault="{(e) => zoom(e, e.deltaY / 1000)}"
 	on:pointerdown|preventDefault="{(e) => uimode = UiMode.Pan}"
+	on:pointermove|passive="{onpointermove}" on:pointerup|passive="{onpointerup}" 
 >
 	<div class="canvas absolute origin-top-left" style="transform: scale({camera.z}) translate({camera.x}px,{camera.y}px)" use:apply_textfit>
 		<div class="flex flex-wrap gap-1" style="width:96rem">
@@ -270,5 +271,3 @@
 	<div class="overlay absolute right-1 bottom-1 shadow-md bg-slate-100 p-1" >
 	</div>
 </div>
-
-<svelte:window on:pointermove|passive="{onpointermove}" on:pointerup|passive="{onpointerup}" />
