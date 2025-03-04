@@ -166,7 +166,7 @@
 						e.stopPropagation();
 					}
 				}}">
-					{@html component}
+					{@html component.front}
 				</div>
 			{/each}
 		{/if}

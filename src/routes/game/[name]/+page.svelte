@@ -12,6 +12,6 @@ let components = data.game.allcomponents();
 
 <div class="flex flex-wrap gap-1">
 	{#each components as component(component.path)}
-		{@html component}
+		{@html component.front}
 	{/each}
 </div>
