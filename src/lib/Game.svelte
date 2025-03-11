@@ -123,12 +123,21 @@
 	}
 
 	function draw_event(e:MouseEvent, what:any = null) {
-		let pos = canvas(e);
-		let drew = game.draw(selected, what);
-		drew.pos = pos;
+		let pos = {x: selected.pos.x + selected.width + 20, y: selected.pos.y};
+		if (typeof what === "number") {
+			for (let i = 0; i < what; i++) {
+				let drew = game.draw(selected);
+				drew.pos = {x: pos.x, y: pos.y};
+				dispatch('gameevent', {action: 'draw', hash: game.hash(), pos: drew.pos, args: [selected.path]});
+				pos.x += drew.width + 5;
+			}
+		} else {
+			let drew = game.draw(selected, what);
+			drew.pos = pos;
+			dispatch('gameevent', {action: 'draw', hash: game.hash(), pos: drew.pos, args: [selected.path, what?.path]});
+		}
 		selected.lock = Lock.Hover;
 		hovered = selected;
-		dispatch('gameevent', {action: 'draw', hash: game.hash(), pos, args: [selected.path, what?.path]});
 		selected = undefined;
 		uimode = UiMode.None;
 		game = game;
@@ -202,9 +211,9 @@
 				{/if}
 			{/each}
 			{#if selected instanceof Collection}
-				<li class="w-full">
+				<li class="w-full dropdown">
 					<button
-						class="w-full hover:bg-gray-200 p-1 rounded-lg"
+						class="w-full hover:bg-gray-200 p-1 rounded-lg relativ"
 						on:click={(e) => {
 							if (dispatch('uievent', {hovered: selected.path, selected: undefined}, {cancelable: true}))
 								draw_event(e);
@@ -213,6 +222,20 @@
 						}}>
 						draw
 					</button>
+					<ul class="dropdown-content absolute left-full border-2 p-1 border-gray-700 rounded-lg bg-white z-50">
+						{#each Array(Math.min(10, selected.length())).keys() as idx}
+							<li><button
+								class="w-full hover:bg-gray-200 p-1 rounded-lg"
+								on:click={(e) => {
+									if (dispatch('uievent', {hovered: selected.path, selected: undefined}, {cancelable: true}))
+										 draw_event(e, idx + 1);
+									e.preventDefault();
+									e.stopPropagation();
+								}}>
+								{idx + 1}
+							</button></li>
+						{/each}
+					</ul>
 				</li>
 				<li class="w-full">
 					<button
@@ -271,3 +294,20 @@
 	<div class="overlay absolute right-1 bottom-1 shadow-md bg-slate-100 p-1" >
 	</div>
 </div>
+
+<style>
+
+.dropdown-content {
+	transform: rotateX(-90deg) translateX(-25%) translateY(-50%);
+	transform-origin: top center;
+	opacity: 0.3;
+	visibility: hidden;
+	transition: 280ms all ease-out;
+}
+
+.dropdown:hover .dropdown-content {
+	opacity: 1;
+	transform: rotateX(0) translateX(-25%) translateY(-50%);
+	visibility: visible;
+}
+</style>
