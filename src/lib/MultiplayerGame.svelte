@@ -29,7 +29,7 @@ function handle_lock(lock:AblyLock) {
 			delete locks[lock.member.connectionId][obj.lock];
 			obj.lock = Lock.None;
 		} else if (lock.status == 'locked') {
-			obj.lock = locations[lock.member.connectionId] && locations[lock.member.connectionId].path == lock.id ? Lock.Select : Lock.Hover;
+			obj.lock = Lock.Hover;
 			obj.usercolor = members[lock.member.connectionId].profileData?.color;
 			locks[lock.member.connectionId][obj.lock] = obj;
 		}
