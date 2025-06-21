@@ -127,44 +127,35 @@ function ongameevent(e:any) {
 	channel.publish(e.detail.action, e.detail);
 }
 
-let mylocks:Record<string,true> = {};
-function onuievent(e:any) {
+var selected;
+function onlock(e:any) {
+	console.log(e.detail);
 	if (!space)
 		return;
 
-	let lock;
-	if (
-		e.detail.hovered && (lock = space.locks.get(e.detail.hovered)) && lock.member.connectionId != ably.connection.id
-		|| e.detail.selected && (lock = space.locks.get(e.detail.selected)) && lock.member.connectionId != ably.connection.id
-	) {
+	let lock = space.locks.get(e.detail.path);
+	if (lock && lock.member.connectionId != ably.connection.id)
 		e.preventDefault();
-		return;
+	else if (!lock) {
+		space.locks.acquire(e.detail.path);
+	} else if (e.detail.lock == Lock.None) {
+		space.locks.release(e.detail.path);
 	}
 
-	space.locations.set({path: e.detail.selected, dragoffset: e.detail.dragoffset});
-
-	let tolock = {hovered: e.detail.hovered, selected: e.detail.selected};
-	for (let lock in mylocks) {
-		if ((lock != tolock.hovered) && (lock != tolock.selected)) {
-			space.locks.release(lock);
-			delete mylocks[lock];
-		} else if (lock == tolock.hovered)
-			delete tolock.hovered;
-		else if (lock == tolock.selected)
-			delete tolock.selected;
+	if (e.detail.lock == Lock.Select) {
+		selected = e.detail.path;
+		space.locations.set({path: e.detail.path, dragoffset: e.detail.dragoffset});
+	} else if (selected && e.detail.path == selected) {
+		selected = undefined;
+		space.locations.set({});
 	}
-	for (let lockid of Object.values(tolock))
-		if (lockid) {
-			mylocks[lockid] = true;
-			space.locks.acquire(lockid);
-		}
 }
 
 </script>
 
 <svelte:window on:pointermove|passive="{onpointermove}" on:pointerup|passive="{onpointerup}" />
 
-<GameComp on:uievent="{onuievent}" on:gameevent="{ongameevent}" bind:this="{gamecomp}" {game} />
+<GameComp on:lock="{onlock}" on:gameevent="{ongameevent}" bind:this="{gamecomp}" {game} />
 {#each Object.values(cursors) as cursor(cursor.connectionId)}
 	<div class="absolute pointer-events-none" style="left: {gamecomp.screen(cursor.position).x - 10}px; top: {gamecomp.screen(cursor.position).y - 10}px;">
 		<div class="rounded-full border-solid border-2 inline-block" style="width: 21px; height: 21px; border-color: {members[cursor.connectionId]?.profileData?.color}"></div>
