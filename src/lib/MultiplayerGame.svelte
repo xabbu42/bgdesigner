@@ -129,14 +129,14 @@ function ongameevent(e:any) {
 
 var selected;
 function onlock(e:any) {
-	console.log(e.detail);
 	if (!space)
 		return;
 
 	let lock = space.locks.get(e.detail.path);
-	if (lock && lock.member.connectionId != ably.connection.id)
+	if (lock && lock.member.connectionId != ably.connection.id) {
 		e.preventDefault();
-	else if (!lock) {
+		return;
+	} else if (!lock) {
 		space.locks.acquire(e.detail.path);
 	} else if (e.detail.lock == Lock.None) {
 		space.locks.release(e.detail.path);
