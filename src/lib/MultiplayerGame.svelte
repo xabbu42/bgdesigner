@@ -127,8 +127,8 @@ function ongameevent(e:any) {
 	channel.publish(e.detail.action, e.detail);
 }
 
-var selected;
-function onlock(e:any) {
+let selected: string | undefined;
+function onlock(e: any): void {
 	if (!space)
 		return;
 

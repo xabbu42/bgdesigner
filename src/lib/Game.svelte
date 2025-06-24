@@ -1,36 +1,59 @@
 <script lang="ts">
 	import { type Point, Lock } from "./types.js";
+	import type { Component } from "./components.js";
 	import { type Writable, writable } from 'svelte/store';
 	import { createEventDispatcher } from 'svelte';
 
 	import Token from "./Token.svelte";
 	import { textfit } from "./utils.js";
-	import { Collection,Stack } from "./collections.js";
-	import { type Component } from "./components.js";
+	import { Collection, Stack } from "./collections.js";
 	import { user } from "./stores.js";
 	import type Game from "./Game.js";
 
-	export let game:Game;
+	export let game: Game;
 
-	const dispatch = createEventDispatcher();
+	interface GameEvent {
+		action: string;
+		hash: number;
+		pos?: Point;
+		path?: string;
+		args?: any[];
+	}
 
-	let camera = {x: 0, y: 0, z: 1};
-	let viewport:HTMLElement;
+	interface LockEvent {
+		path: string;
+		lock: Lock;
+		dragoffset?: Point;
+	}
 
-	export function canvas(p: Point, c = camera) {
-		var rect = viewport.getBoundingClientRect();
+	const dispatch = createEventDispatcher<{
+		gameevent: GameEvent;
+		lock: LockEvent;
+	}>();
+
+	interface Camera {
+		x: number;
+		y: number;
+		z: number;
+	}
+
+	let camera: Camera = {x: 0, y: 0, z: 1};
+	let viewport: HTMLElement;
+
+	export function canvas(p: Point, c: Camera = camera): Point {
+		const rect = viewport.getBoundingClientRect();
 		return { x: (p.x - rect.left) / c.z - c.x, y: (p.y - rect.top) / c.z - c.y };
 	}
 
-	export function screen(p: Point, c = camera) {
-		var rect = viewport.getBoundingClientRect();
+	export function screen(p: Point, c: Camera = camera): Point {
+		const rect = viewport.getBoundingClientRect();
 		return { x: (p.x + c.x) * c.z + rect.left, y: (p.y + c.y) * c.z + rect.top };
 	}
 
-	function zoom(point: Point, dz: number) {
+	function zoom(point: Point, dz: number): void {
 		const z = camera.z - dz * camera.z
 		const p1 = canvas(point)
-		const p2 = canvas(point, { ...camera, z:z})
+		const p2 = canvas(point, { ...camera, z: z})
 		camera = {
 			x: camera.x + (p2.x - p1.x),
 			y: camera.y + (p2.y - p1.y),
@@ -38,7 +61,7 @@
 		}
 	}
 
-	function pan(d: Point) {
+	function pan(d: Point): void {
 		camera = {
 			x: camera.x - d.x / camera.z,
 			y: camera.y - d.y / camera.z,
@@ -46,7 +69,7 @@
 		}
 	}
 
-	function apply_textfit(element:HTMLElement) {
+	function apply_textfit(element: HTMLElement): void {
 		for (const el of element.querySelectorAll(".text-fit-down") as NodeListOf<HTMLElement>) {
 			if (!el.style.fontSize)
 				textfit(el, {down: true});
@@ -63,17 +86,17 @@
 
 	let selected: Component | undefined = undefined;
 	let hovered: Component | undefined = undefined;
-	enum UiMode { None = 0, Drag, Menu, Pan, Choose };
-	let uimode = UiMode.None;
+	enum UiMode { None = 0, Drag, Menu, Pan, Choose }
+	let uimode: UiMode = UiMode.None;
 
 
-	function onpointermove (e:MouseEvent) {
+	function onpointermove(e: MouseEvent): void {
 		if (uimode == UiMode.Pan)
 			pan({x: -e.movementX, y: -e.movementY});
 		else if (!selected || uimode != UiMode.Menu) {
-			let p = canvas(e);
-			let newhovered;
-			for (let component of game.state.toReversed()) {
+			const p = canvas(e);
+			let newhovered: Component | undefined;
+			for (const component of game.state.toReversed()) {
 				if (component != selected && component.pos && component.width && component.height && p.x > component.pos.x && p.x < component.pos.x + component.width && p.y > component.pos.y && p.y < component.pos.y + component.height) {
 					newhovered = component;
 					break;
@@ -98,8 +121,8 @@
 		}
 	}
 
-	let stackcount = 0;
-	function onpointerup(e:MouseEvent) {
+	let stackcount: number = 0;
+	function onpointerup(e: MouseEvent): void {
 		if (uimode == UiMode.Pan)
 			uimode = UiMode.None;
 		else if (selected && uimode == UiMode.Drag && !hovered) {
@@ -112,8 +135,8 @@
 		} else if (selected && uimode == UiMode.Drag && hovered) {
 			selected.lock = Lock.None;
 			dispatch('lock', {path: selected.path, lock: Lock.None})
-			let oldhovered = hovered;
-			let newhovered = game.drop(selected, hovered);
+			const oldhovered = hovered;
+			const newhovered = game.drop(selected, hovered);
 			if (newhovered && newhovered.lock == Lock.None && dispatch('lock', {path: newhovered.path, lock: Lock.Hover}, {cancelable: true})) {
 				hovered = newhovered;
 				hovered.lock = Lock.Hover;
@@ -127,17 +150,19 @@
 		}
 	}
 
-	function draw_event(e:MouseEvent, what:any = null) {
-		let pos = {x: selected.pos.x + selected.width + 20, y: selected.pos.y};
+	function draw_event(e: MouseEvent, what: Component | number | null = null): void {
+		if (!selected || !selected.pos || !selected.width || !(selected instanceof Collection)) return;
+
+		let pos: Point = {x: selected.pos.x + selected.width + 20, y: selected.pos.y};
 		if (typeof what === "number") {
 			for (let i = 0; i < what; i++) {
-				let drew = game.draw(selected);
+				const drew = game.draw(selected);
 				drew.pos = {x: pos.x, y: pos.y};
 				dispatch('gameevent', {action: 'draw', hash: game.hash(), pos: drew.pos, args: [selected.path]});
-				pos.x += drew.width + 5;
+				pos.x += (drew.width || 0) + 5;
 			}
 		} else {
-			let drew = game.draw(selected, what);
+			const drew = game.draw(selected, what);
 			drew.pos = pos;
 			dispatch('gameevent', {action: 'draw', hash: game.hash(), pos: drew.pos, args: [selected.path, what?.path]});
 		}
@@ -154,7 +179,7 @@
 		game = game;
 	}
 
-	function drag_event(e:MouseEvent, component:Component) {
+	function drag_event(e: MouseEvent, component: Component): void {
 		component.lock = Lock.Select;
 		component.usercolor = $user.color;
 		uimode = UiMode.Drag;
@@ -163,7 +188,7 @@
 			hovered = undefined;
 	}
 
-	let choosedialog;
+	let choosedialog: HTMLDialogElement;
 </script>
 
 <dialog bind:this={choosedialog} on:click="{(e) => choosedialog.close()}" class="p-4 rounded-lg bg-white shadow-sm" >
@@ -187,7 +212,7 @@
 						e.stopPropagation();
 					}
 				}}">
-					{@html component.front}
+					{@html component.front || component.toString()}
 				</div>
 			{/each}
 		{/if}
@@ -210,7 +235,7 @@
 										selected.lock = Lock.Hover;
 										selected.usercolor = $user.color;
 										hovered = selected;
-									} else if (selected.lock != Lock.None) {
+									} else if (selected.lock != Lock.None && hovered) {
 										dispatch('lock', {path: hovered.path, lock: Lock.None});
 										selected.lock = Lock.None;
 									}
@@ -230,7 +255,7 @@
 					<button
 						class="w-full hover:bg-gray-200 p-1 rounded-lg relativ"
 						on:click={(e) => {
-							if (dispatch('lock', {path: selected.path, lock: Lock.Hover}, {cancelable: true}))
+							if (selected && dispatch('lock', {path: selected.path, lock: Lock.Hover}, {cancelable: true}))
 								draw_event(e);
 							e.preventDefault();
 							e.stopPropagation();
@@ -242,7 +267,7 @@
 							<li><button
 								class="w-full hover:bg-gray-200 p-1 rounded-lg"
 								on:click={(e) => {
-									if (dispatch('lock', {path: selected.path, lock: Lock.Select}, {cancelable: true}))
+									if (selected && dispatch('lock', {path: selected.path, lock: Lock.Select}, {cancelable: true}))
 										 draw_event(e, idx + 1);
 									e.preventDefault();
 									e.stopPropagation();
@@ -271,7 +296,7 @@
 	bind:this="{viewport}"
 	on:wheel|preventDefault="{(e) => zoom(e, e.deltaY / 1000)}"
 	on:pointerdown|preventDefault="{(e) => uimode = UiMode.Pan}"
-	on:pointermove|passive="{onpointermove}" on:pointerup|passive="{onpointerup}" 
+	on:pointermove|passive="{onpointermove}" on:pointerup|passive="{onpointerup}"
 >
 	<div class="canvas absolute origin-top-left" style="transform: scale({camera.z}) translate({camera.x}px,{camera.y}px)" use:apply_textfit>
 		<div class="flex flex-wrap gap-1" style="width:96rem">
