@@ -61,12 +61,12 @@
 		"postcss": "^8.4.28",
 		"postcss-cli": "^10.1.0",
 		"publint": "^0.1.9",
-		"random-username-generator": "^1.0.4",
 		"random-words": "^1.2.0",
 		"svelte": "^4.0.5",
 		"svelte-check": "^3.4.3",
 		"tslib": "^2.4.1",
 		"typescript": "^5.0.0",
+		"unique-names-generator": "^4.7.1",
 		"vite": "^5.0.0"
 	},
 	"module": "./dist/index.js",
