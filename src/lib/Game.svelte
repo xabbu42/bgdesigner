@@ -84,7 +84,7 @@
 		}
 	}
 
-	let selected: Component | undefined = undefined;
+	let selected: Component[] = [];
 	let hovered: Component | undefined = undefined;
 	enum UiMode { None = 0, Drag, Menu, Pan, Choose }
 	let uimode: UiMode = UiMode.None;
@@ -93,11 +93,11 @@
 	function onpointermove(e: MouseEvent): void {
 		if (uimode == UiMode.Pan)
 			pan({x: -e.movementX, y: -e.movementY});
-		else if (!selected || uimode != UiMode.Menu) {
+		else if (selected.length === 0 || uimode != UiMode.Menu) {
 			const p = canvas(e);
 			let newhovered: Component | undefined;
 			for (const component of game.state.toReversed()) {
-				if (component != selected && component.pos && component.width && component.height && p.x > component.pos.x && p.x < component.pos.x + component.width && p.y > component.pos.y && p.y < component.pos.y + component.height) {
+				if (!selected.includes(component) && component.pos && component.width && component.height && p.x > component.pos.x && p.x < component.pos.x + component.width && p.y > component.pos.y && p.y < component.pos.y + component.height) {
 					newhovered = component;
 					break;
 				}
@@ -115,8 +115,8 @@
 					hovered.usercolor = $user.color;
 				}
 			}
-			if (selected && uimode == UiMode.Drag && selected.dragoffset)
-				selected.pos = {x: p.x - selected.dragoffset.x, y: p.y - selected.dragoffset.y};
+			if (selected.length > 0 && uimode == UiMode.Drag && selected[0].dragoffset)
+				selected[0].pos = {x: p.x - selected[0].dragoffset.x, y: p.y - selected[0].dragoffset.y};
 			game = game;
 		}
 	}
@@ -125,56 +125,56 @@
 	function onpointerup(e: MouseEvent): void {
 		if (uimode == UiMode.Pan)
 			uimode = UiMode.None;
-		else if (selected && uimode == UiMode.Drag && !hovered) {
-			hovered = selected;
+		else if (selected.length > 0 && uimode == UiMode.Drag && !hovered) {
+			hovered = selected[0];
 			hovered.lock = Lock.Hover;
 			dispatch('lock', {path: hovered.path, lock: Lock.Hover});
-			selected = undefined;
+			selected = [];
 			uimode = UiMode.None;
 			game = game;
-		} else if (selected && uimode == UiMode.Drag && hovered) {
-			selected.lock = Lock.None;
-			dispatch('lock', {path: selected.path, lock: Lock.None})
+		} else if (selected.length > 0 && uimode == UiMode.Drag && hovered) {
+			selected[0].lock = Lock.None;
+			dispatch('lock', {path: selected[0].path, lock: Lock.None})
 			const oldhovered = hovered;
-			const newhovered = game.drop(selected, hovered);
+			const newhovered = game.drop(selected[0], hovered);
 			if (newhovered && newhovered.lock == Lock.None && dispatch('lock', {path: newhovered.path, lock: Lock.Hover}, {cancelable: true})) {
 				hovered = newhovered;
 				hovered.lock = Lock.Hover;
 				hovered.usercolor = $user.color;
 			}
 
-			dispatch('gameevent', {action: 'drop', hash: game.hash(), pos: oldhovered ? undefined : selected.pos, args: [selected.path, oldhovered?.path]});
-			selected = undefined;
+			dispatch('gameevent', {action: 'drop', hash: game.hash(), pos: oldhovered ? undefined : selected[0].pos, args: [selected[0].path, oldhovered?.path]});
+			selected = [];
 			uimode = UiMode.None;
 			game = game;
 		}
 	}
 
 	function draw_event(e: MouseEvent, what: Component | number | null = null): void {
-		if (!selected || !selected.pos || !selected.width || !(selected instanceof Collection)) return;
+		if (selected.length === 0 || !selected[0].pos || !selected[0].width || !(selected[0] instanceof Collection)) return;
 
-		let pos: Point = {x: selected.pos.x + selected.width + 20, y: selected.pos.y};
+		let pos: Point = {x: selected[0].pos.x + selected[0].width + 20, y: selected[0].pos.y};
 		if (typeof what === "number") {
 			for (let i = 0; i < what; i++) {
-				const drew = game.draw(selected);
+				const drew = game.draw(selected[0]);
 				drew.pos = {x: pos.x, y: pos.y};
-				dispatch('gameevent', {action: 'draw', hash: game.hash(), pos: drew.pos, args: [selected.path]});
+				dispatch('gameevent', {action: 'draw', hash: game.hash(), pos: drew.pos, args: [selected[0].path]});
 				pos.x += (drew.width || 0) + 5;
 			}
 		} else {
-			const drew = game.draw(selected, what);
+			const drew = game.draw(selected[0], what);
 			drew.pos = pos;
-			dispatch('gameevent', {action: 'draw', hash: game.hash(), pos: drew.pos, args: [selected.path, what?.path]});
+			dispatch('gameevent', {action: 'draw', hash: game.hash(), pos: drew.pos, args: [selected[0].path, what?.path]});
 		}
 		// in theory this should never be cancelled as the token was selected before, but this way all lock events except Lock.None are cancelable
-		if (dispatch('lock', {path: selected.path, lock: Lock.Hover}, {cancelable: true})) {
-			selected.lock = Lock.Hover;
-			hovered = selected;
+		if (dispatch('lock', {path: selected[0].path, lock: Lock.Hover}, {cancelable: true})) {
+			selected[0].lock = Lock.Hover;
+			hovered = selected[0];
 		} else {
-			dispatch('lock', {path: selected.path, lock: Lock.None});
-			selected.lock = Lock.None;
+			dispatch('lock', {path: selected[0].path, lock: Lock.None});
+			selected[0].lock = Lock.None;
 		}
-		selected = undefined;
+		selected = [];
 		uimode = UiMode.None;
 		game = game;
 	}
@@ -183,8 +183,8 @@
 		component.lock = Lock.Select;
 		component.usercolor = $user.color;
 		uimode = UiMode.Drag;
-		selected = component;
-		if (hovered == selected)
+		selected = [component];
+		if (hovered == component)
 			hovered = undefined;
 	}
 
@@ -194,8 +194,8 @@
 <dialog bind:this={choosedialog} on:click="{(e) => choosedialog.close()}" class="p-4 rounded-lg bg-white shadow-sm" >
 	<!-- Modal content -->
 	<div class="relative bg-white rounded-lg shadow-sm dark:bg-gray-700 flex flex-wrap gap-1">
-		{#if selected && selected instanceof Collection && uimode == UiMode.Choose}
-			{#each selected.values() as component(component.path)}
+		{#if selected.length > 0 && selected[0] instanceof Collection && uimode == UiMode.Choose}
+			{#each selected[0].values() as component(component.path)}
 				<div on:pointerdown="{(e) => {
 					if (e.button === 0) {
 						let bounds = e.target.getBoundingClientRect();
@@ -219,28 +219,28 @@
 	</div>
 </dialog>
 
-{#if selected && selected.menu && uimode == UiMode.Menu}
-	<nav class="border-2 p-1 border-gray-700 rounded-lg bg-white z-50" style="position: absolute; top:{selected.menu.y - 10}px; left:{selected.menu.x - 10}px" on:pointerleave="{e => selected = undefined}">
+{#if selected.length > 0 && selected[0].menu && uimode == UiMode.Menu}
+	<nav class="border-2 p-1 border-gray-700 rounded-lg bg-white z-50" style="position: absolute; top:{selected[0].menu.y - 10}px; left:{selected[0].menu.x - 10}px" on:pointerleave="{e => selected = []}">
 		<ul>
 			{#each ['flip', 'shuffle'] as action}
-				{#if selected && action in selected}
+				{#if selected.length > 0 && action in selected[0]}
 					<li class="w-full">
 						<button
 							class="w-full hover:bg-gray-200 p-1 rounded-lg"
 							on:click={(e) => {
-								if (selected) {
+								if (selected.length > 0) {
 									// @ts-ignore
-									selected[action]();
-									if (dispatch('lock', {path: selected.path, lock: Lock.Hover}, {cancelable: true})) {
-										selected.lock = Lock.Hover;
-										selected.usercolor = $user.color;
-										hovered = selected;
-									} else if (selected.lock != Lock.None && hovered) {
+									selected[0][action]();
+									if (dispatch('lock', {path: selected[0].path, lock: Lock.Hover}, {cancelable: true})) {
+										selected[0].lock = Lock.Hover;
+										selected[0].usercolor = $user.color;
+										hovered = selected[0];
+									} else if (selected[0].lock != Lock.None && hovered) {
 										dispatch('lock', {path: hovered.path, lock: Lock.None});
-										selected.lock = Lock.None;
+										selected[0].lock = Lock.None;
 									}
-									dispatch('gameevent', {action, hash: game.hash(), path: selected.path});
-									selected = undefined;
+									dispatch('gameevent', {action, hash: game.hash(), path: selected[0].path});
+									selected = [];
 									uimode = UiMode.None;
 									game = game;
 								}
@@ -250,12 +250,12 @@
 					</li>
 				{/if}
 			{/each}
-			{#if selected instanceof Collection}
+			{#if selected.length > 0 && selected[0] instanceof Collection}
 				<li class="w-full dropdown">
 					<button
 						class="w-full hover:bg-gray-200 p-1 rounded-lg relativ"
 						on:click={(e) => {
-							if (selected && dispatch('lock', {path: selected.path, lock: Lock.Hover}, {cancelable: true}))
+							if (selected.length > 0 && dispatch('lock', {path: selected[0].path, lock: Lock.Hover}, {cancelable: true}))
 								draw_event(e);
 							e.preventDefault();
 							e.stopPropagation();
@@ -263,11 +263,11 @@
 						draw
 					</button>
 					<ul class="dropdown-content absolute left-full border-2 p-1 border-gray-700 rounded-lg bg-white z-50">
-						{#each Array(Math.min(10, selected.length())).keys() as idx}
+						{#each Array(Math.min(10, selected[0].length())).keys() as idx}
 							<li><button
 								class="w-full hover:bg-gray-200 p-1 rounded-lg"
 								on:click={(e) => {
-									if (selected && dispatch('lock', {path: selected.path, lock: Lock.Select}, {cancelable: true}))
+									if (selected.length > 0 && dispatch('lock', {path: selected[0].path, lock: Lock.Select}, {cancelable: true}))
 										 draw_event(e, idx + 1);
 									e.preventDefault();
 									e.stopPropagation();
@@ -319,8 +319,8 @@
 							component.lock = Lock.Select;
 							component.usercolor = $user.color;
 							uimode = UiMode.Menu;
-							selected = component;
-							selected.menu = {x: e.clientX, y: e.clientY};
+							selected = [component];
+							component.menu = {x: e.clientX, y: e.clientY};
 							hovered = undefined;
 						}
 						e.preventDefault();
