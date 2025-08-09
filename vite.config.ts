@@ -62,4 +62,9 @@ export default defineConfig({
 		MergeGamesPlugin(__dirname + '/static/games/'),
 		sveltekit(),
 	],
+	test: {
+		globals: true,
+		environment: 'jsdom',
+		setupFiles: ['./tests/setup.ts']
+	}
 });
