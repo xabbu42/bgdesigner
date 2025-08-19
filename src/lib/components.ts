@@ -22,6 +22,10 @@ export abstract class Component {
 		this.path = path;
 		if (params.pos)
 			this.pos = params.pos;
+		if (params.height)
+			this.height = params.height;
+		if (params.width)
+			this.width = params.width;
 	}
 
 	abstract toString(): string;

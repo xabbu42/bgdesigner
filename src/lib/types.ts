@@ -4,6 +4,8 @@ export enum Lock { None = 0, Hover, Select }
 
 export interface ComponentParams {
 	pos?: Point;
+	width?: number;
+	height?: number;
 	front?: string;
 	back?: string;
 	html?: string;
