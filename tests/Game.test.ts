@@ -13,8 +13,8 @@ describe('Game.svelte', () => {
 
 	describe('Selection', () => {
 		it('should select component on pointer down', async () => {
-			const mockGame = createTestGame();
-			const { container, component } = render(Game, { props: { game: mockGame } });
+			const game = createTestGame();
+			const { container, component } = render(Game, { props: { game } });
 
 			const lockHandler = vi.fn();
 			component.$on('lock', lockHandler);
@@ -33,8 +33,8 @@ describe('Game.svelte', () => {
 		});
 
 		it('should not select component if lock event is cancelled', async () => {
-			const mockGame = createTestGame();
-			const { container, component } = render(Game, { props: { game: mockGame } });
+			const game = createTestGame();
+			const { container, component } = render(Game, { props: { game } });
 
 			const lockHandler = vi.fn((event) => {
 				event.preventDefault(); // Cancel the lock event
@@ -47,12 +47,12 @@ describe('Game.svelte', () => {
 
 			expect(lockHandler).toHaveBeenCalled();
 			// Component should not be selected since event was cancelled
-			expect(mockGame.render('token1').lock).toBe(Lock.None);
+			expect(game.render('token1').lock).toBe(Lock.None);
 		});
 
 		it('should select on contextmenu', async () => {
-			const mockGame = createTestGame();
-			const { container, component } = render(Game, { props: { game: mockGame } });
+			const game = createTestGame();
+			const { container, component } = render(Game, { props: { game } });
 
 			const lockHandler = vi.fn();
 			component.$on('lock', lockHandler);
@@ -73,8 +73,8 @@ describe('Game.svelte', () => {
 
 	describe('Drag and Drop', () => {
 		it('should start drag mode on pointer down', async () => {
-			const mockGame = createTestGame();
-			const { container, component } = render(Game, { props: { game: mockGame } });
+			const game = createTestGame();
+			const { container, component } = render(Game, { props: { game } });
 
 			const lockHandler = vi.fn();
 			component.$on('lock', lockHandler);
@@ -96,8 +96,8 @@ describe('Game.svelte', () => {
 		});
 
 		it('should update component position during drag', async () => {
-			const mockGame = createTestGame();
-			const { container, component } = render(Game, { props: { game: mockGame } });
+			const game = createTestGame();
+			const { container, component } = render(Game, { props: { game } });
 
 			const token = container.querySelector('.token');
 
@@ -109,12 +109,12 @@ describe('Game.svelte', () => {
 			await fireEvent.pointerMove(viewport!, createPointerEvent('pointermove', { clientX: 200, clientY: 200 }));
 
 			// Position should be updated (accounting for drag offset)
-			expect(mockGame.render('token1').pos).toBeDefined(); // TODO test correct position
+			expect(game.render('token1').pos).toBeDefined(); // TODO test correct position
 		});
 
 		it('should go back to hover on pointer up', async () => {
-			const mockGame = createTestGame();
-			const { container, component } = render(Game, { props: { game: mockGame } });
+			const game = createTestGame();
+			const { container, component } = render(Game, { props: { game } });
 
 			const lockHandler = vi.fn();
 			component.$on('lock', lockHandler);
@@ -140,9 +140,9 @@ describe('Game.svelte', () => {
 
 	describe('Context Menu', () => {
 		it('should execute flip action when flip button clicked', async () => {
-			const mockGame = createTestGame();
+			const game = createTestGame();
 
-			const { container, component } = render(Game, { props: { game: mockGame } });
+			const { container, component } = render(Game, { props: { game } });
 
 			const gameEventHandler = vi.fn();
 			component.$on('gameevent', gameEventHandler);
@@ -166,9 +166,9 @@ describe('Game.svelte', () => {
 		});
 
 		it('should execute draw action', async () => {
-			const mockGame = createTestGame();
+			const game = createTestGame();
 
-			const { container, component } = render(Game, { props: { game: mockGame } });
+			const { container, component } = render(Game, { props: { game } });
 
 			const gameEventHandler = vi.fn();
 			component.$on('gameevent', gameEventHandler);

@@ -12,8 +12,8 @@ describe('Camera Controls', () => {
 
 	describe('Zoom Functionality', () => {
 		it('should zoom in on negative wheel delta', async () => {
-			const mockGame = createTestGame();
-			const { container } = render(Game, { props: { game: mockGame } });
+			const game = createTestGame();
+			const { container } = render(Game, { props: { game } });
 
 			const viewport = container.querySelector('.viewport');
 			const canvas = container.querySelector('.canvas');
@@ -32,8 +32,8 @@ describe('Camera Controls', () => {
 		});
 
 		it('should zoom out on positive wheel delta', async () => {
-			const mockGame = createTestGame();
-			const { container } = render(Game, { props: { game: mockGame } });
+			const game = createTestGame();
+			const { container } = render(Game, { props: { game } });
 
 			const viewport = container.querySelector('.viewport');
 			const canvas = container.querySelector('.canvas');
@@ -52,8 +52,8 @@ describe('Camera Controls', () => {
 		});
 
 		it('should zoom around mouse cursor position', async () => {
-			const mockGame = createTestGame();
-			const { container } = render(Game, { props: { game: mockGame } });
+			const game = createTestGame();
+			const { container } = render(Game, { props: { game } });
 
 			const viewport = container.querySelector('.viewport');
 			const canvas = container.querySelector('.canvas');
@@ -75,8 +75,8 @@ describe('Camera Controls', () => {
 
 	describe('Pan Functionality', () => {
 		it('should enter pan mode on viewport pointer down', async () => {
-			const mockGame = createTestGame();
-			const { container } = render(Game, { props: { game: mockGame } });
+			const game = createTestGame();
+			const { container } = render(Game, { props: { game } });
 
 			const viewport = container.querySelector('.viewport');
 
@@ -102,8 +102,8 @@ describe('Camera Controls', () => {
 		});
 
 		it('should pan camera based on mouse movement', async () => {
-			const mockGame = createTestGame();
-			const { container } = render(Game, { props: { game: mockGame } });
+			const game = createTestGame();
+			const { container } = render(Game, { props: { game } });
 
 			const viewport = container.querySelector('.viewport');
 			const canvas = container.querySelector('.canvas');
@@ -127,8 +127,8 @@ describe('Camera Controls', () => {
 		});
 
 		it('should exit pan mode on pointer up', async () => {
-			const mockGame = createTestGame();
-			const { container } = render(Game, { props: { game: mockGame } });
+			const game = createTestGame();
+			const { container } = render(Game, { props: { game } });
 
 			const viewport = container.querySelector('.viewport');
 
@@ -154,8 +154,8 @@ describe('Camera Controls', () => {
 
 	describe('Coordinate Transformations', () => {
 		it('should provide canvas coordinate conversion', () => {
-			const mockGame = createTestGame();
-			const { component } = render(Game, { props: { game: mockGame } });
+			const game = createTestGame();
+			const { component } = render(Game, { props: { game } });
 
 			const canvasPoint = component.canvas({ x: 100, y: 100 });
 
@@ -164,8 +164,8 @@ describe('Camera Controls', () => {
 		});
 
 		it('should provide screen coordinate conversion', () => {
-			const mockGame = createTestGame();
-			const { component } = render(Game, { props: { game: mockGame } });
+			const game = createTestGame();
+			const { component } = render(Game, { props: { game } });
 
 			const screenPoint = component.screen({ x: 100, y: 100 });
 
@@ -174,8 +174,8 @@ describe('Camera Controls', () => {
 		});
 
 		it('should handle coordinate transformations with different zoom levels', () => {
-			const mockGame = createTestGame();
-			const { component } = render(Game, { props: { game: mockGame } });
+			const game = createTestGame();
+			const { component } = render(Game, { props: { game } });
 
 			const point = { x: 100, y: 100 };
 			const camera1 = { x: 0, y: 0, z: 1 };
@@ -191,8 +191,8 @@ describe('Camera Controls', () => {
 		});
 
 		it('should handle coordinate transformations when viewport is panned', () => {
-			const mockGame = createTestGame();
-			const { component } = render(Game, { props: { game: mockGame } });
+			const game = createTestGame();
+			const { component } = render(Game, { props: { game } });
 
 			const point = { x: 100, y: 100 };
 			const pannedCamera = { x: 50, y: 30, z: 1 };
@@ -208,8 +208,8 @@ describe('Camera Controls', () => {
 		});
 
 		it('should handle coordinate transformations with combined pan and zoom', () => {
-			const mockGame = createTestGame();
-			const { component } = render(Game, { props: { game: mockGame } });
+			const game = createTestGame();
+			const { component } = render(Game, { props: { game } });
 
 			const point = { x: 200, y: 150 };
 			const transformedCamera = { x: 25, y: 10, z: 2 };
