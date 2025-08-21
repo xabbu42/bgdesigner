@@ -36,14 +36,18 @@ describe('Game.svelte', () => {
 			const mockGame = createTestGame();
 			const { container, component } = render(Game, { props: { game: mockGame } });
 
-			const lockHandler = vi.fn();
+			const lockHandler = vi.fn((event) => {
+				event.preventDefault(); // Cancel the lock event
+			});
 			component.$on('lock', lockHandler);
 
 			const token = container.querySelector('.token');
+
 			await fireEvent(token!, createPointerEvent('pointerdown'));
 
 			expect(lockHandler).toHaveBeenCalled();
-			// TODO Component should not be selected since event was cancelled
+			// Component should not be selected since event was cancelled
+			expect(mockGame.render('token1').lock).toBe(Lock.None);
 		});
 
 		it('should select on contextmenu', async () => {
