@@ -157,26 +157,20 @@ describe('Camera Controls', () => {
 			const mockGame = createTestGame();
 			const { component } = render(Game, { props: { game: mockGame } });
 
-			// Access the canvas function through component instance
 			const canvasPoint = component.canvas({ x: 100, y: 100 });
 
-			expect(canvasPoint).toHaveProperty('x');
-			expect(canvasPoint).toHaveProperty('y');
-			expect(typeof canvasPoint.x).toBe('number');
-			expect(typeof canvasPoint.y).toBe('number');
+			expect(canvasPoint.x).toBe(100);
+			expect(canvasPoint.y).toBe(100);
 		});
 
 		it('should provide screen coordinate conversion', () => {
 			const mockGame = createTestGame();
 			const { component } = render(Game, { props: { game: mockGame } });
 
-			// Access the screen function through component instance
 			const screenPoint = component.screen({ x: 100, y: 100 });
 
-			expect(screenPoint).toHaveProperty('x');
-			expect(screenPoint).toHaveProperty('y');
-			expect(typeof screenPoint.x).toBe('number');
-			expect(typeof screenPoint.y).toBe('number');
+			expect(screenPoint.x).toBe(100);
+			expect(screenPoint.y).toBe(100);
 		});
 
 		it('should handle coordinate transformations with different zoom levels', () => {
@@ -190,8 +184,44 @@ describe('Camera Controls', () => {
 			const canvas1 = component.canvas(point, camera1);
 			const canvas2 = component.canvas(point, camera2);
 
-			// Different zoom levels should produce different canvas coordinates
-			expect(canvas1).not.toEqual(canvas2);
+			expect(canvas1.x).toBe(100);
+			expect(canvas1.y).toBe(100);
+			expect(canvas2.x).toBe(50);
+			expect(canvas2.y).toBe(50);
+		});
+
+		it('should handle coordinate transformations when viewport is panned', () => {
+			const mockGame = createTestGame();
+			const { component } = render(Game, { props: { game: mockGame } });
+
+			const point = { x: 100, y: 100 };
+			const pannedCamera = { x: 50, y: 30, z: 1 };
+
+			const canvasPoint = component.canvas(point, pannedCamera);
+			const screenPoint = component.screen(point, pannedCamera);
+
+			expect(canvasPoint.x).toBe(50);
+			expect(canvasPoint.y).toBe(70);
+
+			expect(screenPoint.x).toBe(150);
+			expect(screenPoint.y).toBe(130);
+		});
+
+		it('should handle coordinate transformations with combined pan and zoom', () => {
+			const mockGame = createTestGame();
+			const { component } = render(Game, { props: { game: mockGame } });
+
+			const point = { x: 200, y: 150 };
+			const transformedCamera = { x: 25, y: 10, z: 2 };
+
+			const canvasPoint = component.canvas(point, transformedCamera);
+			const screenPoint = component.screen(point, transformedCamera);
+
+			expect(canvasPoint.x).toBe(75);
+			expect(canvasPoint.y).toBe(65);
+
+			expect(screenPoint.x).toBe(450);
+			expect(screenPoint.y).toBe(320);
 		});
 	});
 });
