@@ -22,6 +22,8 @@ export function createPointerEvent(type: string, options: Partial<PointerEvent> 
 	event.button = options.button ?? 0;
 	event.clientX = options.clientX ?? 150;
 	event.clientY = options.clientY ?? 150;
+	event.x = event.clientX;
+	event.y = event.clientY;
 	event.pointerId = options.pointerId ?? 1;
 	event.pointerType = options.pointerType ?? 'mouse';
 	event.isPrimary = options.isPrimary ?? true;

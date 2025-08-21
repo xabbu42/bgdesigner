@@ -100,16 +100,30 @@ describe('Game.svelte', () => {
 			const { container, component } = render(Game, { props: { game } });
 
 			const token = container.querySelector('.token');
+			const tokenComponent = game.render('token1');
+			const initialPos = { ...tokenComponent.pos };
 
-			// Start drag
-			await fireEvent(token!, createPointerEvent('pointerdown', { clientX: 100, clientY: 100 }));
+			// Start drag on the token
+			await fireEvent(token!, createPointerEvent('pointerdown', { clientX: 150, clientY: 150 }));
 
-			// Move mouse
+			// Verify the component is now selected/dragging
+			expect(tokenComponent.lock).toBe(Lock.Select);
+
+			// Move mouse on the viewport to simulate drag
 			const viewport = container.querySelector('.viewport');
-			await fireEvent.pointerMove(viewport!, createPointerEvent('pointermove', { clientX: 200, clientY: 200 }));
+			await fireEvent(viewport!, createPointerEvent('pointermove', { clientX: 250, clientY: 200 }));
 
-			// Position should be updated (accounting for drag offset)
-			expect(game.render('token1').pos).toBeDefined(); // TODO test correct position
+			// Get the updated position
+			const updatedComponent = game.render('token1');
+			const newPos = updatedComponent.pos;
+
+			// Position should be updated
+			expect(newPos).toBeDefined();
+			expect(newPos.x).toBeDefined();
+			expect(newPos.y).toBeDefined();
+
+			// TODO fix the dragoffset calculation in the testing environment and test for correct values here
+			expect(newPos.x !== initialPos.x || newPos.y !== initialPos.y).toBe(true);
 		});
 
 		it('should go back to hover on pointer up', async () => {
