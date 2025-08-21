@@ -26,7 +26,7 @@ describe('Game.svelte', () => {
 				expect.objectContaining({
 					detail: expect.objectContaining({
 						lock: Lock.Select,
-						path: expect.any(String)  // TODO should test for correct path
+						path: 'token1'
 					})
 				})
 			);
@@ -60,7 +60,7 @@ describe('Game.svelte', () => {
 				expect.objectContaining({
 					detail: expect.objectContaining({
 						lock: Lock.Select,
-						path: expect.any(String) // TODO should test for correct path
+						path: 'token1'
 					})
 				})
 			);
