@@ -110,9 +110,9 @@
 				}
 				hovered = undefined;
 				if (newhovered && newhovered.lock == 'None' && dispatch('lock', {path: newhovered.path, lock: 'Hover'}, {cancelable: true})) {
+					newhovered.lock = 'Hover';
+					newhovered.usercolor = $user.color;
 					hovered = newhovered;
-					hovered.lock = 'Hover';
-					hovered.usercolor = $user.color;
 				}
 			}
 			if (selected.length > 0 && uimode == 'Drag' && selected[0].dragoffset)
@@ -138,9 +138,9 @@
 			const oldhovered = hovered;
 			const newhovered = game.drop(selected[0], hovered);
 			if (newhovered && newhovered.lock == 'None' && dispatch('lock', {path: newhovered.path, lock: 'Hover'}, {cancelable: true})) {
+				newhovered.lock = 'Hover';
+				newhovered.usercolor = $user.color;
 				hovered = newhovered;
-				hovered.lock = 'Hover';
-				hovered.usercolor = $user.color;
 			}
 
 			dispatch('gameevent', {action: 'drop', hash: game.hash(), pos: oldhovered ? undefined : selected[0].pos, args: [selected[0].path, oldhovered?.path]});
