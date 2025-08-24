@@ -166,7 +166,7 @@ describe('Game.svelte', () => {
 			await fireEvent.contextMenu(token);
 
 			// Find and click flip button
-			const flipButton = Array.from(container.querySelectorAll('button')).find(btn => btn.textContent?.includes('flip'));
+			const flipButton = Array.from(container.querySelectorAll('button')).find((btn) => (btn as HTMLButtonElement).textContent?.includes('flip')) as HTMLButtonElement;
 			expect(flipButton).toBeTruthy();
 			await fireEvent.click(flipButton);
 
@@ -192,7 +192,7 @@ describe('Game.svelte', () => {
 			await fireEvent.contextMenu(stack);
 
 			// Find and click draw button
-			const drawButton = Array.from(container.querySelectorAll('button')).find(btn => btn.textContent?.includes('draw'));
+			const drawButton = Array.from(container.querySelectorAll('button')).find((btn) => (btn as HTMLButtonElement).textContent?.includes('draw')) as HTMLButtonElement;
 			expect(drawButton).toBeTruthy();
 			await fireEvent.click(drawButton);
 
