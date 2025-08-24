@@ -296,7 +296,7 @@
 	bind:this="{viewport}"
 	on:wheel|preventDefault="{(e) => zoom(e, e.deltaY / 1000)}"
 	on:pointerdown|preventDefault="{(e) => uimode = 'Pan'}"
-	on:pointermove|passive="{onpointermove}" on:pointerup|passive="{onpointerup}"
+	on:pointermove="{onpointermove}" on:pointerup="{onpointerup}"
 >
 	<div class="canvas absolute origin-top-left" style="transform: scale({camera.z}) translate({camera.x}px,{camera.y}px)" use:apply_textfit>
 		<div class="flex flex-wrap gap-1" style="width:96rem">
