@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { type Point, Lock } from "./types.js";
+	import { type Point, type Lock } from "./types.js";
 	import type { Component } from "./components.js";
 	import { type Writable, writable } from 'svelte/store';
 	import { createEventDispatcher } from 'svelte';
@@ -86,14 +86,14 @@
 
 	let selected: Component[] = [];
 	let hovered: Component | undefined = undefined;
-	enum UiMode { None = 0, Drag, Menu, Pan, Choose }
-	let uimode: UiMode = UiMode.None;
+	type UiMode = 'None' | 'Drag' | 'Menu' | 'Pan' | 'Choose';
+	let uimode: UiMode = 'None';
 
 
 	function onpointermove(e: MouseEvent): void {
-		if (uimode == UiMode.Pan)
+		if (uimode == 'Pan')
 			pan({x: -e.movementX, y: -e.movementY});
-		else if (selected.length === 0 || uimode != UiMode.Menu) {
+		else if (selected.length === 0 || uimode != 'Menu') {
 			const p = canvas(e);
 			let newhovered: Component | undefined;
 			for (const component of game.state.toReversed()) {
@@ -104,18 +104,18 @@
 			}
 
 			if (hovered != newhovered) {
-				if (hovered && hovered.lock == Lock.Hover) {
-					hovered.lock = Lock.None;
-					dispatch('lock', {path: hovered.path, lock: Lock.None});
+				if (hovered && hovered.lock == 'Hover') {
+					hovered.lock = 'None';
+					dispatch('lock', {path: hovered.path, lock: 'None'});
 				}
 				hovered = undefined;
-				if (newhovered && newhovered.lock == Lock.None && dispatch('lock', {path: newhovered.path, lock: Lock.Hover}, {cancelable: true})) {
+				if (newhovered && newhovered.lock == 'None' && dispatch('lock', {path: newhovered.path, lock: 'Hover'}, {cancelable: true})) {
 					hovered = newhovered;
-					hovered.lock = Lock.Hover;
+					hovered.lock = 'Hover';
 					hovered.usercolor = $user.color;
 				}
 			}
-			if (selected.length > 0 && uimode == UiMode.Drag && selected[0].dragoffset)
+			if (selected.length > 0 && uimode == 'Drag' && selected[0].dragoffset)
 				selected[0].pos = {x: p.x - selected[0].dragoffset.x, y: p.y - selected[0].dragoffset.y};
 			game = game;
 		}
@@ -123,29 +123,29 @@
 
 	let stackcount: number = 0;
 	function onpointerup(e: MouseEvent): void {
-		if (uimode == UiMode.Pan)
-			uimode = UiMode.None;
-		else if (selected.length > 0 && uimode == UiMode.Drag && !hovered) {
+		if (uimode == 'Pan')
+			uimode = 'None';
+		else if (selected.length > 0 && uimode == 'Drag' && !hovered) {
 			hovered = selected[0];
-			hovered.lock = Lock.Hover;
-			dispatch('lock', {path: hovered.path, lock: Lock.Hover});
+			hovered.lock = 'Hover';
+			dispatch('lock', {path: hovered.path, lock: 'Hover'});
 			selected = [];
-			uimode = UiMode.None;
+			uimode = 'None';
 			game = game;
-		} else if (selected.length > 0 && uimode == UiMode.Drag && hovered) {
-			selected[0].lock = Lock.None;
-			dispatch('lock', {path: selected[0].path, lock: Lock.None})
+		} else if (selected.length > 0 && uimode == 'Drag' && hovered) {
+			selected[0].lock = 'None';
+			dispatch('lock', {path: selected[0].path, lock: 'None'})
 			const oldhovered = hovered;
 			const newhovered = game.drop(selected[0], hovered);
-			if (newhovered && newhovered.lock == Lock.None && dispatch('lock', {path: newhovered.path, lock: Lock.Hover}, {cancelable: true})) {
+			if (newhovered && newhovered.lock == 'None' && dispatch('lock', {path: newhovered.path, lock: 'Hover'}, {cancelable: true})) {
 				hovered = newhovered;
-				hovered.lock = Lock.Hover;
+				hovered.lock = 'Hover';
 				hovered.usercolor = $user.color;
 			}
 
 			dispatch('gameevent', {action: 'drop', hash: game.hash(), pos: oldhovered ? undefined : selected[0].pos, args: [selected[0].path, oldhovered?.path]});
 			selected = [];
-			uimode = UiMode.None;
+			uimode = 'None';
 			game = game;
 		}
 	}
@@ -166,23 +166,23 @@
 			drew.pos = pos;
 			dispatch('gameevent', {action: 'draw', hash: game.hash(), pos: drew.pos, args: [selected[0].path, what?.path]});
 		}
-		// in theory this should never be cancelled as the token was selected before, but this way all lock events except Lock.None are cancelable
-		if (dispatch('lock', {path: selected[0].path, lock: Lock.Hover}, {cancelable: true})) {
-			selected[0].lock = Lock.Hover;
+		// in theory this should never be cancelled as the token was selected before, but this way all lock events except 'None' are cancelable
+		if (dispatch('lock', {path: selected[0].path, lock: 'Hover'}, {cancelable: true})) {
+			selected[0].lock = 'Hover';
 			hovered = selected[0];
 		} else {
-			dispatch('lock', {path: selected[0].path, lock: Lock.None});
-			selected[0].lock = Lock.None;
+			dispatch('lock', {path: selected[0].path, lock: 'None'});
+			selected[0].lock = 'None';
 		}
 		selected = [];
-		uimode = UiMode.None;
+		uimode = 'None';
 		game = game;
 	}
 
 	function drag_event(e: MouseEvent, component: Component): void {
-		component.lock = Lock.Select;
+		component.lock = 'Select';
 		component.usercolor = $user.color;
-		uimode = UiMode.Drag;
+		uimode = 'Drag';
 		selected = [component];
 		if (hovered == component)
 			hovered = undefined;
@@ -194,13 +194,13 @@
 <dialog bind:this={choosedialog} on:click="{(e) => choosedialog.close()}" class="p-4 rounded-lg bg-white shadow-sm" >
 	<!-- Modal content -->
 	<div class="relative bg-white rounded-lg shadow-sm dark:bg-gray-700 flex flex-wrap gap-1">
-		{#if selected.length > 0 && selected[0] instanceof Collection && uimode == UiMode.Choose}
+		{#if selected.length > 0 && selected[0] instanceof Collection && uimode == 'Choose'}
 			{#each selected[0].values() as component(component.path)}
 				<div on:pointerdown="{(e) => {
 					if (e.button === 0) {
 						let bounds = e.target.getBoundingClientRect();
 						let dragoffset = {x: (e.clientX - bounds.x) / camera.z, y: (e.clientY - bounds.y) / camera.z};
-						if (dispatch('lock', {path: component.path, lock: Lock.Select, dragoffset}, {cancelable: true})) {
+						if (dispatch('lock', {path: component.path, lock: 'Select', dragoffset}, {cancelable: true})) {
 							draw_event(e, component);
 							component.dragoffset = dragoffset;
 							let p = canvas(e);
@@ -219,7 +219,7 @@
 	</div>
 </dialog>
 
-{#if selected.length > 0 && selected[0].menu && uimode == UiMode.Menu}
+{#if selected.length > 0 && selected[0].menu && uimode == 'Menu'}
 	<nav class="border-2 p-1 border-gray-700 rounded-lg bg-white z-50" style="position: absolute; top:{selected[0].menu.y - 10}px; left:{selected[0].menu.x - 10}px" on:pointerleave="{e => selected = []}">
 		<ul>
 			{#each ['flip', 'shuffle'] as action}
@@ -231,17 +231,17 @@
 								if (selected.length > 0) {
 									// @ts-ignore
 									selected[0][action]();
-									if (dispatch('lock', {path: selected[0].path, lock: Lock.Hover}, {cancelable: true})) {
-										selected[0].lock = Lock.Hover;
+									if (dispatch('lock', {path: selected[0].path, lock: 'Hover'}, {cancelable: true})) {
+										selected[0].lock = 'Hover';
 										selected[0].usercolor = $user.color;
 										hovered = selected[0];
-									} else if (selected[0].lock != Lock.None && hovered) {
-										dispatch('lock', {path: hovered.path, lock: Lock.None});
-										selected[0].lock = Lock.None;
+									} else if (selected[0].lock != 'None' && hovered) {
+										dispatch('lock', {path: hovered.path, lock: 'None'});
+										selected[0].lock = 'None';
 									}
 									dispatch('gameevent', {action, hash: game.hash(), path: selected[0].path});
 									selected = [];
-									uimode = UiMode.None;
+									uimode = 'None';
 									game = game;
 								}
 							}}>
@@ -255,7 +255,7 @@
 					<button
 						class="w-full hover:bg-gray-200 p-1 rounded-lg relativ"
 						on:click={(e) => {
-							if (selected.length > 0 && dispatch('lock', {path: selected[0].path, lock: Lock.Hover}, {cancelable: true}))
+							if (selected.length > 0 && dispatch('lock', {path: selected[0].path, lock: 'Hover'}, {cancelable: true}))
 								draw_event(e);
 							e.preventDefault();
 							e.stopPropagation();
@@ -267,7 +267,7 @@
 							<li><button
 								class="w-full hover:bg-gray-200 p-1 rounded-lg"
 								on:click={(e) => {
-									if (selected.length > 0 && dispatch('lock', {path: selected[0].path, lock: Lock.Select}, {cancelable: true}))
+									if (selected.length > 0 && dispatch('lock', {path: selected[0].path, lock: 'Select'}, {cancelable: true}))
 										 draw_event(e, idx + 1);
 									e.preventDefault();
 									e.stopPropagation();
@@ -281,7 +281,7 @@
 					<button
 						class="w-full hover:bg-gray-200 p-1 rounded-lg"
 						on:click={(e) => {
-							uimode = UiMode.Choose;
+							uimode = 'Choose';
 							choosedialog.showModal();
 						}}>
 						choose
@@ -295,7 +295,7 @@
 <div class="viewport relative overflow-hidden w-full h-full select-none"
 	bind:this="{viewport}"
 	on:wheel|preventDefault="{(e) => zoom(e, e.deltaY / 1000)}"
-	on:pointerdown|preventDefault="{(e) => uimode = UiMode.Pan}"
+	on:pointerdown|preventDefault="{(e) => uimode = 'Pan'}"
 	on:pointermove|passive="{onpointermove}" on:pointerup|passive="{onpointerup}"
 >
 	<div class="canvas absolute origin-top-left" style="transform: scale({camera.z}) translate({camera.x}px,{camera.y}px)" use:apply_textfit>
@@ -306,7 +306,7 @@
 						if (e.button === 0) {
 							let bounds = e.target.getBoundingClientRect();
 							let dragoffset = {x: (e.clientX - bounds.x) / camera.z, y: (e.clientY - bounds.y) / camera.z};
-							if (dispatch('lock', {path: component.path, lock: Lock.Select, dragoffset}, {cancelable: true})) {
+							if (dispatch('lock', {path: component.path, lock: 'Select', dragoffset}, {cancelable: true})) {
 								component.dragoffset = dragoffset;
 								drag_event(e, component);
 							}
@@ -315,10 +315,10 @@
 						}
 					}}"
 					on:contextmenu="{(e) => {
-						if (dispatch('lock', {path: component.path, lock: Lock.Select}, {cancelable: true})) {
-							component.lock = Lock.Select;
+						if (dispatch('lock', {path: component.path, lock: 'Select'}, {cancelable: true})) {
+							component.lock = 'Select';
 							component.usercolor = $user.color;
-							uimode = UiMode.Menu;
+							uimode = 'Menu';
 							selected = [component];
 							component.menu = {x: e.clientX, y: e.clientY};
 							hovered = undefined;

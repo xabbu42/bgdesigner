@@ -3,7 +3,7 @@ import { onMount, onDestroy } from 'svelte';
 import { writable } from 'svelte/store';
 import Game from "$lib/Game.js"
 import GameComp from "$lib/Game.svelte"
-import { Lock } from "$lib/types.js";
+import { type Lock } from "$lib/types.js";
 import { user } from '$lib/stores.js';
 import { ably } from '$lib/init_ably.js';
 import Spaces, { type Space, type Lock as AblyLock, type SpaceMember, type CursorUpdate } from '@ably/spaces';
@@ -27,9 +27,9 @@ function handle_lock(lock:AblyLock) {
 			locks[lock.member.connectionId] = {};
 		if (lock.status == 'unlocked') {
 			delete locks[lock.member.connectionId][obj.lock];
-			obj.lock = Lock.None;
+			obj.lock = 'None';
 		} else if (lock.status == 'locked') {
-			obj.lock = Lock.Hover;
+			obj.lock = 'Hover';
 			obj.usercolor = members[lock.member.connectionId].profileData?.color;
 			locks[lock.member.connectionId][obj.lock] = obj;
 		}
@@ -86,11 +86,11 @@ onMount(async () => {
 	space.locations.subscribe('update', (ms) => {
 		if (ms.member.connectionId != ably.connection.id) {
 			if (locations[ms.member.connectionId])
-				locations[ms.member.connectionId].lock = Lock.Hover;
+				locations[ms.member.connectionId].lock = 'Hover';
 			let currentLocation = (ms.currentLocation as any);
 			locations[ms.member.connectionId] = currentLocation.path ? game.render(currentLocation.path) : null;
 			if (locations[ms.member.connectionId]) {
-				locations[ms.member.connectionId].lock = Lock.Select;
+				locations[ms.member.connectionId].lock = 'Select';
 				locations[ms.member.connectionId].usercolor = members[ms.member.connectionId].profileData?.color;
 				locations[ms.member.connectionId].dragoffset = currentLocation.dragoffset;
 			}
@@ -138,11 +138,11 @@ function onlock(e: any): void {
 		return;
 	} else if (!lock) {
 		space.locks.acquire(e.detail.path);
-	} else if (e.detail.lock == Lock.None) {
+	} else if (e.detail.lock == 'None') {
 		space.locks.release(e.detail.path);
 	}
 
-	if (e.detail.lock == Lock.Select) {
+	if (e.detail.lock == 'Select') {
 		selected = e.detail.path;
 		space.locations.set({path: e.detail.path, dragoffset: e.detail.dragoffset});
 	} else if (selected && e.detail.path == selected) {

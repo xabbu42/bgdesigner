@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, fireEvent } from '@testing-library/svelte';
 import Game from '../src/lib/Game.svelte';
 import { user } from '../src/lib/stores.js';
-import { Lock } from '../src/lib/types.js';
+import { type Lock } from '../src/lib/types.js';
 import { createTestGame, createPointerEvent } from './test-helpers.js';
 
 describe('Game.svelte', () => {
@@ -25,7 +25,7 @@ describe('Game.svelte', () => {
 			expect(lockHandler).toHaveBeenCalledWith(
 				expect.objectContaining({
 					detail: expect.objectContaining({
-						lock: Lock.Select,
+						lock: 'Select',
 						path: 'token1'
 					})
 				})
@@ -47,7 +47,7 @@ describe('Game.svelte', () => {
 
 			expect(lockHandler).toHaveBeenCalled();
 			// Component should not be selected since event was cancelled
-			expect(game.render('token1').lock).toBe(Lock.None);
+			expect(game.render('token1').lock).toBe('None');
 		});
 
 		it('should select on contextmenu', async () => {
@@ -63,7 +63,7 @@ describe('Game.svelte', () => {
 			expect(lockHandler).toHaveBeenCalledWith(
 				expect.objectContaining({
 					detail: expect.objectContaining({
-						lock: Lock.Select,
+						lock: 'Select',
 						path: 'token1'
 					})
 				})
@@ -85,7 +85,7 @@ describe('Game.svelte', () => {
 			expect(lockHandler).toHaveBeenCalledWith(
 				expect.objectContaining({
 					detail: expect.objectContaining({
-						lock: Lock.Select,
+						lock: 'Select',
 						dragoffset: expect.objectContaining({
 							x: expect.any(Number),
 							y: expect.any(Number)
@@ -107,7 +107,7 @@ describe('Game.svelte', () => {
 			await fireEvent(token!, createPointerEvent('pointerdown', { clientX: 150, clientY: 150 }));
 
 			// Verify the component is now selected/dragging
-			expect(tokenComponent.lock).toBe(Lock.Select);
+			expect(tokenComponent.lock).toBe('Select');
 
 			// Move mouse on the viewport to simulate drag
 			const viewport = container.querySelector('.viewport');
@@ -145,7 +145,7 @@ describe('Game.svelte', () => {
 			expect(lockHandler).toHaveBeenCalledWith(
 				expect.objectContaining({
 					detail: expect.objectContaining({
-						lock: Lock.Hover
+						lock: 'Hover'
 					})
 				})
 			);

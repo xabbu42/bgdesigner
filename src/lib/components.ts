@@ -1,4 +1,4 @@
-import {type Point, Lock, type ComponentParams} from "./types.js";
+import {type Point, type Lock, type ComponentParams} from "./types.js";
 
 function render_string(value: string, params: ComponentParams): string {
 	return value.replaceAll(/{{(.+?)}}/g, (_, expr) => params[expr] ?? '');
@@ -15,7 +15,7 @@ export abstract class Component {
 	width?: number;
 	height?: number;
 	usercolor?: string;
-	lock: Lock = Lock.None;
+	lock: Lock = 'None';
 
 	constructor(game: string, path: string, params: ComponentParams) {
 		this.game = game;

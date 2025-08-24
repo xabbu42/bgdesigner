@@ -1,6 +1,6 @@
 
 export interface Point {x: number; y: number}
-export enum Lock { None = 0, Hover, Select }
+export type Lock = 'None' | 'Hover' | 'Select';
 
 export interface ComponentParams {
 	pos?: Point;
